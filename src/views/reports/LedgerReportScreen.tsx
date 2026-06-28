@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { ArrowLeft, Calendar, Search, Download, Share2, Filter } from 'lucide-react';
+import { ArrowLeft, Calendar, Search, Download, Share2 } from 'lucide-react';
 import { billingService } from '../../services/billingService';
-import { Party, Invoice, PaymentRecord, JournalVoucher } from '../../core/types/';
-import { PartySearch } from '../../components/shared/PartySearch';
-
+import { Party, Invoice, PaymentRecord, Language } from '../../core/types/';
+import { motion } from 'motion/react';
 
 interface LedgerReportScreenProps {
   onBack: () => void;
+  language?: Language;
 }
 
 interface TransactionRow {
@@ -20,7 +20,7 @@ interface TransactionRow {
     narration?: string;
 }
 
-export const LedgerReportScreen: React.FC<LedgerReportScreenProps> = ({ onBack }) => {
+export const LedgerReportScreen: React.FC<LedgerReportScreenProps> = ({ onBack, language }) => {
   const [selectedParty, setSelectedParty] = useState<Party | null>(null);
   const [startDate, setStartDate] = useState(new Date(new Date().getFullYear(), new Date().getMonth(), 1).toLocalDateString()); // Start of month
   const [endDate, setEndDate] = useState(new Date().toLocalDateString());
@@ -31,10 +31,35 @@ export const LedgerReportScreen: React.FC<LedgerReportScreenProps> = ({ onBack }
   const [allParties, setAllParties] = useState<Party[]>([]);
   const [partySearchQuery, setPartySearchQuery] = useState('');
 
+  const isHi = language === 'hi';
+
+  const t = {
+    title: isHi ? 'खाता बही (Ledger)' : 'Ledger Report',
+    subtitle: isHi ? 'ग्राहक एवं आपूर्तिकर्ता विवरण' : 'Party & Supplier Statement',
+    searchPlaceholder: isHi ? 'ग्राहक या आपूर्तिकर्ता खोजें...' : 'Search customer or supplier...',
+    from: isHi ? 'से' : 'From',
+    to: isHi ? 'तक' : 'To',
+    changeParty: isHi ? 'बदलें' : 'CHANGE',
+    noParties: isHi ? 'कोई खाता नहीं मिला।' : 'No parties found.',
+    receivable: isHi ? 'प्राप्य (Receivable)' : 'Receivable',
+    payable: isHi ? 'देय (Payable)' : 'Payable',
+    loading: isHi ? 'बही खाता लोड हो रहा है...' : 'Loading Ledger...',
+    dateCol: isHi ? 'तारीख' : 'Date',
+    particularsCol: isHi ? 'विवरण' : 'Particulars',
+    vchTypeCol: isHi ? 'प्रकार' : 'Vch Type',
+    vchNoCol: isHi ? 'नंबर' : 'Vch No',
+    debitCol: isHi ? 'नामे (Dr)' : 'Debit (Dr)',
+    creditCol: isHi ? 'जमा (Cr)' : 'Credit (Cr)',
+    openingBalance: isHi ? 'प्रारंभिक शेष (Opening Balance)' : 'Opening Balance',
+    closingBalance: isHi ? 'अंतिम शेष (Closing Balance)' : 'Closing Balance',
+    total: isHi ? 'कुल' : 'Total',
+    downloadError: isHi ? 'डाउनलोड के लिए कोई डेटा नहीं है।' : 'No data to download.',
+    shareError: isHi ? 'साझा करने के लिए कोई डेटा नहीं है।' : 'No data to share.'
+  };
+
   useEffect(() => {
       if (!selectedParty) {
           billingService.getAllParties().then(parties => {
-              // Sort parties by name or balance
               setAllParties(parties.sort((a,b) => a.name.localeCompare(b.name)));
           });
       }
@@ -43,8 +68,7 @@ export const LedgerReportScreen: React.FC<LedgerReportScreenProps> = ({ onBack }
   const filteredParties = useMemo(() => {
       const q = partySearchQuery.toLowerCase().trim();
       if (!q) return [];
-      if (q === 'all' || q === 'ऑल') return allParties;
-      return allParties.filter(p => p.name && p.name.toLowerCase().includes(q) || (p.mobile && p.mobile.includes(q)));
+      return allParties.filter(p => (p.name && p.name.toLowerCase().includes(q)) || (p.mobile && p.mobile.includes(q)));
   }, [allParties, partySearchQuery]);
 
   useEffect(() => {
@@ -61,27 +85,18 @@ export const LedgerReportScreen: React.FC<LedgerReportScreenProps> = ({ onBack }
       setLoading(true);
 
       try {
-          const [invoices, payments, journals] = await Promise.all([
-              billingService.getInvoices('Sale'), // We need ALL types effectively, simplified fetching below
-              billingService.getAllPayments('Payment'),
-              billingService.getAllJournals()
-          ]);
-
-          // Fetch ALL invoices regardless of type to filter manually
-          // Since getInvoices filters by type, let's fetch for this party specifically if possible or fetch all types
           const types = ['Sale', 'Purchase', 'Sale Return', 'Purchase Return'];
           let allInvoices: Invoice[] = [];
-          for (const t of types) {
-              const invs = await billingService.getInvoices(t as any);
+          for (const typeStr of types) {
+              const invs = await billingService.getInvoices(typeStr as any);
               allInvoices = [...allInvoices, ...invs];
           }
           
-          // Filter Payments (Both Receipt and Payment)
           const allPaymentsRec = await billingService.getAllPayments('Receipt');
           const allPaymentsPay = await billingService.getAllPayments('Payment');
           const allPayments = [...allPaymentsRec, ...allPaymentsPay];
+          const journals = await billingService.getAllJournals();
 
-          // 1. Process Transactions
           let rawRows: TransactionRow[] = [];
 
           // Invoices
@@ -97,16 +112,16 @@ export const LedgerReportScreen: React.FC<LedgerReportScreenProps> = ({ onBack }
 
               if (isSale) {
                   debit = inv.totalAmount;
-                  particulars = 'Sales Account';
+                  particulars = isHi ? 'बिक्री खाता' : 'Sales Account';
               } else if (isPurchase) {
                   credit = inv.totalAmount;
-                  particulars = 'Purchase Account';
+                  particulars = isHi ? 'खरीद खाता' : 'Purchase Account';
               } else if (isSaleReturn) {
-                  credit = inv.totalAmount; // Credit Customer
-                  particulars = 'Sale Return';
+                  credit = inv.totalAmount;
+                  particulars = isHi ? 'बिक्री वापसी' : 'Sale Return';
               } else if (isPurchaseReturn) {
-                  debit = inv.totalAmount; // Debit Supplier
-                  particulars = 'Purchase Return';
+                  debit = inv.totalAmount;
+                  particulars = isHi ? 'खरीद वापसी' : 'Purchase Return';
               }
 
               rawRows.push({
@@ -117,7 +132,7 @@ export const LedgerReportScreen: React.FC<LedgerReportScreenProps> = ({ onBack }
                   vchNo: inv.invoiceNo,
                   debit,
                   credit,
-                  narration: `Items: ${inv.items?.length}`
+                  narration: isHi ? `सामग्री: ${inv.items?.length}` : `Items: ${inv.items?.length}`
               });
           });
 
@@ -125,8 +140,6 @@ export const LedgerReportScreen: React.FC<LedgerReportScreenProps> = ({ onBack }
           allPayments.filter(p => p.partyId === selectedParty.id).forEach(pay => {
               let debit = 0;
               let credit = 0;
-              // Receipt: Party Giver (Cr)
-              // Payment: Party Receiver (Dr)
               if (pay.type === 'Receipt') {
                   credit = pay.amount;
               } else {
@@ -136,7 +149,7 @@ export const LedgerReportScreen: React.FC<LedgerReportScreenProps> = ({ onBack }
               rawRows.push({
                   date: pay.date,
                   dateObj: Date.fromLocalDateString(pay.date),
-                  particulars: pay.mode === 'Cash' ? 'Cash Account' : pay.mode,
+                  particulars: pay.mode === 'Cash' ? (isHi ? 'नकद खाता' : 'Cash Account') : pay.mode,
                   vchType: pay.type,
                   vchNo: pay.voucherNo,
                   debit,
@@ -149,8 +162,6 @@ export const LedgerReportScreen: React.FC<LedgerReportScreenProps> = ({ onBack }
           allPayments.filter(p => p.modeLedgerId === selectedParty.id).forEach(pay => {
               let debit = 0;
               let credit = 0;
-              // Receipt: Money in Bank -> Bank Dr
-              // Payment: Money out Bank -> Bank Cr
               if (pay.type === 'Receipt') {
                   debit = pay.amount;
               } else {
@@ -173,9 +184,8 @@ export const LedgerReportScreen: React.FC<LedgerReportScreenProps> = ({ onBack }
           journals.forEach(j => {
               const partyRow = j.rows.find(r => r.partyId === selectedParty.id);
               if (partyRow) {
-                  // Find the OTHER side of the journal for Particulars (Simplified: assume 2 rows)
                   const otherRow = j.rows.find(r => r.partyId !== selectedParty.id);
-                  const particulars = otherRow ? otherRow.partyName : 'General Account';
+                  const particulars = otherRow ? otherRow.partyName : (isHi ? 'सामान्य खाता' : 'General Account');
 
                   rawRows.push({
                       date: j.date,
@@ -190,7 +200,6 @@ export const LedgerReportScreen: React.FC<LedgerReportScreenProps> = ({ onBack }
               }
           });
 
-          // Sort by Date ASC, then by Voucher No ASC
           rawRows.sort((a, b) => {
               const dateDiff = a.dateObj.getTime() - b.dateObj.getTime();
               if (dateDiff !== 0) return dateDiff;
@@ -202,25 +211,16 @@ export const LedgerReportScreen: React.FC<LedgerReportScreenProps> = ({ onBack }
               return (a.vchNo || '').localeCompare(b.vchNo || '');
           });
 
-          // 2. Calculate Opening Balance
-          // Logic: Master Closing Balance is known. 
-          // Reverse calculation is safer: Current Balance - (Sum of All Transactions) = Master Opening Balance.
-          // THEN: Opening Balance for Date Range = Master Opening + Transactions BEFORE Start Date.
-          
           const totalDrAllTime = rawRows.reduce((sum, r) => sum + r.debit, 0);
           const totalCrAllTime = rawRows.reduce((sum, r) => sum + r.credit, 0);
-          const netTransactionEffect = totalDrAllTime - totalCrAllTime; // +ve means Dr effect
+          const netTransactionEffect = totalDrAllTime - totalCrAllTime;
           
-          // Current Balance (Final)
           const currentBal = selectedParty.currentBalance;
-          
-          // Master Opening Balance (The balance before ANY transaction in system)
           const masterOpening = currentBal - netTransactionEffect;
 
-          // Now filter rows by Date Range
           const start = new Date(startDate);
           const end = new Date(endDate);
-          end.setHours(23, 59, 59); // Include full end day
+          end.setHours(23, 59, 59);
 
           const previousRows = rawRows.filter(r => r.dateObj < start);
           const activeRows = rawRows.filter(r => r.dateObj >= start && r.dateObj <= end);
@@ -240,7 +240,6 @@ export const LedgerReportScreen: React.FC<LedgerReportScreenProps> = ({ onBack }
       }
   };
 
-  // Calculate Running Totals
   let runningBalance = openingBalance;
   const totalDebit = transactions.reduce((sum, r) => sum + (r.debit || 0), 0);
   const totalCredit = transactions.reduce((sum, r) => sum + (r.credit || 0), 0);
@@ -248,30 +247,28 @@ export const LedgerReportScreen: React.FC<LedgerReportScreenProps> = ({ onBack }
 
   const handleDownload = () => {
       if (!selectedParty || transactions.length === 0) {
-          alert("No data to download.");
+          alert(t.downloadError);
           return;
       }
 
       const headers = ['Date', 'Particulars', 'Vch Type', 'Vch No.', 'Debit', 'Credit', 'Balance'];
-      
       let currentBal = openingBalance;
       
-      const rows = transactions.map(t => {
-          const debit = t.debit || 0;
-          const credit = t.credit || 0;
+      const rows = transactions.map(tRow => {
+          const debit = tRow.debit || 0;
+          const credit = tRow.credit || 0;
           currentBal = currentBal + debit - credit;
           return [
-              t.date,
-              t.particulars,
-              t.type,
-              t.refNo,
+              tRow.date,
+              tRow.particulars,
+              tRow.vchType,
+              tRow.vchNo,
               debit > 0 ? debit.toFixed(2) : '',
               credit > 0 ? credit.toFixed(2) : '',
               `${Math.abs(currentBal).toFixed(2)} ${currentBal >= 0 ? 'Dr' : 'Cr'}`
           ];
       });
 
-      // Add opening and closing balance rows
       const openingRow = [startDate, 'Opening Balance', '', '', '', '', `${Math.abs(openingBalance).toFixed(2)} ${openingBalance >= 0 ? 'Dr' : 'Cr'}`];
       const closingRow = [endDate, 'Closing Balance', '', '', totalDebit.toFixed(2), totalCredit.toFixed(2), `${Math.abs(closingBalance).toFixed(2)} ${closingBalance >= 0 ? 'Dr' : 'Cr'}`];
 
@@ -293,93 +290,120 @@ export const LedgerReportScreen: React.FC<LedgerReportScreenProps> = ({ onBack }
   };
 
   return (
-    <div className="flex flex-col h-full bg-slate-50 dark:bg-slate-950 transition-colors pb-[max(env(safe-area-inset-bottom),0px)]">
-      <header className="bg-gradient-to-r from-blue-700 to-indigo-800 text-white p-3 flex justify-between items-center shadow-md shrink-0 pt-[max(env(safe-area-inset-top),48px)]">
-        <div className="flex items-center gap-3">
-            <button onClick={onBack}><ArrowLeft size={24} /></button>
-            <div>
-                <h1 className="text-xl font-bold">Ledger Report</h1>
-                <p className="text-xs opacity-80">खाता बही</p>
-            </div>
+    <motion.div 
+      initial={{ x: '100%' }}
+      animate={{ x: 0 }}
+      exit={{ x: '100%' }}
+      transition={{ type: 'tween', ease: [0.25, 1, 0.5, 1], duration: 0.35 }}
+      style={{ willChange: 'transform' }}
+      className="flex flex-col h-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white pb-[max(env(safe-area-inset-bottom),0px)] relative overflow-hidden transition-colors font-sans"
+    >
+      {/* Premium Header */}
+      <header className="bg-white dark:bg-slate-900 p-4 flex items-center justify-between shadow-sm shrink-0 border-b border-gray-200 dark:border-slate-800 pt-[max(env(safe-area-inset-top),48px)] transition-colors">
+        <div className="flex items-center gap-4">
+          <button 
+            onClick={onBack}
+            className="hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 hover:text-slate-900 dark:hover:text-white p-2 rounded-full transition-all min-w-[44px] min-h-[44px] flex items-center justify-center active:scale-90"
+            aria-label="Go back"
+          >
+            <ArrowLeft size={24} />
+          </button>
+          <div>
+            <h1 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white leading-tight">
+              {t.title}
+            </h1>
+            <p className="text-[10px] font-bold text-slate-500 tracking-widest mt-0.5 opacity-80 uppercase leading-none">
+              {t.subtitle}
+            </p>
+          </div>
         </div>
-        <div className="flex gap-3">
-            <button onClick={handleDownload} className="p-2 hover:bg-white/10 rounded-full" title="Download CSV"><Download size={20} /></button>
-            <button className="p-2 hover:bg-white/10 rounded-full" title="Share"><Share2 size={20} /></button>
-        </div>
+        {selectedParty && (
+          <button 
+            onClick={handleDownload}
+            className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-lg transition-all flex items-center gap-2 text-xs font-bold min-h-[44px] active:scale-95 shadow-sm"
+          >
+            <Download size={16} /> {isHi ? 'एक्सपोर्ट' : 'Export'}
+          </button>
+        )}
       </header>
 
-      {/* Filters */}
-      <div className={`p-3 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 space-y-3 ${!selectedParty ? 'pb-0 border-b-0' : ''}`}>
-          {/* Party Selector */}
+      {/* Filters and Selection Area */}
+      <div className={`p-4 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800 space-y-3.5 ${!selectedParty ? 'pb-2 border-b-0' : ''}`}>
+          {/* Party Search/Selector input cards */}
           {!selectedParty ? (
               <div className="relative">
-                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                 <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                  <input 
                      type="text"
-                     placeholder="ग्राहक खोजें (नाम या मोबाइल)"
+                     placeholder={t.searchPlaceholder}
                      value={partySearchQuery}
                      onChange={e => setPartySearchQuery(e.target.value)}
-                     className="w-full pl-10 pr-4 py-2 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200"
+                     className="w-full pl-11 pr-4 py-3 border border-gray-200 dark:border-slate-800 rounded-xl bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white outline-none focus:border-indigo-500 text-sm font-bold min-h-[44px]"
                  />
               </div>
           ) : (
-              <div className="flex justify-between items-center bg-blue-50 dark:bg-slate-800 p-2 rounded-lg border border-blue-200 dark:border-slate-700">
+              <div className="flex justify-between items-center bg-slate-50 dark:bg-slate-950 p-3.5 rounded-xl border border-gray-200 dark:border-slate-800 transition-colors">
                   <div>
-                      <h2 className="font-bold text-lg text-blue-900 dark:text-blue-100">{selectedParty.name}</h2>
-                      <p className="text-xs text-slate-500 dark:text-slate-400">{selectedParty.city} {selectedParty.mobile ? `• ${selectedParty.mobile}` : ''}</p>
+                      <h2 className="font-extrabold text-base text-slate-900 dark:text-white">{selectedParty.name}</h2>
+                      <p className="text-[10px] font-bold text-slate-450 dark:text-slate-500 uppercase tracking-wide mt-0.5">{selectedParty.city} {selectedParty.mobile ? `• ${selectedParty.mobile}` : ''}</p>
                   </div>
-                  <button onClick={() => setSelectedParty(null)} className="text-xs text-red-500 font-bold px-3 py-1 bg-white dark:bg-slate-900 rounded border border-red-200">CHANGE</button>
+                  <button 
+                    onClick={() => setSelectedParty(null)} 
+                    className="text-xs font-bold px-3 py-2 bg-white dark:bg-slate-900 text-rose-500 border border-gray-200 dark:border-slate-850 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all rounded-lg active:scale-95 cursor-pointer"
+                  >
+                    {t.changeParty}
+                  </button>
               </div>
           )}
 
-          {/* Date Range */}
+          {/* Date Range controls */}
           {selectedParty && (
-              <div className="flex gap-2 items-center">
+              <div className="flex gap-3 items-center">
                   <div className="flex-1 relative">
-                      <span className="absolute top-1 left-2 text-[10px] text-slate-500 font-bold uppercase">From</span>
+                      <span className="absolute top-1 left-2.5 text-[8px] text-slate-500 dark:text-slate-400 font-extrabold uppercase tracking-wider">{t.from}</span>
                       <input 
                         type="date" 
                         value={startDate} 
                         onChange={(e) => setStartDate(e.target.value)} 
-                        className="w-full pt-4 pb-1 px-2 bg-slate-100 dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 text-sm font-bold outline-none"
+                        className="w-full pt-4 pb-1.5 px-2.5 bg-slate-50 dark:bg-slate-950 border border-gray-200 dark:border-slate-850 rounded-lg text-xs font-bold outline-none"
                       />
                   </div>
                   <div className="flex-1 relative">
-                      <span className="absolute top-1 left-2 text-[10px] text-slate-500 font-bold uppercase">To</span>
+                      <span className="absolute top-1 left-2.5 text-[8px] text-slate-500 dark:text-slate-400 font-extrabold uppercase tracking-wider">{t.to}</span>
                       <input 
                         type="date" 
                         value={endDate} 
                         onChange={(e) => setEndDate(e.target.value)} 
-                        className="w-full pt-4 pb-1 px-2 bg-slate-100 dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 text-sm font-bold outline-none"
+                        className="w-full pt-4 pb-1.5 px-2.5 bg-slate-50 dark:bg-slate-950 border border-gray-200 dark:border-slate-850 rounded-lg text-xs font-bold outline-none"
                       />
                   </div>
               </div>
           )}
       </div>
 
-      {/* Party List when none selected */}
+      {/* Party list when none is chosen */}
       {!selectedParty && (
-          <div className="flex-1 overflow-auto bg-slate-50 dark:bg-slate-950 p-2">
+          <div className="flex-1 overflow-auto p-4 space-y-3 custom-scrollbar">
               {partySearchQuery.trim() === '' ? null : filteredParties.length === 0 ? (
-                  <div className="text-center p-10 text-slate-500">No parties found.</div>
+                  <div className="text-center py-12 text-slate-400 font-bold uppercase tracking-wider text-xs">{t.noParties}</div>
               ) : (
-                  <div className="space-y-2">
+                  <div className="space-y-2.5">
                       {filteredParties.map((party) => (
                           <div 
                               key={party.id}
                               onClick={() => setSelectedParty(party)}
-                              className="bg-white dark:bg-slate-900 p-3 rounded-lg border border-slate-200 dark:border-slate-800 flex justify-between items-center active:scale-[0.98] transition-transform cursor-pointer shadow-sm"
+                              className="bg-white dark:bg-slate-900 p-3.5 rounded-xl border border-gray-200 dark:border-slate-800 flex justify-between items-center active:scale-[0.98] transition-all cursor-pointer shadow-xs hover:border-indigo-500"
                           >
                               <div>
-                                  <h3 className="font-bold text-slate-800 dark:text-slate-100">{party.name}</h3>
-                                  {party.mobile && <p className="text-xs text-slate-500">{party.mobile}</p>}
+                                  <h3 className="font-extrabold text-slate-950 dark:text-white text-sm">{party.name}</h3>
+                                  {party.mobile && <p className="text-[10px] font-bold text-slate-450 dark:text-slate-500 mt-0.5">{party.mobile}</p>}
                               </div>
                               <div className="text-right">
-                                  <div className={`font-bold text-sm ${party.currentBalance > 0 ? 'text-green-600 dark:text-green-400' : party.currentBalance < 0 ? 'text-red-600 dark:text-red-400' : 'text-slate-600'}`}>
+                                  <div className={`font-extrabold text-sm ${party.currentBalance > 0 ? 'text-emerald-600 dark:text-emerald-400' : party.currentBalance < 0 ? 'text-rose-600 dark:text-rose-400' : 'text-slate-600'}`}>
                                       ₹{Number(Math.abs(party.currentBalance).toFixed(2)).toLocaleString('en-IN')}
                                   </div>
-                                  <div className="text-[10px] text-slate-400">
-                                      {party.currentBalance >= 0 ? 'Receivable' : 'Payable'}
+                                  <div className="text-[9px] font-extrabold uppercase tracking-wider text-slate-400 mt-0.5">
+                                      {party.currentBalance >= 0 ? t.receivable : t.payable}
                                   </div>
                               </div>
                           </div>
@@ -389,86 +413,94 @@ export const LedgerReportScreen: React.FC<LedgerReportScreenProps> = ({ onBack }
           </div>
       )}
 
-      {/* Report Table */}
+      {/* Structured Ledger Table Report */}
       {selectedParty && (
-          <div className="flex-1 overflow-auto bg-white dark:bg-slate-900">
+          <div className="flex-1 overflow-auto bg-white dark:bg-slate-900 flex flex-col relative custom-scrollbar">
               {loading ? (
-                  <div className="p-10 text-center text-slate-500">Loading Ledger...</div>
+                  <div className="flex-1 flex flex-col items-center justify-center text-slate-500 text-xs font-bold uppercase tracking-wider gap-2">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+                    <span>{t.loading}</span>
+                  </div>
               ) : (
-                  <table className="w-full text-sm text-left border-collapse">
-                      <thead className="bg-[#fdfebd] text-slate-900 sticky top-0 z-10 shadow-sm font-bold border-b-2 border-slate-300">
-                          <tr>
-                              <th className="p-2 border-r border-slate-300 w-24">Date<br/><span className="text-[10px] font-normal">तारीख</span></th>
-                              <th className="p-2 border-r border-slate-300">Particulars<br/><span className="text-[10px] font-normal">विवरण</span></th>
-                              <th className="p-2 border-r border-slate-300 w-16 text-center">Vch Type</th>
-                              <th className="p-2 border-r border-slate-300 w-16 text-center">Vch No</th>
-                              <th className="p-2 border-r border-slate-300 text-right w-24 bg-red-50">Debit<br/><span className="text-[10px] font-normal">नामे (Dr)</span></th>
-                              <th className="p-2 text-right w-24 bg-green-50">Credit<br/><span className="text-[10px] font-normal">जमा (Cr)</span></th>
-                          </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-200 dark:divide-slate-800 text-slate-800 dark:text-slate-200 font-medium">
-                          {/* Opening Balance Row */}
-                          <tr className="bg-yellow-50 dark:bg-yellow-900/10 font-bold italic text-slate-600 dark:text-slate-300">
-                              <td className="p-2 border-r border-slate-200 dark:border-slate-700"></td>
-                              <td className="p-2 border-r border-slate-200 dark:border-slate-700">Opening Balance</td>
-                              <td className="p-2 border-r border-slate-200 dark:border-slate-700" colSpan={2}></td>
-                              <td className="p-2 border-r border-slate-200 dark:border-slate-700 text-right">
-                                  {openingBalance > 0 ? `₹${Number(Math.abs(openingBalance).toFixed(2)).toLocaleString('en-IN')}` : ''}
-                              </td>
-                              <td className="p-2 text-right">
-                                  {openingBalance < 0 ? `₹${Number(Math.abs(openingBalance).toFixed(2)).toLocaleString('en-IN')}` : ''}
-                              </td>
-                          </tr>
-
-                          {/* Transactions */}
-                          {transactions.map((row, idx) => {
-                              // Update running balance for tooltip or checking (not displayed in row to save space on mobile, but standard ledger has it)
-                              runningBalance += (row.debit - row.credit);
-                              
-                              return (
-                                  <tr key={idx} className="hover:bg-blue-50 dark:hover:bg-slate-800 transition-colors">
-                                      <td className="p-2 border-r border-slate-200 dark:border-slate-700 text-xs">
-                                          {Date.fromLocalDateString(row.date).toLocaleDateString('en-IN', {day:'2-digit', month:'short'})}
+                  <div className="min-w-full inline-block align-middle flex-1">
+                      <div className="overflow-x-auto w-full">
+                          <table className="min-w-[700px] w-full text-left text-xs whitespace-nowrap border-collapse">
+                              <thead className="bg-slate-50 dark:bg-slate-950 text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider sticky top-0 z-10 border-b border-gray-200 dark:border-slate-800 shadow-xs">
+                                  <tr>
+                                      <th className="p-3 border-r border-gray-200 dark:border-slate-800 w-24">{t.dateCol}</th>
+                                      <th className="p-3 border-r border-gray-200 dark:border-slate-800">{t.particularsCol}</th>
+                                      <th className="p-3 border-r border-gray-200 dark:border-slate-800 w-20 text-center">{t.vchTypeCol}</th>
+                                      <th className="p-3 border-r border-gray-200 dark:border-slate-800 w-20 text-center">{t.vchNoCol}</th>
+                                      <th className="p-3 border-r border-gray-200 dark:border-slate-800 text-right w-28 bg-rose-500/5">{t.debitCol}</th>
+                                      <th className="p-3 text-right w-28 bg-emerald-500/5">{t.creditCol}</th>
+                                  </tr>
+                              </thead>
+                              <tbody className="divide-y divide-gray-100 dark:divide-slate-800 text-slate-800 dark:text-slate-200 font-medium">
+                                  {/* Opening Balance Row */}
+                                  <tr className="bg-amber-500/5 dark:bg-amber-500/10 font-bold italic text-slate-655 dark:text-slate-300">
+                                      <td className="p-3 border-r border-gray-100 dark:border-slate-800"></td>
+                                      <td className="p-3 border-r border-gray-100 dark:border-slate-800 font-extrabold text-amber-600 dark:text-amber-400">{t.openingBalance}</td>
+                                      <td className="p-3 border-r border-gray-100 dark:border-slate-800" colSpan={2}></td>
+                                      <td className="p-3 border-r border-gray-100 dark:border-slate-800 text-right font-extrabold font-mono">
+                                          {openingBalance > 0 ? `₹${Number(Math.abs(openingBalance).toFixed(2)).toLocaleString('en-IN')}` : ''}
                                       </td>
-                                      <td className="p-2 border-r border-slate-200 dark:border-slate-700">
-                                          <div className="font-bold text-slate-800 dark:text-white">{row.particulars}</div>
-                                          {row.narration && <div className="text-[10px] text-slate-500 italic">{row.narration}</div>}
-                                      </td>
-                                      <td className="p-2 border-r border-slate-200 dark:border-slate-700 text-center text-[10px] uppercase">{row.vchType.split(' ')[0]}</td>
-                                      <td className="p-2 border-r border-slate-200 dark:border-slate-700 text-center text-xs">{row.vchNo}</td>
-                                      <td className="p-2 border-r border-slate-200 dark:border-slate-700 text-right text-slate-700 dark:text-slate-300 font-mono">
-                                          {row.debit ? Number(row.debit.toFixed(2)).toLocaleString('en-IN') : ''}
-                                      </td>
-                                      <td className="p-2 text-right text-slate-700 dark:text-slate-300 font-mono">
-                                          {row.credit ? Number(row.credit.toFixed(2)).toLocaleString('en-IN') : ''}
+                                      <td className="p-3 text-right font-extrabold font-mono">
+                                          {openingBalance < 0 ? `₹${Number(Math.abs(openingBalance).toFixed(2)).toLocaleString('en-IN')}` : ''}
                                       </td>
                                   </tr>
-                              );
-                          })}
 
-                          {/* Closing Balance Row */}
-                          <tr className="bg-slate-100 dark:bg-slate-800 font-bold border-t-2 border-slate-300 dark:border-slate-600">
-                              <td colSpan={4} className="p-2 text-right uppercase border-r border-slate-300 dark:border-slate-600">Total</td>
-                              <td className="p-2 text-right border-r border-slate-300 dark:border-slate-600">₹{Number((Math.abs(openingBalance > 0 ? openingBalance : 0) + totalDebit).toFixed(2)).toLocaleString('en-IN')}</td>
-                              <td className="p-2 text-right">₹{Number((Math.abs(openingBalance < 0 ? openingBalance : 0) + totalCredit).toFixed(2)).toLocaleString('en-IN')}</td>
-                          </tr>
-                      </tbody>
-                      
-                      <tfoot className="bg-blue-600 text-white font-bold text-sm sticky bottom-0">
-                          <tr>
-                              <td colSpan={4} className="p-3 text-right">Closing Balance (शेष राशि):</td>
-                              <td colSpan={2} className="p-3 text-center text-lg">
-                                  ₹{Number(Math.abs(closingBalance).toFixed(2)).toLocaleString('en-IN')} 
-                                  <span className="text-xs ml-1 bg-white/20 px-1 rounded">
-                                      {closingBalance >= 0 ? 'Dr (Receivable)' : 'Cr (Payable)'}
-                                  </span>
-                              </td>
-                          </tr>
-                      </tfoot>
-                  </table>
+                                  {/* Transaction list mapping */}
+                                  {transactions.map((row, idx) => {
+                                      runningBalance += (row.debit - row.credit);
+                                      return (
+                                          <tr key={idx} className="hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors">
+                                              <td className="p-3 border-r border-gray-100 dark:border-slate-800 font-mono">
+                                                  {row.date}
+                                              </td>
+                                              <td className="p-3 border-r border-gray-100 dark:border-slate-800">
+                                                  <div className="font-bold text-slate-950 dark:text-white">{row.particulars}</div>
+                                                  {row.narration && <div className="text-[10px] text-slate-450 dark:text-slate-550 italic font-semibold mt-0.5">{row.narration}</div>}
+                                              </td>
+                                              <td className="p-3 border-r border-gray-100 dark:border-slate-800 text-center font-bold text-[10px] uppercase tracking-wider text-slate-500">
+                                                  {row.vchType}
+                                              </td>
+                                              <td className="p-3 border-r border-gray-100 dark:border-slate-800 text-center font-bold">{row.vchNo}</td>
+                                              <td className="p-3 border-r border-gray-100 dark:border-slate-800 text-right text-rose-600 dark:text-rose-400 font-extrabold font-mono">
+                                                  {row.debit ? `₹${Number(row.debit.toFixed(2)).toLocaleString('en-IN')}` : ''}
+                                              </td>
+                                              <td className="p-3 text-right text-emerald-600 dark:text-emerald-400 font-extrabold font-mono">
+                                                  {row.credit ? `₹${Number(row.credit.toFixed(2)).toLocaleString('en-IN')}` : ''}
+                                              </td>
+                                          </tr>
+                                      );
+                                  })}
+
+                                  {/* Summary Total Row */}
+                                  <tr className="bg-slate-50 dark:bg-slate-950 font-extrabold border-t border-gray-200 dark:border-slate-800">
+                                      <td colSpan={4} className="p-3 text-right uppercase border-r border-gray-200 dark:border-slate-850 tracking-wider text-slate-500 font-bold">{t.total}</td>
+                                      <td className="p-3 text-right border-r border-gray-200 dark:border-slate-850 text-slate-900 dark:text-white font-extrabold font-mono">₹{Number((Math.abs(openingBalance > 0 ? openingBalance : 0) + totalDebit).toFixed(2)).toLocaleString('en-IN')}</td>
+                                      <td className="p-3 text-right text-slate-900 dark:text-white font-extrabold font-mono">₹{Number((Math.abs(openingBalance < 0 ? openingBalance : 0) + totalCredit).toFixed(2)).toLocaleString('en-IN')}</td>
+                                  </tr>
+                              </tbody>
+                          </table>
+                      </div>
+                  </div>
+              )}
+              
+              {/* Table Footer with final Closing balances details */}
+              {!loading && (
+                  <div className="sticky bottom-0 z-20 bg-indigo-600 text-white font-extrabold text-sm p-4 flex justify-between items-center shadow-lg border-t border-indigo-700">
+                      <span className="uppercase tracking-wider text-xs">{t.closingBalance}</span>
+                      <div className="flex items-center gap-2">
+                          <span className="text-base font-black">₹{Number(Math.abs(closingBalance).toFixed(2)).toLocaleString('en-IN')}</span>
+                          <span className="text-[10px] font-extrabold uppercase bg-white/20 px-2 py-0.5 rounded-full">
+                              {closingBalance >= 0 ? t.receivable : t.payable}
+                          </span>
+                      </div>
+                  </div>
               )}
           </div>
       )}
-    </div>
+    </motion.div>
   );
 };

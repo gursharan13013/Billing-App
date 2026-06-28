@@ -878,8 +878,8 @@ export const AppContent = () => {
           onEditInvoice={(id, type) => navigateTo('invoice', { type, invoiceId: id })}
           language={language}
         />;
-      case 'stockSummary': return <StockSummaryScreen onBack={goBack} />;
-      case 'gstReport': return <GSTReportScreen onBack={goBack} />;
+      case 'stockSummary': return <StockSummaryScreen onBack={goBack} language={language} />;
+      case 'gstReport': return <GSTReportScreen onBack={goBack} language={language} />;
       case 'chatList': return <ChatListScreen onBack={goBack} onSelectChat={(p) => navigateTo('chatDetail', { party: p })} onCreateBroadcast={() => navigateTo('createBroadcast')} onSelectBroadcast={(group) => navigateTo('broadcastDetail', { broadcastGroup: group })} onOpenNearbyShops={() => navigateTo('nearbyShops')} />;
       case 'chatDetail': return <ChatDetailScreen onBack={goBack} party={state.params!.party!} />;
       case 'paymentList': return <PaymentListScreen onBack={goBack} type={state.params?.type as any} onCreateNew={() => navigateTo('payment', { type: state.params?.type })} onEdit={(payment) => navigateTo('payment', { type: state.params?.type, payment })} currentLanguage={language} />;
@@ -895,9 +895,9 @@ export const AppContent = () => {
       case 'journalEntry': return <JournalEntryScreen onBack={goBack} initialDate={globalDate} />;
       case 'attendance': return <AttendanceScreen onBack={goBack} language={language} initialDate={globalDate} />;
       case 'contra': return <ContraScreen onBack={goBack} initialDate={globalDate} />;
-      case 'financialReport': return <FinancialReportScreen onBack={goBack} reportType={state.params?.reportType || 'TrialBalance'} />;
-      case 'ledgerReport': return <LedgerReportScreen onBack={goBack} />;
-      case 'masterDataTable': return <MasterDataTableScreen onBack={goBack} />;
+      case 'financialReport': return <FinancialReportScreen onBack={goBack} reportType={state.params?.reportType || 'TrialBalance'} language={language} />;
+      case 'ledgerReport': return <LedgerReportScreen onBack={goBack} language={language} />;
+      case 'masterDataTable': return <MasterDataTableScreen onBack={goBack} language={language} />;
       case 'nearbyShops': return <NearbyShopsScreen onBack={goBack} />;
       case 'notifications': return <NotificationScreen onBack={goBack} />;
       case 'manufacturing': return <ManufacturingScreen onBack={goBack} />;
