@@ -809,6 +809,7 @@ export const AppContent = () => {
         return <ReportOptionsScreen
           onBack={goBack}
           type={state.params?.type || 'Sale'}
+          language={language}
           onSelectOption={(option) => {
               if (option === 'Default') {
                   navigateTo('businessReport', { tab: state.params?.type });
