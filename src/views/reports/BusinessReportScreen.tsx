@@ -614,7 +614,13 @@ export const BusinessReportScreen: React.FC<BusinessReportScreenProps> = ({
       {/* Header */}
       <header className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-4 px-5 pt-[max(env(safe-area-inset-top),48px)] pb-3 flex items-center justify-between border-b border-gray-200 dark:border-slate-800 shrink-0 relative transition-all duration-200 shadow-sm">
         <div className="flex items-center gap-3">
-          <button onClick={onBack} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-850 rounded-full text-slate-500 hover:text-slate-900 dark:hover:text-white transition-all cursor-pointer min-w-[44px] min-h-[44px] flex items-center justify-center active:scale-90"><ArrowLeft size={24} /></button>
+          <button 
+            onClick={onBack} 
+            className="hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 hover:text-slate-900 dark:hover:text-white p-2 rounded-full transition-all min-w-[44px] min-h-[44px] flex items-center justify-center active:scale-90"
+            aria-label="Go back"
+          >
+            <ArrowLeft size={24} />
+          </button>
           <div>
             <h1 className="text-lg font-extrabold uppercase tracking-tight leading-tight text-slate-900 dark:text-white">{loc.businessReports}</h1>
             <p className="text-xs text-slate-500 dark:text-slate-400 leading-tight">{loc.detailedView}</p>
