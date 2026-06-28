@@ -131,11 +131,11 @@ export const ReportScreen: React.FC<ReportScreenProps> = ({
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.2 }}
-      className="flex flex-col h-full bg-[var(--bg-app)] text-[var(--text-main)] overflow-hidden relative pb-[max(env(safe-area-inset-bottom),0px)]"
+      className="flex flex-col h-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white overflow-hidden relative pb-[max(env(safe-area-inset-bottom),0px)]"
       onClick={() => isMenuOpen && setIsMenuOpen(false)}
     >
       {/* Dynamic Header */}
-      <div className="p-5 pt-[max(env(safe-area-inset-top),36px)] bg-[var(--bg-card)] border-b border-[var(--border-ui)] pb-4 relative shrink-0 shadow-sm transition-colors">
+      <div className="p-5 pt-[max(env(safe-area-inset-top),36px)] bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 text-slate-800 dark:text-white pb-4 relative shrink-0 shadow-sm transition-colors">
         <div className="flex items-center justify-between max-w-5xl mx-auto w-full">
           <div className="flex items-center gap-2">
             {view === 'accounting' && (
@@ -252,17 +252,17 @@ export const ReportScreen: React.FC<ReportScreenProps> = ({
 
       {/* Bottom Tab Navigation */}
       {!hideFooter && (
-        <footer className="bg-[var(--bg-card)] border-t border-[var(--border-ui)] shrink-0 z-40 pt-2 pb-6" style={{ paddingBottom: 'max(1.5rem, env(safe-area-inset-bottom))' }}>
+        <footer className="bg-white dark:bg-slate-900 border-t border-gray-200 dark:border-slate-800 shrink-0 z-40 pt-2 pb-6" style={{ paddingBottom: 'max(1.5rem, env(safe-area-inset-bottom))' }}>
           <div className="max-w-5xl mx-auto w-full flex items-center justify-between px-8">
-            <button onClick={() => onSwitchTab('dashboard')} className="flex flex-col items-center gap-0.5 text-gray-400 hover:text-[var(--text-main)] min-w-[44px]">
+            <button onClick={() => onSwitchTab('dashboard')} className="flex flex-col items-center gap-0.5 text-gray-400 hover:text-[#1e293b] dark:hover:text-white min-w-[44px]">
               <Home size={22} />
               <span className="text-[10px] font-bold">{t.home}</span>
             </button>
-            <button onClick={() => onSwitchTab('master')} className="flex flex-col items-center gap-0.5 text-gray-400 hover:text-[var(--text-main)] min-w-[44px]">
+            <button onClick={() => onSwitchTab('master')} className="flex flex-col items-center gap-0.5 text-gray-400 hover:text-[#1e293b] dark:hover:text-white min-w-[44px]">
               <LayoutGrid size={22} />
               <span className="text-[10px] font-bold">{t.master}</span>
             </button>
-            <button className="flex flex-col items-center gap-0.5 text-[var(--brand-primary)] min-w-[44px]">
+            <button className="flex flex-col items-center gap-0.5 text-[#1e293b] dark:text-white min-w-[44px]">
               <FileBarChart size={22} fill="currentColor" />
               <span className="text-[10px] font-bold">{t.report}</span>
             </button>
