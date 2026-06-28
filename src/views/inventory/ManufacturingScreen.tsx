@@ -1,25 +1,24 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ArrowLeft, Plus, Trash2, Save, Factory, Package, Edit2, X } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Save, Factory, Package, Edit2 } from 'lucide-react';
 import { billingService } from '../../services/billingService';
-import { Item, ManufacturingEntry, RawMaterialConsumption } from '../../core/types/';
-
+import { Item, ManufacturingEntry, RawMaterialConsumption, Language } from '../../core/types/';
+import { motion } from 'motion/react';
 
 interface ManufacturingScreenProps {
   onBack: () => void;
+  language?: Language;
 }
 
-export const ManufacturingScreen: React.FC<ManufacturingScreenProps> = ({ onBack }) => {
+export const ManufacturingScreen: React.FC<ManufacturingScreenProps> = ({ onBack, language }) => {
   const [items, setItems] = useState<Item[]>([]);
   const [date, setDate] = useState(new Date().toLocalDateString());
   
-  // Finished Good State
   const [finishedItemName, setFinishedItemName] = useState('');
   const [finishedItemId, setFinishedItemId] = useState('');
   const [finishedQuantity, setFinishedQuantity] = useState<number | ''>('');
   const [showFinishedSuggestions, setShowFinishedSuggestions] = useState(false);
   const [lastRecipe, setLastRecipe] = useState<ManufacturingEntry | null>(null);
 
-  // Raw Material Entry State
   const [rmName, setRmName] = useState('');
   const [rmItemId, setRmItemId] = useState('');
   const [rmQuantity, setRmQuantity] = useState<number | ''>('');
@@ -27,11 +26,41 @@ export const ManufacturingScreen: React.FC<ManufacturingScreenProps> = ({ onBack
   const [showRmSuggestions, setShowRmSuggestions] = useState(false);
   const [editingRmIndex, setEditingRmIndex] = useState<number | null>(null);
 
-  // List of added raw materials
   const [rawMaterials, setRawMaterials] = useState<RawMaterialConsumption[]>([]);
-  
   const [notes, setNotes] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+
+  const isHi = language === 'hi';
+
+  // Dynamic Bilingual Localization Dictionary Data Object
+  const t = {
+    title: isHi ? 'मैन्युफैक्चरिंग प्रविष्टि' : 'Manufacturing Entry',
+    finishedGood: isHi ? 'तैयार माल आउटपुट' : 'Finished Good Output',
+    date: isHi ? 'तिथि' : 'Date',
+    itemNameLabel: isHi ? 'आइटम का नाम (खोजें या नया दर्ज करें)' : 'Item Name (Select or Type New)',
+    autoRecipe: isHi ? 'ऑटो-रेसिपी सक्रिय' : 'Auto-Recipe Active',
+    searchPlaceholder: isHi ? 'खोजें या नया आइटम दर्ज करें...' : 'Search or enter new item...',
+    stock: isHi ? 'स्टॉक' : 'Stock',
+    qtyProduced: isHi ? 'उत्पादित मात्रा' : 'Quantity Produced',
+    addRawMaterial: isHi ? 'कच्चा माल जोड़ें' : 'Add Raw Material',
+    rmPlaceholder: isHi ? 'खोजें या नया दर्ज करें...' : 'Search or enter new...',
+    qty: isHi ? 'मात्रा' : 'Qty',
+    costUnit: isHi ? 'लागत/इकाई' : 'Cost/Unit',
+    updateMaterial: isHi ? 'सामग्री अपडेट करें' : 'Update Material',
+    addMaterial: isHi ? 'सामग्री जोड़ें' : 'Add Material',
+    cancelEdit: isHi ? 'संपादन रद्द करें' : 'Cancel Edit',
+    itemHeader: isHi ? 'आइटम' : 'Item',
+    totalCostLabel: isHi ? 'कुल कच्चा माल लागत:' : 'Total Raw Material Cost:',
+    notesLabel: isHi ? 'नोट्स (वैकल्पिक)' : 'Notes (Optional)',
+    notesPlaceholder: isHi ? 'इस बैच के बारे में कोई विवरण...' : 'Any details about this batch...',
+    saving: isHi ? 'सहेज रहा है...' : 'Saving...',
+    saveEntry: isHi ? 'मैन्युफैक्चरिंग प्रविष्टि सहेजें' : 'Save Manufacturing Entry',
+    errValidFinished: isHi ? 'कृपया एक वैध तैयार माल का नाम और मात्रा दर्ज करें।' : 'Please enter a finished good name and a valid quantity.',
+    errAddRm: isHi ? 'कृपया कम से कम एक कच्चा माल जोड़ें।' : 'Please add at least one raw material.',
+    errRmValid: isHi ? 'कृपया एक वैध कच्चे माल का नाम और मात्रा दर्ज करें।' : 'Please enter a valid raw material name and quantity.',
+    successSave: isHi ? 'मैन्युफैक्चरिंग प्रविष्टि सफलतापूर्वक सहेजी गई!' : 'Manufacturing entry saved successfully!',
+    failSave: isHi ? 'सहेजने में विफल। कृपया पुन: प्रयास करें।' : 'Failed to save. Please try again.'
+  };
 
   useEffect(() => {
     loadItems();
@@ -42,7 +71,6 @@ export const ManufacturingScreen: React.FC<ManufacturingScreenProps> = ({ onBack
     setItems(data);
   };
 
-  // Autocomplete logic
   const finishedSuggestions = items.filter(i => i.name && i.name.toLowerCase().includes(finishedItemName.toLowerCase()) && finishedItemName.trim() !== '');
   const rmSuggestions = items.filter(i => i.name && i.name.toLowerCase().includes(rmName.toLowerCase()) && rmName.trim() !== '');
 
@@ -97,12 +125,12 @@ export const ManufacturingScreen: React.FC<ManufacturingScreenProps> = ({ onBack
 
   const handleAddRawMaterial = () => {
       if (!rmName.trim() || !rmQuantity || Number(rmQuantity) <= 0) {
-          alert("Please enter a valid raw material name and quantity.");
+          alert(t.errRmValid);
           return;
       }
 
       const newRm: RawMaterialConsumption = {
-          itemId: rmItemId || `temp_${Date.now()}`, // If new item, we'll create it on save
+          itemId: rmItemId || `temp_${Date.now()}`, 
           itemName: rmName.trim(),
           quantity: Number(rmQuantity),
           costPerUnit: Number(rmCost) || 0
@@ -117,7 +145,6 @@ export const ManufacturingScreen: React.FC<ManufacturingScreenProps> = ({ onBack
           setRawMaterials([...rawMaterials, newRm]);
       }
 
-      // Reset RM form
       setRmName('');
       setRmItemId('');
       setRmQuantity('');
@@ -148,22 +175,20 @@ export const ManufacturingScreen: React.FC<ManufacturingScreenProps> = ({ onBack
 
   const handleSave = async () => {
     if (!finishedItemName.trim() || !finishedQuantity || Number(finishedQuantity) <= 0) {
-        alert("Please enter a finished good name and a valid quantity.");
+        alert(t.errValidFinished);
         return;
     }
     if (rawMaterials.length === 0) {
-        alert("Please add at least one raw material.");
+        alert(t.errAddRm);
         return;
     }
 
     setIsSaving(true);
     try {
-        // 1. Process Raw Materials (Create new items if they don't exist)
         const processedRawMaterials = [];
         for (const rm of rawMaterials) {
             let finalItemId = rm.itemId;
             if (finalItemId.startsWith('temp_')) {
-                // Check if it exists by name just in case
                 const existing = items.find(i => i.name.toLowerCase() === rm.itemName.toLowerCase());
                 if (existing) {
                     finalItemId = existing.id;
@@ -184,7 +209,6 @@ export const ManufacturingScreen: React.FC<ManufacturingScreenProps> = ({ onBack
             processedRawMaterials.push({ ...rm, itemId: finalItemId });
         }
 
-        // 2. Process Finished Good
         let finalFinishedItemId = finishedItemId;
         if (!finalFinishedItemId) {
             const existing = items.find(i => i.name.toLowerCase() === finishedItemName.trim().toLowerCase());
@@ -196,7 +220,7 @@ export const ManufacturingScreen: React.FC<ManufacturingScreenProps> = ({ onBack
                     name: finishedItemName.trim(),
                     saleRate: 0,
                     purchaseRate: totalCost / Number(finishedQuantity),
-                    openingStock: 0, // saveManufacturingEntry handles the stock addition
+                    openingStock: 0, 
                     taxPercent: 0,
                     taxType: 'Excluded'
                 };
@@ -205,7 +229,6 @@ export const ManufacturingScreen: React.FC<ManufacturingScreenProps> = ({ onBack
             }
         }
 
-        // 3. Save Entry
         const entry: ManufacturingEntry = {
             id: Date.now().toString(),
             date,
@@ -218,219 +241,237 @@ export const ManufacturingScreen: React.FC<ManufacturingScreenProps> = ({ onBack
         };
 
         await billingService.saveManufacturingEntry(entry);
-        alert("Manufacturing entry saved successfully!");
+        alert(t.successSave);
         onBack();
     } catch (error) {
         console.error("Failed to save manufacturing entry", error);
-        alert("Failed to save. Please try again.");
+        alert(t.failSave);
     } finally {
         setIsSaving(false);
     }
   };
 
   return (
-    <div className="flex flex-col h-full bg-slate-50 dark:bg-slate-950 pb-[max(env(safe-area-inset-bottom),0px)]">
-      <header className="bg-purple-700 text-white p-4 shadow-md flex items-center gap-3 shrink-0 z-20 relative pt-[max(env(safe-area-inset-top),48px)]">
-        <button onClick={onBack} className="active:scale-95 transition-transform"><ArrowLeft size={24} /></button>
-        <div className="flex items-center gap-2">
-            <Factory size={20} />
-            <h1 className="text-xl font-bold">Manufacturing Entry</h1>
+    <motion.div 
+      initial={{ x: '100%' }}
+      animate={{ x: 0 }}
+      exit={{ x: '100%' }}
+      transition={{ type: 'tween', ease: [0.25, 1, 0.5, 1], duration: 0.35 }}
+      style={{ willChange: 'transform' }}
+      className="flex flex-col h-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white pb-[max(env(safe-area-inset-bottom),0px)] relative overflow-hidden transition-colors font-sans"
+    >
+      {/* Premium Top Header */}
+      <header className="bg-white dark:bg-slate-900 p-4 flex items-center justify-between shadow-sm shrink-0 border-b border-gray-200 dark:border-slate-800 pt-[max(env(safe-area-inset-top),48px)] transition-colors">
+        <div className="flex items-center gap-4">
+          <button 
+            onClick={onBack}
+            className="hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 hover:text-slate-900 dark:hover:text-white p-2 rounded-full transition-all min-w-[44px] min-h-[44px] flex items-center justify-center active:scale-90"
+            aria-label="Go back"
+          >
+            <ArrowLeft size={24} />
+          </button>
+          <div className="flex items-center gap-2.5">
+            <Factory size={22} className="text-purple-600 dark:text-purple-400" />
+            <h1 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white leading-tight">
+              {t.title}
+            </h1>
+          </div>
         </div>
       </header>
 
-      <div className="flex-1 overflow-y-auto p-3 space-y-4">
-          {/* Finished Good Section */}
-          <div className="bg-white dark:bg-slate-900 p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800">
-              <h2 className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-3 flex items-center gap-2">
-                  <Package size={16} /> Finished Good Output
-              </h2>
-              <div className="grid grid-cols-2 gap-3">
-                  <div className="col-span-2 sm:col-span-1">
-                      <label className="block text-xs font-medium text-slate-500 mb-1">Date</label>
-                      <input 
-                          type="date" 
-                          value={date} 
-                          onChange={(e) => setDate(e.target.value)}
-                          className="w-full p-2 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white"
-                      />
-                  </div>
-                  <div className="col-span-2 relative">
-                      <label className="block text-xs font-medium text-slate-500 mb-1 flex justify-between">
-                          <span>Item Name (Select or Type New)</span>
-                          {lastRecipe && <span className="text-purple-600 dark:text-purple-400 font-bold">Auto-Recipe Active</span>}
-                      </label>
-                      <input 
-                          type="text" 
-                          value={finishedItemName} 
-                          onChange={(e) => {
-                              setFinishedItemName(e.target.value);
-                              setFinishedItemId('');
-                              setLastRecipe(null); // Reset recipe if they type something else
-                              setShowFinishedSuggestions(true);
-                          }}
-                          onFocus={() => setShowFinishedSuggestions(true)}
-                          onBlur={() => setTimeout(() => setShowFinishedSuggestions(false), 200)}
-                          placeholder="Search or enter new item..."
-                          className="w-full p-2 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white font-semibold"
-                      />
-                      {showFinishedSuggestions && finishedSuggestions.length > 0 && (
-                          <div className="absolute top-full left-0 right-0 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-xl max-h-40 overflow-y-auto rounded-b-lg mt-1 z-50">
-                              {finishedSuggestions.map(item => (
-                                  <div 
-                                      key={item.id}
-                                      className="p-3 hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer text-sm border-b last:border-0 border-slate-100 dark:border-slate-700 flex justify-between items-center"
-                                      onMouseDown={() => handleSelectFinishedItem(item)}
-                                  >
-                                      <span className="font-bold text-slate-800 dark:text-slate-200">{item.name}</span>
-                                      <span className="text-xs text-slate-500 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded">Stock: {item.openingStock || 0}</span>
-                                  </div>
-                              ))}
-                          </div>
-                      )}
-                  </div>
-                  <div className="col-span-2 sm:col-span-1">
-                      <label className="block text-xs font-medium text-slate-500 mb-1">Quantity Produced</label>
-                      <input 
-                          type="number" 
-                          value={finishedQuantity} 
-                          onChange={(e) => handleFinishedQuantityChange(e.target.value)}
-                          placeholder="Qty"
-                          className="w-full p-2 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white font-bold"
-                      />
-                  </div>
-              </div>
-          </div>
-
-          {/* Raw Materials Entry Form */}
-          <div className="bg-white dark:bg-slate-900 p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800">
-              <h2 className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-3">Add Raw Material</h2>
-              <div className="grid grid-cols-12 gap-2">
-                  <div className="col-span-12 relative">
-                      <label className="block text-xs font-medium text-slate-500 mb-1">Item Name</label>
-                      <input 
-                          type="text" 
-                          value={rmName} 
-                          onChange={(e) => {
-                              setRmName(e.target.value);
-                              setRmItemId('');
-                              setShowRmSuggestions(true);
-                          }}
-                          onFocus={() => setShowRmSuggestions(true)}
-                          onBlur={() => setTimeout(() => setShowRmSuggestions(false), 200)}
-                          placeholder="Search or enter new..."
-                          className="w-full p-2 border border-slate-300 dark:border-slate-700 rounded bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white text-sm"
-                      />
-                      {showRmSuggestions && rmSuggestions.length > 0 && (
-                          <div className="absolute top-full left-0 right-0 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-xl max-h-40 overflow-y-auto rounded-b-lg mt-1 z-50">
-                              {rmSuggestions.map(item => (
-                                  <div 
-                                      key={item.id}
-                                      className="p-3 hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer text-sm border-b last:border-0 border-slate-100 dark:border-slate-700 flex justify-between items-center"
-                                      onMouseDown={() => handleSelectRmItem(item)}
-                                  >
-                                      <span className="font-bold text-slate-800 dark:text-slate-200">{item.name}</span>
-                                      <span className="text-xs text-slate-500 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded">Stock: {item.openingStock || 0}</span>
-                                  </div>
-                              ))}
-                          </div>
-                      )}
-                  </div>
-                  <div className="col-span-6">
-                      <label className="block text-xs font-medium text-slate-500 mb-1">Qty</label>
-                      <input 
-                          type="number" 
-                          value={rmQuantity} 
-                          onChange={(e) => setRmQuantity(e.target.value ? Number(e.target.value) : '')}
-                          placeholder="Qty"
-                          className="w-full p-2 border border-slate-300 dark:border-slate-700 rounded bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white text-sm"
-                      />
-                  </div>
-                  <div className="col-span-6">
-                      <label className="block text-xs font-medium text-slate-500 mb-1">Cost/Unit</label>
-                      <input 
-                          type="number" 
-                          value={rmCost} 
-                          onChange={(e) => setRmCost(e.target.value ? Number(e.target.value) : '')}
-                          placeholder="₹"
-                          className="w-full p-2 border border-slate-300 dark:border-slate-700 rounded bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white text-sm"
-                      />
-                  </div>
-                  <div className="col-span-12 mt-2">
-                      <button 
-                          onClick={handleAddRawMaterial}
-                          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded font-bold flex items-center justify-center gap-2 transition-colors text-sm shadow-sm"
-                      >
-                          {editingRmIndex !== null ? <><Save size={16} /> Update Material</> : <><Plus size={16} /> Add Material</>}
-                      </button>
-                      {editingRmIndex !== null && (
-                          <button 
-                              onClick={() => {
-                                  setEditingRmIndex(null);
-                                  setRmName('');
-                                  setRmItemId('');
-                                  setRmQuantity('');
-                                  setRmCost('');
-                              }}
-                              className="w-full mt-2 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 py-2 rounded font-bold text-sm transition-colors"
-                          >
-                              Cancel Edit
-                          </button>
-                      )}
-                  </div>
-              </div>
-          </div>
-
-          {/* Raw Materials List */}
-          {rawMaterials.length > 0 && (
-              <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
-                  <div className="bg-slate-100 dark:bg-slate-800 p-2 text-xs font-bold text-slate-500 uppercase tracking-wider grid grid-cols-12 gap-2">
-                      <div className="col-span-5 pl-2">Item</div>
-                      <div className="col-span-2 text-center">Qty</div>
-                      <div className="col-span-3 text-right">Cost</div>
-                      <div className="col-span-2"></div>
-                  </div>
-                  <div className="divide-y divide-slate-100 dark:divide-slate-800">
-                      {rawMaterials.map((rm, index) => (
-                          <div key={index} className="grid grid-cols-12 gap-2 p-3 items-center text-sm">
-                              <div className="col-span-5 pl-2 font-medium text-slate-800 dark:text-slate-200 truncate">{rm.itemName}</div>
-                              <div className="col-span-2 text-center text-slate-600 dark:text-slate-400">{rm.quantity}</div>
-                              <div className="col-span-3 text-right font-medium text-slate-800 dark:text-slate-200">₹{(rm.quantity * rm.costPerUnit).toLocaleString('en-IN')}</div>
-                              <div className="col-span-2 flex justify-end gap-1 pr-1">
-                                  <button onClick={() => handleEditRawMaterial(index)} className="p-1.5 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded"><Edit2 size={14} /></button>
-                                  <button onClick={() => handleRemoveRawMaterial(index)} className="p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded"><Trash2 size={14} /></button>
-                              </div>
-                          </div>
-                      ))}
-                  </div>
-                  <div className="p-3 bg-purple-50 dark:bg-purple-900/20 border-t border-purple-100 dark:border-purple-800 flex justify-between items-center">
-                      <span className="text-sm font-bold text-purple-800 dark:text-purple-300">Total Raw Material Cost:</span>
-                      <span className="text-lg font-extrabold text-purple-700 dark:text-purple-400">₹{totalCost.toLocaleString('en-IN')}</span>
-                  </div>
-              </div>
-          )}
-
-          {/* Notes */}
-          <div className="bg-white dark:bg-slate-900 p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800">
-              <label className="block text-xs font-medium text-slate-500 mb-1">Notes (Optional)</label>
-              <textarea 
-                  value={notes} 
-                  onChange={(e) => setNotes(e.target.value)}
-                  rows={2}
-                  className="w-full p-2 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white"
-                  placeholder="Any details about this batch..."
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar">
+        {/* Finished Good Section */}
+        <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-gray-200 dark:border-slate-800 shadow-xs transition-colors">
+          <h2 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3 flex items-center gap-2">
+            <Package size={16} className="text-purple-500" /> {t.finishedGood}
+          </h2>
+          <div className="grid grid-cols-2 gap-3.5">
+            <div className="col-span-2 sm:col-span-1">
+              <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">{t.date}</label>
+              <input 
+                type="date" 
+                value={date} 
+                onChange={(e) => setDate(e.target.value)}
+                className="w-full p-2.5 border border-gray-200 dark:border-slate-800 rounded-lg bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white text-xs font-bold outline-none focus-active-light dark:focus-active-dark min-h-[44px]"
               />
+            </div>
+            <div className="col-span-2 relative">
+              <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 flex justify-between">
+                <span>{t.itemNameLabel}</span>
+                {lastRecipe && <span className="text-purple-600 dark:text-purple-400 font-bold">{t.autoRecipe}</span>}
+              </label>
+              <input 
+                type="text" 
+                value={finishedItemName} 
+                onChange={(e) => {
+                  setFinishedItemName(e.target.value);
+                  setFinishedItemId('');
+                  setLastRecipe(null); 
+                  setShowFinishedSuggestions(true);
+                }}
+                onFocus={() => setShowFinishedSuggestions(true)}
+                onBlur={() => setTimeout(() => setShowFinishedSuggestions(false), 200)}
+                placeholder={t.searchPlaceholder}
+                className="w-full p-2.5 border border-gray-200 dark:border-slate-800 rounded-lg bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white text-xs font-bold outline-none focus-active-light dark:focus-active-dark min-h-[44px]"
+              />
+              {showFinishedSuggestions && finishedSuggestions.length > 0 && (
+                <div className="absolute top-full left-0 right-0 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 shadow-2xl max-h-40 overflow-y-auto rounded-xl mt-1.5 z-50 divide-y divide-gray-100 dark:divide-slate-800">
+                  {finishedSuggestions.map(item => (
+                    <div 
+                      key={item.id}
+                      className="p-3 hover:bg-slate-50 dark:hover:bg-slate-850 cursor-pointer text-xs flex justify-between items-center"
+                      onMouseDown={() => handleSelectFinishedItem(item)}
+                    >
+                      <span className="font-bold text-slate-800 dark:text-slate-200">{item.name}</span>
+                      <span className="text-[10px] font-bold text-slate-500 bg-slate-100 dark:bg-slate-800 px-2.5 py-0.5 rounded-full">{t.stock}: {item.openingStock || 0}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            <div className="col-span-2 sm:col-span-1">
+              <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">{t.qtyProduced}</label>
+              <input 
+                type="number" 
+                value={finishedQuantity} 
+                onChange={(e) => handleFinishedQuantityChange(e.target.value)}
+                placeholder="Qty"
+                className="w-full p-2.5 border border-gray-200 dark:border-slate-800 rounded-lg bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white text-xs font-bold outline-none focus-active-light dark:focus-active-dark min-h-[44px]"
+              />
+            </div>
           </div>
+        </div>
+
+        {/* Raw Materials Entry Form */}
+        <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-gray-200 dark:border-slate-800 shadow-xs transition-colors">
+          <h2 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">{t.addRawMaterial}</h2>
+          <div className="grid grid-cols-12 gap-3.5">
+            <div className="col-span-12 relative">
+              <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">{t.itemHeader}</label>
+              <input 
+                type="text" 
+                value={rmName} 
+                onChange={(e) => {
+                  setRmName(e.target.value);
+                  setRmItemId('');
+                  setShowRmSuggestions(true);
+                }}
+                onFocus={() => setShowRmSuggestions(true)}
+                onBlur={() => setTimeout(() => setShowRmSuggestions(false), 200)}
+                placeholder={t.rmPlaceholder}
+                className="w-full p-2.5 border border-gray-200 dark:border-slate-800 rounded-lg bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white text-xs font-bold outline-none focus-active-light dark:focus-active-dark min-h-[44px]"
+              />
+              {showRmSuggestions && rmSuggestions.length > 0 && (
+                <div className="absolute top-full left-0 right-0 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 shadow-2xl max-h-40 overflow-y-auto rounded-xl mt-1.5 z-50 divide-y divide-gray-100 dark:divide-slate-800">
+                  {rmSuggestions.map(item => (
+                    <div 
+                      key={item.id}
+                      className="p-3 hover:bg-slate-50 dark:hover:bg-slate-850 cursor-pointer text-xs flex justify-between items-center"
+                      onMouseDown={() => handleSelectRmItem(item)}
+                    >
+                      <span className="font-bold text-slate-800 dark:text-slate-200">{item.name}</span>
+                      <span className="text-[10px] font-bold text-slate-500 bg-slate-100 dark:bg-slate-800 px-2.5 py-0.5 rounded-full">{t.stock}: {item.openingStock || 0}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            <div className="col-span-6">
+              <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">{t.qty}</label>
+              <input 
+                type="number" 
+                value={rmQuantity} 
+                onChange={(e) => setRmQuantity(e.target.value ? Number(e.target.value) : '')}
+                placeholder="Qty"
+                className="w-full p-2.5 border border-gray-200 dark:border-slate-800 rounded-lg bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white text-xs font-bold outline-none focus-active-light dark:focus-active-dark min-h-[44px]"
+              />
+            </div>
+            <div className="col-span-6">
+              <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">{t.costUnit}</label>
+              <input 
+                type="number" 
+                value={rmCost} 
+                onChange={(e) => setRmCost(e.target.value ? Number(e.target.value) : '')}
+                placeholder="₹"
+                className="w-full p-2.5 border border-gray-200 dark:border-slate-800 rounded-lg bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white text-xs font-bold outline-none focus-active-light dark:focus-active-dark min-h-[44px]"
+              />
+            </div>
+            <div className="col-span-12 mt-2">
+              <button 
+                onClick={handleAddRawMaterial}
+                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all text-xs uppercase tracking-wider shadow-sm min-h-[44px] active:scale-98 cursor-pointer"
+              >
+                {editingRmIndex !== null ? <>{t.updateMaterial}</> : <>{t.addMaterial}</>}
+              </button>
+              {editingRmIndex !== null && (
+                <button 
+                  onClick={() => {
+                    setEditingRmIndex(null);
+                    setRmName('');
+                    setRmItemId('');
+                    setRmQuantity('');
+                    setRmCost('');
+                  }}
+                  className="w-full mt-2 bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 py-3 rounded-xl font-bold text-xs uppercase tracking-wider transition-colors min-h-[44px] cursor-pointer"
+                >
+                  {t.cancelEdit}
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Raw Materials List */}
+        {rawMaterials.length > 0 && (
+          <div className="bg-white dark:bg-slate-900 rounded-xl shadow-xs border border-gray-200 dark:border-slate-800 overflow-hidden transition-colors">
+            <div className="bg-slate-50 dark:bg-slate-950 p-2.5 text-[10px] font-bold text-slate-500 uppercase tracking-widest grid grid-cols-12 gap-2 border-b border-gray-200 dark:border-slate-800">
+              <div className="col-span-5 pl-2">{t.itemHeader}</div>
+              <div className="col-span-2 text-center">{t.qty}</div>
+              <div className="col-span-3 text-right">{t.value}</div>
+              <div className="col-span-2"></div>
+            </div>
+            <div className="divide-y divide-gray-100 dark:divide-slate-800">
+              {rawMaterials.map((rm, index) => (
+                <div key={index} className="grid grid-cols-12 gap-2 p-3.5 items-center text-xs">
+                  <div className="col-span-5 pl-2 font-bold text-slate-900 dark:text-white truncate">{rm.itemName}</div>
+                  <div className="col-span-2 text-center text-slate-500 dark:text-slate-400 font-bold">{rm.quantity}</div>
+                  <div className="col-span-3 text-right font-extrabold text-slate-900 dark:text-white">₹{(rm.quantity * rm.costPerUnit).toLocaleString('en-IN')}</div>
+                  <div className="col-span-2 flex justify-end gap-1 pr-1">
+                    <button onClick={() => handleEditRawMaterial(index)} className="p-1.5 text-indigo-500 hover:bg-indigo-500/10 rounded-lg min-w-[34px] min-h-[34px] flex items-center justify-center active:scale-90 transition-all"><Edit2 size={14} /></button>
+                    <button onClick={() => handleRemoveRawMaterial(index)} className="p-1.5 text-rose-500 hover:bg-rose-500/10 rounded-lg min-w-[34px] min-h-[34px] flex items-center justify-center active:scale-90 transition-all"><Trash2 size={14} /></button>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="p-4 bg-purple-500/5 border-t border-purple-500/10 dark:border-purple-800/20 flex justify-between items-center">
+              <span className="text-xs font-bold text-purple-700 dark:text-purple-400 uppercase tracking-wider">{t.totalCostLabel}</span>
+              <span className="text-base font-black text-purple-650 dark:text-purple-450">₹{totalCost.toLocaleString('en-IN')}</span>
+            </div>
+          </div>
+        )}
+
+        {/* Notes */}
+        <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-gray-200 dark:border-slate-800 shadow-xs transition-colors">
+          <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">{t.notesLabel}</label>
+          <textarea 
+            value={notes} 
+            onChange={(e) => setNotes(e.target.value)}
+            rows={2}
+            className="w-full p-2.5 border border-gray-200 dark:border-slate-800 rounded-lg bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white text-xs font-bold outline-none focus-active-light dark:focus-active-dark"
+            placeholder={t.notesPlaceholder}
+          />
+        </div>
       </div>
 
-      <div className="p-4 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 shrink-0">
-          <button 
-              onClick={handleSave}
-              disabled={isSaving}
-              className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-colors disabled:opacity-50 shadow-md"
-          >
-              <Save size={20} /> {isSaving ? 'Saving...' : 'Save Manufacturing Entry'}
-          </button>
+      <div className="p-4 bg-white dark:bg-slate-900 border-t border-gray-200 dark:border-slate-800 shrink-0">
+        <button 
+          onClick={handleSave}
+          disabled={isSaving}
+          className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all disabled:opacity-50 shadow-md min-h-[48px] uppercase tracking-wider text-xs cursor-pointer"
+        >
+          <Save size={18} /> {isSaving ? t.saving : t.saveEntry}
+        </button>
       </div>
-    </div>
+    </motion.div>
   );
 };
