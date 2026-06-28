@@ -271,7 +271,7 @@ export const ManufacturingScreen: React.FC<ManufacturingScreenProps> = ({ onBack
             <ArrowLeft size={24} />
           </button>
           <div className="flex items-center gap-2.5">
-            <Factory size={22} className="text-purple-600 dark:text-purple-400" />
+            <Factory size={22} className="text-indigo-650 dark:text-indigo-400" />
             <h1 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white leading-tight">
               {t.title}
             </h1>
@@ -283,7 +283,7 @@ export const ManufacturingScreen: React.FC<ManufacturingScreenProps> = ({ onBack
         {/* Finished Good Section */}
         <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-gray-200 dark:border-slate-800 shadow-xs transition-colors">
           <h2 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3 flex items-center gap-2">
-            <Package size={16} className="text-purple-500" /> {t.finishedGood}
+            <Package size={16} className="text-indigo-500" /> {t.finishedGood}
           </h2>
           <div className="grid grid-cols-2 gap-3.5">
             <div className="col-span-2 sm:col-span-1">
@@ -298,7 +298,7 @@ export const ManufacturingScreen: React.FC<ManufacturingScreenProps> = ({ onBack
             <div className="col-span-2 relative">
               <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 flex justify-between">
                 <span>{t.itemNameLabel}</span>
-                {lastRecipe && <span className="text-purple-600 dark:text-purple-400 font-bold">{t.autoRecipe}</span>}
+                {lastRecipe && <span className="text-indigo-600 dark:text-indigo-400 font-bold">{t.autoRecipe}</span>}
               </label>
               <input 
                 type="text" 
@@ -443,9 +443,9 @@ export const ManufacturingScreen: React.FC<ManufacturingScreenProps> = ({ onBack
                 </div>
               ))}
             </div>
-            <div className="p-4 bg-purple-500/5 border-t border-purple-500/10 dark:border-purple-800/20 flex justify-between items-center">
-              <span className="text-xs font-bold text-purple-700 dark:text-purple-400 uppercase tracking-wider">{t.totalCostLabel}</span>
-              <span className="text-base font-black text-purple-650 dark:text-purple-450">₹{totalCost.toLocaleString('en-IN')}</span>
+            <div className="p-4 bg-indigo-500/5 border-t border-indigo-500/10 dark:border-indigo-800/20 flex justify-between items-center">
+              <span className="text-xs font-bold text-indigo-700 dark:text-indigo-400 uppercase tracking-wider">{t.totalCostLabel}</span>
+              <span className="text-base font-black text-indigo-650 dark:text-indigo-455">₹{totalCost.toLocaleString('en-IN')}</span>
             </div>
           </div>
         )}
@@ -467,7 +467,7 @@ export const ManufacturingScreen: React.FC<ManufacturingScreenProps> = ({ onBack
         <button 
           onClick={handleSave}
           disabled={isSaving}
-          className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all disabled:opacity-50 shadow-md min-h-[48px] uppercase tracking-wider text-xs cursor-pointer"
+          className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all disabled:opacity-50 shadow-md min-h-[48px] uppercase tracking-wider text-xs cursor-pointer"
         >
           <Save size={18} /> {isSaving ? t.saving : t.saveEntry}
         </button>
