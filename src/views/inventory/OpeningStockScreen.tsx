@@ -48,15 +48,16 @@ export const OpeningStockScreen: React.FC<OpeningStockScreenProps> = ({ onBack, 
   // Dynamic Bilingual Localization Dictionary Data Object
   const t = {
     title: isHi ? 'ओपनिंग स्टॉक' : 'Opening Stock',
-    selectDate: isHi ? 'तारीख चुनें' : 'Select Date',
-    itemName: isHi ? 'मद का नाम' : 'Item Name',
+    subtitle: isHi ? 'स्टॉक और प्रारंभिक मूल्य कॉन्फ़िगरेशन' : 'STOCK & INITIAL PRICE CONFIGURATION',
+    selectDate: isHi ? 'तारीख का चयन' : 'Select Date',
+    itemName: isHi ? 'मद का नाम (Item Name)' : 'Item Name',
     mrp: isHi ? 'एमआरपी (MRP)' : 'MRP',
     purchasePrice: isHi ? 'खरीद मूल्य' : 'Purchase Price',
     salePrice: isHi ? 'बिक्री मूल्य' : 'Sale Price',
-    openingStock: isHi ? 'प्रारंभिक स्टॉक' : 'Opening Stock',
+    openingStock: isHi ? 'प्रारंभिक स्टॉक मात्रा' : 'Opening Stock Qty',
     addBtn: isHi ? 'जोड़ें' : 'ADD',
     totalItems: isHi ? 'कुल आइटम' : 'Total Items',
-    capitalLedger: isHi ? 'कैपिटल लेज़र चुनें' : 'Select Capital Ledger',
+    capitalLedger: isHi ? 'पूंजी खाता चुनें (Capital Ledger)' : 'Select Capital Ledger',
     saveBtn: isHi ? 'ओपनिंग स्टॉक सहेजें' : 'SAVE OPENING STOCK',
     saveHeaderBtn: isHi ? 'सहेजें' : 'Save',
     scanBarcode: isHi ? 'बारकोड स्कैन करें' : 'Scan Barcode',
@@ -262,22 +263,25 @@ export const OpeningStockScreen: React.FC<OpeningStockScreenProps> = ({ onBack, 
         </div>
       )}
 
-      {/* Top Header */}
+      {/* Premium Top Header (Matches the sleek Tax Master screenshot layout style) */}
       <header className="bg-[var(--bg-card)] p-4 flex items-center justify-between shadow-sm shrink-0 border-b border-[var(--border-ui)] pt-[max(env(safe-area-inset-top),48px)] transition-colors">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-4">
           <button 
             type="button"
             onClick={onBack}
-            className="hover:bg-slate-100 dark:hover:bg-slate-800 text-[var(--text-secondary)] hover:text-[var(--text-main)] p-1.5 rounded-full transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+            className="hover:bg-slate-100 dark:hover:bg-slate-800 text-[var(--text-secondary)] hover:text-[var(--text-main)] p-2 rounded-full transition-all min-w-[44px] min-h-[44px] flex items-center justify-center active:scale-90"
             aria-label="Go back"
             id="opening-stock-back-btn"
           >
             <ArrowLeft size={24} />
           </button>
           <div>
-            <h1 className="text-xl font-extrabold tracking-tight text-[var(--text-main)]" id="opening-stock-header-title">
+            <h1 className="text-xl font-bold tracking-tight text-[var(--text-main)] leading-tight" id="opening-stock-header-title">
               {t.title}
             </h1>
+            <p className="text-[10px] font-bold text-[var(--text-secondary)] tracking-widest mt-0.5 opacity-80 uppercase">
+              {t.subtitle}
+            </p>
           </div>
         </div>
 
@@ -285,11 +289,11 @@ export const OpeningStockScreen: React.FC<OpeningStockScreenProps> = ({ onBack, 
           <button 
             type="button"
             onClick={handleSave} 
-            className="bg-[var(--brand-primary)] hover:bg-[var(--brand-hover)] text-white font-bold py-2 px-4 rounded-lg transition-colors flex items-center gap-1.5 shadow-sm active:scale-95 min-h-[44px] cursor-pointer"
+            className="bg-[var(--brand-primary)] hover:bg-[var(--brand-hover)] text-white font-bold py-2 px-5 rounded-lg transition-all flex items-center gap-1.5 shadow-sm active:scale-95 min-h-[44px] cursor-pointer"
             id="opening-stock-save-btn"
           >
             <Check size={18} />
-            <span>{t.saveHeaderBtn}</span>
+            <span className="text-xs uppercase tracking-wider">{t.saveHeaderBtn}</span>
           </button>
         </PermissionWrapper>
       </header>
@@ -302,27 +306,27 @@ export const OpeningStockScreen: React.FC<OpeningStockScreenProps> = ({ onBack, 
           <div className="lg:col-span-7 space-y-4 w-full">
             
             {/* Form Fields Card */}
-            <div className="bg-[var(--bg-card)] p-6 rounded-xl border border-[var(--border-ui)] shadow-sm space-y-4 transition-colors">
+            <div className="bg-[var(--bg-card)] p-6 rounded-xl border border-[var(--border-ui)] shadow-sm space-y-5 transition-colors">
               
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {/* Date Field */}
                 <div className="relative col-span-1">
-                  <label className="block text-sm font-bold text-[var(--text-secondary)] mb-1 flex items-center gap-1">
-                    <Calendar size={16} className="text-slate-400" />
+                  <label className="block text-[11px] font-bold tracking-wider text-[var(--text-secondary)] mb-1.5 uppercase flex items-center gap-1">
+                    <Calendar size={14} className="text-[var(--brand-primary)]" />
                     {t.selectDate}
                   </label>
                   <input 
                     type="date" 
                     value={date}
                     onChange={(e) => setDate(e.target.value)}
-                    className="block w-full px-3 py-2 border border-[var(--border-ui)] rounded-lg bg-[var(--bg-card)] text-[var(--text-main)] focus:outline-none focus-active-light dark:focus-active-dark transition-all shadow-sm text-sm min-h-[44px]"
+                    className="block w-full px-3.5 py-2.5 border border-[var(--border-ui)] rounded-lg bg-[var(--bg-card)] text-[var(--text-main)] focus:outline-none focus-active-light dark:focus-active-dark transition-all shadow-sm text-sm min-h-[44px]"
                   />
                 </div>
 
                 {/* Item Name Field */}
                 <div className="relative col-span-1">
-                  <label className="block text-sm font-bold text-[var(--text-secondary)] mb-1 flex items-center gap-1">
-                    <Tag size={16} className="text-slate-400" />
+                  <label className="block text-[11px] font-bold tracking-wider text-[var(--text-secondary)] mb-1.5 uppercase flex items-center gap-1">
+                    <Tag size={14} className="text-[var(--brand-primary)]" />
                     {t.itemName}
                   </label>
                   <div className="flex items-center gap-2">
@@ -337,14 +341,14 @@ export const OpeningStockScreen: React.FC<OpeningStockScreenProps> = ({ onBack, 
                         onFocus={() => setShowSuggestions(true)}
                         onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
                         placeholder={t.placeholderItem}
-                        className="block w-full px-3 py-2 border border-[var(--border-ui)] rounded-lg bg-[var(--bg-card)] text-[var(--text-main)] placeholder-slate-400 focus:outline-none focus-active-light dark:focus-active-dark transition-all shadow-sm text-sm min-h-[44px]"
+                        className="block w-full px-3.5 py-2.5 border border-[var(--border-ui)] rounded-lg bg-[var(--bg-card)] text-[var(--text-main)] placeholder-slate-400 focus:outline-none focus-active-light dark:focus-active-dark transition-all shadow-sm text-sm min-h-[44px]"
                       />
                     </div>
                     {localStorage.getItem('showBarcodeScanner') !== 'false' && (
                       <button 
                         type="button"
                         onClick={startScanner} 
-                        className="p-2 text-[var(--text-secondary)] hover:text-[var(--brand-primary)] bg-[var(--bg-app)] hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg border border-[var(--border-ui)] transition-colors flex items-center justify-center cursor-pointer min-h-[44px] min-w-[44px] shrink-0"
+                        className="p-2 text-[var(--text-secondary)] hover:text-white hover:bg-[var(--brand-primary)] bg-[var(--bg-app)] rounded-lg border border-[var(--border-ui)] transition-all flex items-center justify-center cursor-pointer min-h-[44px] min-w-[44px] shrink-0 active:scale-90"
                         title={t.scanBarcode}
                       >
                         <QrCode size={18} />
@@ -367,7 +371,7 @@ export const OpeningStockScreen: React.FC<OpeningStockScreenProps> = ({ onBack, 
                             onMouseDown={() => handleSelectItem(item)}
                           >
                             <span className="font-bold text-[var(--text-main)]">{item.name}</span>
-                            <span className="text-xs text-[var(--text-secondary)] bg-[var(--bg-app)] px-2 py-1 rounded-md">
+                            <span className="text-xs text-[var(--text-secondary)] bg-[var(--bg-app)] px-2.5 py-1 rounded-full font-bold">
                               Stock: {item.openingStock || 0}
                             </span>
                           </div>
@@ -381,8 +385,8 @@ export const OpeningStockScreen: React.FC<OpeningStockScreenProps> = ({ onBack, 
               <div className="grid grid-cols-2 gap-4">
                 {/* MRP */}
                 <div className="col-span-1">
-                  <label className="block text-sm font-bold text-[var(--text-secondary)] mb-1 flex items-center gap-1">
-                    <DollarSign size={16} className="text-slate-400" />
+                  <label className="block text-[11px] font-bold tracking-wider text-[var(--text-secondary)] mb-1.5 uppercase flex items-center gap-1">
+                    <DollarSign size={14} className="text-[var(--brand-primary)]" />
                     {t.mrp}
                   </label>
                   <input 
@@ -390,13 +394,13 @@ export const OpeningStockScreen: React.FC<OpeningStockScreenProps> = ({ onBack, 
                     value={mrp}
                     onChange={(e) => setMrp(e.target.value ? Number(e.target.value) : '')}
                     placeholder="₹ 0.00"
-                    className="block w-full px-3 py-2 border border-[var(--border-ui)] rounded-lg bg-[var(--bg-card)] text-[var(--text-main)] placeholder-slate-400 focus:outline-none focus-active-light dark:focus-active-dark transition-all shadow-sm text-sm min-h-[44px]"
+                    className="block w-full px-3.5 py-2.5 border border-[var(--border-ui)] rounded-lg bg-[var(--bg-card)] text-[var(--text-main)] placeholder-slate-400/60 focus:outline-none focus-active-light dark:focus-active-dark transition-all shadow-sm text-sm min-h-[44px]"
                   />
                 </div>
                 {/* Purchase Price */}
                 <div className="col-span-1">
-                  <label className="block text-sm font-bold text-[var(--text-secondary)] mb-1 flex items-center gap-1">
-                    <DollarSign size={16} className="text-slate-400" />
+                  <label className="block text-[11px] font-bold tracking-wider text-[var(--text-secondary)] mb-1.5 uppercase flex items-center gap-1">
+                    <DollarSign size={14} className="text-[var(--brand-primary)]" />
                     {t.purchasePrice}
                   </label>
                   <input 
@@ -404,7 +408,7 @@ export const OpeningStockScreen: React.FC<OpeningStockScreenProps> = ({ onBack, 
                     value={purchasePrice}
                     onChange={(e) => setPurchasePrice(e.target.value ? Number(e.target.value) : '')}
                     placeholder="₹ 0.00"
-                    className="block w-full px-3 py-2 border border-[var(--border-ui)] rounded-lg bg-[var(--bg-card)] text-[var(--text-main)] placeholder-slate-400 focus:outline-none focus-active-light dark:focus-active-dark transition-all shadow-sm text-sm min-h-[44px]"
+                    className="block w-full px-3.5 py-2.5 border border-[var(--border-ui)] rounded-lg bg-[var(--bg-card)] text-[var(--text-main)] placeholder-slate-400/60 focus:outline-none focus-active-light dark:focus-active-dark transition-all shadow-sm text-sm min-h-[44px]"
                   />
                 </div>
               </div>
@@ -412,8 +416,8 @@ export const OpeningStockScreen: React.FC<OpeningStockScreenProps> = ({ onBack, 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-end">
                 {/* Sale Price */}
                 <div className="col-span-1">
-                  <label className="block text-sm font-bold text-[var(--text-secondary)] mb-1 flex items-center gap-1">
-                    <DollarSign size={16} className="text-slate-400" />
+                  <label className="block text-[11px] font-bold tracking-wider text-[var(--text-secondary)] mb-1.5 uppercase flex items-center gap-1">
+                    <DollarSign size={14} className="text-[var(--brand-primary)]" />
                     {t.salePrice}
                   </label>
                   <input 
@@ -421,15 +425,15 @@ export const OpeningStockScreen: React.FC<OpeningStockScreenProps> = ({ onBack, 
                     value={salePrice}
                     onChange={(e) => setSalePrice(e.target.value ? Number(e.target.value) : '')}
                     placeholder="₹ 0.00"
-                    className="block w-full px-3 py-2 border border-[var(--border-ui)] rounded-lg bg-[var(--bg-card)] text-[var(--text-main)] placeholder-slate-400 focus:outline-none focus-active-light dark:focus-active-dark transition-all shadow-sm text-sm min-h-[44px]"
+                    className="block w-full px-3.5 py-2.5 border border-[var(--border-ui)] rounded-lg bg-[var(--bg-card)] text-[var(--text-main)] placeholder-slate-400/60 focus:outline-none focus-active-light dark:focus-active-dark transition-all shadow-sm text-sm min-h-[44px]"
                   />
                 </div>
                 
                 {/* Opening Stock + ADD Button */}
                 <div className="col-span-1 flex gap-2 items-end">
                   <div className="flex-1">
-                    <label className="block text-sm font-bold text-[var(--text-secondary)] mb-1 flex items-center gap-1">
-                      <BoxIcon size={16} className="text-slate-400" />
+                    <label className="block text-[11px] font-bold tracking-wider text-[var(--text-secondary)] mb-1.5 uppercase flex items-center gap-1">
+                      <BoxIcon size={14} className="text-[var(--brand-primary)]" />
                       {t.openingStock}
                     </label>
                     <input 
@@ -438,13 +442,13 @@ export const OpeningStockScreen: React.FC<OpeningStockScreenProps> = ({ onBack, 
                       value={openingStock}
                       onChange={(e) => setOpeningStock(e.target.value ? Number(e.target.value) : '')}
                       placeholder="0"
-                      className="block w-full px-3 py-2 border border-[var(--border-ui)] rounded-lg bg-[var(--bg-card)] text-[var(--text-main)] placeholder-slate-400 focus:outline-none focus-active-light dark:focus-active-dark transition-all shadow-sm font-bold text-[var(--brand-primary)] text-sm min-h-[44px]"
+                      className="block w-full px-3.5 py-2.5 border border-[var(--border-ui)] rounded-lg bg-[var(--bg-card)] text-[var(--text-main)] placeholder-slate-400 focus:outline-none focus-active-light dark:focus-active-dark transition-all shadow-sm font-bold text-[var(--brand-primary)] text-sm min-h-[44px]"
                     />
                   </div>
                   <button 
                     type="button"
                     onClick={handleAdd}
-                    className="bg-[var(--brand-primary)] hover:bg-[var(--brand-hover)] text-white font-bold text-sm rounded-lg transition-colors shadow-sm active:scale-95 cursor-pointer flex items-center justify-center gap-1 shrink-0 min-h-[44px] px-5"
+                    className="bg-[var(--brand-primary)] hover:bg-[var(--brand-hover)] text-white font-bold text-xs uppercase tracking-wider rounded-lg transition-all shadow-sm active:scale-95 cursor-pointer flex items-center justify-center gap-1.5 shrink-0 min-h-[44px] px-6"
                   >
                     <Plus size={16} />
                     <span>{t.addBtn}</span>
@@ -454,16 +458,16 @@ export const OpeningStockScreen: React.FC<OpeningStockScreenProps> = ({ onBack, 
             </div>
 
             {/* Capital Ledger Field */}
-            <div className="bg-[var(--bg-card)] p-6 rounded-xl border border-[var(--border-ui)] shadow-sm space-y-2 transition-colors">
-              <label className="block text-sm font-bold text-[var(--text-secondary)] mb-1 flex items-center gap-1.5">
-                <FileText size={16} className="text-slate-400" />
+            <div className="bg-[var(--bg-card)] p-6 rounded-xl border border-[var(--border-ui)] shadow-sm space-y-3 transition-colors">
+              <label className="block text-[11px] font-bold tracking-wider text-[var(--text-secondary)] uppercase flex items-center gap-1.5">
+                <FileText size={14} className="text-[var(--brand-primary)]" />
                 {t.capitalLedger}
               </label>
               <input 
                 type="text" 
                 value={capitalLedger}
                 onChange={(e) => setCapitalLedger(e.target.value)}
-                className="block w-full px-3 py-2 border border-[var(--border-ui)] rounded-lg bg-[var(--bg-card)] text-[var(--text-main)] focus:outline-none focus-active-light dark:focus-active-dark transition-all shadow-sm text-center font-bold tracking-wider uppercase text-sm min-h-[44px]"
+                className="block w-full px-3.5 py-2.5 border border-[var(--border-ui)] rounded-lg bg-[var(--bg-card)] text-[var(--text-main)] focus:outline-none focus-active-light dark:focus-active-dark transition-all shadow-sm text-center font-bold tracking-wider uppercase text-sm min-h-[44px]"
               />
             </div>
 
@@ -472,7 +476,7 @@ export const OpeningStockScreen: React.FC<OpeningStockScreenProps> = ({ onBack, 
               <button 
                 type="button"
                 onClick={handleSave}
-                className="w-full py-3 bg-[var(--brand-primary)] hover:bg-[var(--brand-hover)] text-white font-bold rounded-lg transition-all shadow-md active:scale-[0.98] cursor-pointer text-center text-sm min-h-[44px] flex items-center justify-center"
+                className="w-full py-3.5 bg-[var(--brand-primary)] hover:bg-[var(--brand-hover)] text-white font-bold rounded-lg transition-all shadow-md active:scale-[0.98] cursor-pointer text-center text-xs tracking-widest uppercase min-h-[48px] flex items-center justify-center"
               >
                 {t.saveBtn}
               </button>
@@ -484,31 +488,38 @@ export const OpeningStockScreen: React.FC<OpeningStockScreenProps> = ({ onBack, 
           <div className="lg:col-span-5 space-y-4 w-full lg:sticky lg:top-4">
             
             <div className="bg-[var(--bg-card)] p-6 rounded-xl border border-[var(--border-ui)] shadow-sm space-y-4 transition-colors">
-              <div className="flex justify-between items-center pb-2.5 border-b border-[var(--border-ui)]">
-                <h3 className="text-sm font-bold text-[var(--text-secondary)] flex items-center gap-1.5">
-                  <Sparkles size={16} className="text-[var(--brand-primary)]" />
+              <div className="flex justify-between items-center pb-3 border-b border-[var(--border-ui)]">
+                <h3 className="text-xs font-bold tracking-wider uppercase text-[var(--text-secondary)] flex items-center gap-1.5">
+                  <Sparkles size={14} className="text-[var(--brand-primary)]" />
                   {t.history}
                 </h3>
-                <span className="text-xs font-bold px-2.5 py-1 bg-[var(--brand-light)] text-[var(--brand-primary)] rounded-full">
+                <span className="text-[10px] font-bold tracking-wider px-3 py-1 bg-[var(--brand-light)] text-[var(--brand-primary)] rounded-full uppercase">
                   {t.totalItems}: {addedItems.length}
                 </span>
               </div>
 
-              <div className="min-h-[120px] max-h-[350px] overflow-y-auto space-y-2 pr-1 divide-y divide-[var(--border-ui)] custom-scrollbar">
+              {/* Redesigned Inventory Log - Adapts beautiful list rows from the screenshot style */}
+              <div className="min-h-[120px] max-h-[350px] overflow-y-auto space-y-3.5 pr-1 divide-y divide-[var(--border-ui)]/40 custom-scrollbar">
                 {addedItems.length === 0 ? (
                   <div className="h-36 flex flex-col items-center justify-center text-center text-slate-400/70 pl-1">
                     <p className="text-xs font-bold italic">{t.noItemsYet}</p>
                   </div>
                 ) : (
                   addedItems.map((added, idx) => (
-                    <div key={idx} className="flex justify-between items-center py-2.5 first:pt-0 last:pb-0 transition-transform duration-200 hover:scale-[1.01]">
-                      <div className="min-w-0 flex-1">
-                        <p className="text-sm font-bold text-[var(--text-main)] truncate pr-2">
-                          {added.item.name}
-                        </p>
-                        <p className="text-xs text-[var(--text-secondary)] mt-0.5">
-                          {t.mrp}: ₹{added.item.mrp?.toFixed(2)} • Sale: ₹{added.item.saleRate?.toFixed(2)}
-                        </p>
+                    <div key={idx} className="flex justify-between items-center pt-3.5 first:pt-0 transition-all hover:translate-x-1 duration-150">
+                      <div className="min-w-0 flex-1 flex items-start gap-3">
+                        {/* Decorative Icon like the screenshot % sign */}
+                        <div className="w-9 h-9 bg-[var(--brand-light)] text-[var(--brand-primary)] rounded-lg flex items-center justify-center shrink-0">
+                          <BoxIcon size={16} />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-bold text-[var(--text-main)] truncate pr-2">
+                            {added.item.name}
+                          </p>
+                          <p className="text-xs text-[var(--text-secondary)] mt-0.5">
+                            {t.mrp}: ₹{added.item.mrp?.toFixed(2)} • Sale: ₹{added.item.saleRate?.toFixed(2)}
+                          </p>
+                        </div>
                       </div>
                       <div className="flex items-center gap-3 shrink-0">
                         <div className="text-right">
@@ -522,7 +533,7 @@ export const OpeningStockScreen: React.FC<OpeningStockScreenProps> = ({ onBack, 
                         <button 
                           type="button"
                           onClick={() => removeItem(idx)} 
-                          className="text-rose-500 hover:bg-rose-500/10 p-2 rounded-lg active:scale-95 transition-all cursor-pointer min-w-[44px] min-h-[44px] flex items-center justify-center"
+                          className="text-rose-500 hover:bg-rose-500/10 p-2 rounded-lg active:scale-95 transition-all cursor-pointer min-w-[40px] min-h-[40px] flex items-center justify-center"
                         >
                           <X size={16} />
                         </button>
@@ -532,8 +543,8 @@ export const OpeningStockScreen: React.FC<OpeningStockScreenProps> = ({ onBack, 
                 )}
               </div>
 
-              <div className="pt-3 border-t border-[var(--border-ui)] flex justify-between items-center font-sans">
-                <span className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-widest pl-1">{t.totalCapitalValue}</span>
+              <div className="pt-4 border-t border-[var(--border-ui)] flex justify-between items-center font-sans">
+                <span className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-wider pl-1">{t.totalCapitalValue}</span>
                 <span className="text-lg font-bold text-[var(--text-main)] tracking-tight">
                   ₹{totalAmount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </span>
