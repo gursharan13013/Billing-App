@@ -17,7 +17,6 @@ interface BusinessReportScreenProps {
   language?: Language;
 }
 
-// Extended Invoice type for display purposes
 interface InvoiceDisplay extends Invoice {
     totalQty: number;
     gstAmount: number;
@@ -39,10 +38,11 @@ const MONTH_NAMES: { [key: string]: { en: string; hi: string } } = {
   Jun: { en: 'Jun', hi: 'जून' },
   Jul: { en: 'Jul', hi: 'जुलाई' },
   Aug: { en: 'Aug', hi: 'अगस्त' },
+  Jan: { en: 'Jan', hi: 'जनवरी' },
+  Dec: { en: 'Dec', hi: 'दिसंबर' },
   Sep: { en: 'Sep', hi: 'सितंबर' },
   Oct: { en: 'Oct', hi: 'अक्टूबर' },
-  Nov: { en: 'Nov', hi: 'नवंबर' },
-  Dec: { en: 'Dec', hi: 'दिसंबर' },
+  Nov: { en: 'Nov', hi: 'नवंबर' }
 };
 
 const FULL_MONTH_NAMES: { [key: string]: { en: string; hi: string } } = {
@@ -99,7 +99,6 @@ const LOCALIZATION = {
       'Month': "Month's",
       'All': "All Time"
     },
-    // Modals
     confirmDeleteTitle: "Delete Invoices?",
     confirmDeleteMsg: "Are you sure you want to delete {count} selected invoice(s)? This will reverse stock changes and cannot be undone.",
     cancel: "Cancel",
@@ -121,7 +120,7 @@ const LOCALIZATION = {
     detailedView: "विस्तृत रिपोर्ट विवरण",
     searchPlaceholder: "नाम या बिल नंबर खोजें...",
     today: "आज",
-    month: "महीना",
+    month: "मनीना",
     all: "सब",
     monthCol: "महीना",
     billsCol: "बिल",
@@ -154,7 +153,6 @@ const LOCALIZATION = {
       'Month': "इस महीने की",
       'All': "कुल समय की"
     },
-    // Modals
     confirmDeleteTitle: "बिल हटाएं?",
     confirmDeleteMsg: "क्या आप वाकई {count} चयनित बिलों को हटाना चाहते हैं? इससे स्टॉक परिवर्तन उलट जाएंगे और इसे वापस नहीं लिया जा सकता।",
     cancel: "रद्द करें",
@@ -238,7 +236,7 @@ export const BusinessReportScreen: React.FC<BusinessReportScreenProps> = ({
   };
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [payments, setPayments] = useState<PaymentRecord[]>([]);
-  const [allParties, setAllParties] = useState<Party[]>([]); // To look up mobile numbers
+  const [allParties, setAllParties] = useState<Party[]>([]); 
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState(initialSearchQuery);
   
@@ -250,10 +248,7 @@ export const BusinessReportScreen: React.FC<BusinessReportScreenProps> = ({
     localStorage.setItem('businessReportDateFilter', dateFilter);
   }, [dateFilter]);
   
-  // Selection State
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
-
-  // Modal States
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [alertModal, setAlertModal] = useState<{
       isOpen: boolean;
@@ -276,7 +271,7 @@ export const BusinessReportScreen: React.FC<BusinessReportScreenProps> = ({
   
   useEffect(() => {
     setActiveTab(initialTab);
-    setSelectedIds([]); // Clear selection on tab change
+    setSelectedIds([]); 
   }, [initialTab]);
 
   useEffect(() => {
@@ -285,14 +280,9 @@ export const BusinessReportScreen: React.FC<BusinessReportScreenProps> = ({
 
   const loadData = async () => {
     setLoading(true);
-    // Fetch Invoices
     const invPromise = billingService.getInvoices(activeTab);
-
-    // Fetch Payments to calculate balance (Opposite type: Sale -> Receipt)
     const paymentType = (activeTab === 'Sale' || activeTab === 'Sale Return') ? 'Receipt' : 'Payment';
     const payPromise = billingService.getAllPayments(paymentType);
-    
-    // Fetch Parties for Mobile Numbers
     const partyPromise = billingService.getAllParties();
 
     const [invData, payData, partiesData] = await Promise.all([invPromise, payPromise, partyPromise]);
@@ -306,61 +296,50 @@ export const BusinessReportScreen: React.FC<BusinessReportScreenProps> = ({
 
   const [selectedSummaryMonth, setSelectedSummaryMonth] = useState<string>('');
 
-  // --- Processing Data for Table ---
   const now = new Date();
   const offset = now.getTimezoneOffset();
   const localDate = new Date(now.getTime() - (offset*60*1000));
   const todayStr = localDate.toISOString().split('T')[0];
-  const currentMonthStr = todayStr.slice(0, 7); // YYYY-MM
+  const currentMonthStr = todayStr.slice(0, 7); 
   const currentMonthName = localDate.toLocaleString('en-US', { month: 'short' });
 
   const processedInvoices: InvoiceDisplay[] = useMemo(() => {
       let filtered = invoices;
 
-      // 1. Date Filtering
       if (dateFilter === 'Today') {
           filtered = filtered.filter(inv => inv.date === todayStr);
       } else if (dateFilter === 'Month') {
           const targetMonth = selectedSummaryMonth || currentMonthStr;
           filtered = filtered.filter(inv => inv.date.startsWith(targetMonth));
       }
-      // 'All' does not filter by date
 
-      // 2. Search Filtering
       filtered = filtered.filter(inv => 
         inv.partyName.toLowerCase().includes(searchQuery.trim().toLowerCase()) || 
         inv.invoiceNo.toLowerCase().includes(searchQuery.trim().toLowerCase())
       );
 
       const mappedList = filtered.map(inv => {
-          // 1. Calculate Item Details (Qty, GST)
           let qty = 0;
           let gst = 0;
           
           if (inv.items) {
                inv.items.forEach(item => {
                   qty += item.qty;
-                  
                   const gross = item.qty * item.rate;
                   const discounted = gross - (gross * item.discountPercent / 100);
                   
                   if (item.taxType === 'Excluded') {
                       gst += discounted * (item.taxPercent / 100);
                   } else {
-                      // Back calculate GST from inclusive amount
                       const base = discounted / (1 + item.taxPercent / 100);
                       gst += discounted - base;
                   }
               });
           }
 
-          // 2. Calculate Payment Paid against this invoice
           const linkedPayments = payments.filter(p => p.invoiceId === inv.id);
           const paid = linkedPayments.reduce((sum, p) => sum + p.amount, 0);
-
-          // 3. Balance & Advance Logic
           const net = inv.totalAmount - paid;
-          
           const balance = net > 0 ? net : 0;
           const advance = net < 0 ? Math.abs(net) : 0;
 
@@ -374,27 +353,23 @@ export const BusinessReportScreen: React.FC<BusinessReportScreenProps> = ({
           };
       });
 
-      // Sort by Date DESC, then by Invoice No DESC (Latest overall first)
       return mappedList.sort((a, b) => {
           if (a.date !== b.date) {
-              return b.date.localeCompare(a.date); // Newer date first
+              return b.date.localeCompare(a.date); 
           }
-          // Sort invoiceNo DESC
           const numA = parseInt(a.invoiceNo.replace(/\D/g, '')) || 0;
           const numB = parseInt(b.invoiceNo.replace(/\D/g, '')) || 0;
           if (numA !== numB) {
-              return numB - numA; // Descending numerical
+              return numB - numA; 
           }
-          return b.invoiceNo.localeCompare(a.invoiceNo); // Descending string fallback
+          return b.invoiceNo.localeCompare(a.invoiceNo); 
       });
   }, [invoices, payments, searchQuery, dateFilter, selectedSummaryMonth]);
 
-  // --- Monthly Summary Calculation (For 'All' tab) ---
   const monthlySummary = useMemo(() => {
       if (dateFilter !== 'All') return [];
       
       const year = localDate.getFullYear();
-      // Use current year's Apr to Mar (Financial Year)
       const isPostMarch = localDate.getMonth() >= 3;
       const startYear = isPostMarch ? year : year - 1;
       
@@ -414,9 +389,7 @@ export const BusinessReportScreen: React.FC<BusinessReportScreenProps> = ({
       ];
 
       return months.map(m => {
-          // get invoices for this month
           const monthInvoices = processedInvoices.filter(inv => inv.date.startsWith(m.monthStr));
-          
           let bills = monthInvoices.length;
           let totalQty = monthInvoices.reduce((sum, inv) => sum + inv.totalQty, 0);
           let totalAmount = monthInvoices.reduce((sum, inv) => sum + inv.totalAmount, 0);
@@ -436,7 +409,6 @@ export const BusinessReportScreen: React.FC<BusinessReportScreenProps> = ({
       });
   }, [processedInvoices, dateFilter, localDate]);
 
-  // --- Totals Calculation ---
   const totals = useMemo(() => {
       return processedInvoices.reduce((acc, curr) => ({
           qty: acc.qty + curr.totalQty,
@@ -448,7 +420,6 @@ export const BusinessReportScreen: React.FC<BusinessReportScreenProps> = ({
       }), { qty: 0, billTotal: 0, payment: 0, gst: 0, balance: 0, advance: 0 });
   }, [processedInvoices]);
 
-  // --- Selection Handlers ---
   const handleSelectAll = () => {
       if (selectedIds.length === processedInvoices.length && processedInvoices.length > 0) {
           setSelectedIds([]);
@@ -463,14 +434,10 @@ export const BusinessReportScreen: React.FC<BusinessReportScreenProps> = ({
       );
   };
 
-  // --- Bulk Share Function ---
   const handleBulkShare = async () => {
       if (selectedIds.length === 0) return;
 
-      // 1. Get selected invoices
       const selectedInvoices = processedInvoices.filter(inv => selectedIds.includes(inv.id));
-      
-      // 2. Group by Party ID (to send one consolidated message per customer)
       const invoicesByParty: { [key: string]: InvoiceDisplay[] } = {};
       selectedInvoices.forEach(inv => {
           if (!invoicesByParty[inv.partyId]) {
@@ -480,8 +447,6 @@ export const BusinessReportScreen: React.FC<BusinessReportScreenProps> = ({
       });
 
       const partyIds = Object.keys(invoicesByParty);
-
-      // 3. Iterate and Open WhatsApp & Sync to Cloud
       let cloudSyncCount = 0;
 
       for (const pId of partyIds) {
@@ -498,11 +463,9 @@ export const BusinessReportScreen: React.FC<BusinessReportScreenProps> = ({
 
           const partyInvoices = invoicesByParty[pId];
           
-          // --- CLOUD SYNC ---
           for (const inv of partyInvoices) {
               if (inv.type !== 'Purchase' && !inv.isSyncedToCloud) {
                   try {
-                      // Fetch full invoice from DB to get items correctly
                       const fullInvoice = await billingService.getInvoiceById(inv.id);
                       if (fullInvoice) {
                           const result = await shareInvoiceWithClient(fullInvoice);
@@ -521,7 +484,6 @@ export const BusinessReportScreen: React.FC<BusinessReportScreenProps> = ({
               }
           }
 
-          // Construct Message
           let message = `Hello ${party.name},\nHere are your bill details:\n\n`;
           let totalSum = 0;
 
@@ -540,11 +502,9 @@ export const BusinessReportScreen: React.FC<BusinessReportScreenProps> = ({
           
           message += `\nThank you for your business!`;
 
-          // Format Number
           let cleanNumber = party.mobile.replace(/\D/g, '');
           if (cleanNumber.length === 10) cleanNumber = '91' + cleanNumber;
 
-          // Open WhatsApp
           const url = `https://wa.me/${cleanNumber}?text=${encodeURIComponent(message)}`;
           const link = document.createElement('a');
           link.href = url;
@@ -554,11 +514,9 @@ export const BusinessReportScreen: React.FC<BusinessReportScreenProps> = ({
           link.click();
           document.body.removeChild(link);
 
-          // Small delay if loop to allow browser to handle multiple opens
           await new Promise(resolve => setTimeout(resolve, 800));
       }
 
-      // Deselect after action
       setSelectedIds([]);
       if (cloudSyncCount > 0) {
           loadData();
@@ -566,7 +524,6 @@ export const BusinessReportScreen: React.FC<BusinessReportScreenProps> = ({
       }
   };
 
-  // --- Bulk Delete Function with Admin Permission Check ---
   const handleBulkDelete = async () => {
       setDeleteConfirmOpen(false);
       try {
@@ -593,7 +550,6 @@ export const BusinessReportScreen: React.FC<BusinessReportScreenProps> = ({
           return;
       }
 
-      // Define CSV headers
       const csvHeaders = [
           loc.billNoCol,
           loc.dateCol,
@@ -604,7 +560,6 @@ export const BusinessReportScreen: React.FC<BusinessReportScreenProps> = ({
           loc.balanceCol
       ];
 
-      // Convert data to CSV rows
       const rows = processedInvoices.map(inv => [
           inv.invoiceNo,
           inv.date,
@@ -615,13 +570,11 @@ export const BusinessReportScreen: React.FC<BusinessReportScreenProps> = ({
           (inv.balance || 0).toFixed(2)
       ]);
 
-      // Combine headers and rows
       const csvContent = [
           csvHeaders.join(','),
           ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
       ].join('\n');
 
-      // Create a Blob and trigger download
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
@@ -632,7 +585,6 @@ export const BusinessReportScreen: React.FC<BusinessReportScreenProps> = ({
       document.body.removeChild(link);
   };
 
-  // Translate month names for All table and month label
   const getTranslatedMonthName = (enMonthName: string) => {
       return FULL_MONTH_NAMES[enMonthName]?.[lang] || enMonthName;
   };
@@ -658,62 +610,62 @@ export const BusinessReportScreen: React.FC<BusinessReportScreenProps> = ({
   const tabsArray: TransactionType[] = ['Sale', 'Purchase', 'Sale Return', 'Purchase Return'];
 
   return (
-    <div lang={lang} className={`flex flex-col h-full bg-[var(--bg-app)] text-[var(--text-main)] transition-all duration-200 pb-[max(env(safe-area-inset-bottom),0px)] ${lang === 'hi' ? 'leading-relaxed' : ''}`}>
+    <div lang={lang} className={`flex flex-col h-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white transition-all duration-200 pb-[max(env(safe-area-inset-bottom),0px)] ${lang === 'hi' ? 'leading-relaxed' : ''}`}>
       {/* Header */}
-      <header className="bg-[var(--bg-card)] text-[var(--text-main)] p-4 px-5 pt-[max(env(safe-area-inset-top),48px)] pb-3 flex items-center justify-between border-b border-transparent dark:border-transparent shrink-0 relative transition-all duration-200 shadow-none">
+      <header className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-4 px-5 pt-[max(env(safe-area-inset-top),48px)] pb-3 flex items-center justify-between border-b border-gray-200 dark:border-slate-800 shrink-0 relative transition-all duration-200 shadow-sm">
         <div className="flex items-center gap-3">
-            <button onClick={onBack} className="p-1 px-1.5 hover:bg-[var(--brand-light)] rounded-lg text-[var(--text-main)] transition-all cursor-pointer"><ArrowLeft size={24} /></button>
-            <div>
-                <h1 className="text-lg font-extrabold uppercase tracking-tight text-[var(--text-main)] leading-tight">{loc.businessReports}</h1>
-                <p className="text-xs text-[var(--text-secondary)] leading-tight">{loc.detailedView}</p>
-            </div>
+          <button onClick={onBack} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-850 rounded-full text-slate-500 hover:text-slate-900 dark:hover:text-white transition-all cursor-pointer min-w-[44px] min-h-[44px] flex items-center justify-center active:scale-90"><ArrowLeft size={24} /></button>
+          <div>
+            <h1 className="text-lg font-extrabold uppercase tracking-tight leading-tight text-slate-900 dark:text-white">{loc.businessReports}</h1>
+            <p className="text-xs text-slate-500 dark:text-slate-400 leading-tight">{loc.detailedView}</p>
+          </div>
         </div>
         <div className="flex items-center gap-2">
-            {selectedIds.length > 0 ? (
-                <div className="flex gap-1.5 animate-in zoom-in-95 duration-150">
-                    <button 
-                        onClick={handleBulkShare} 
-                        className="bg-[var(--money-in)] p-1.5 rounded-lg hover:brightness-105 transition-all flex items-center gap-1.5 px-3.5 shadow-sm border border-emerald-500/20 text-white cursor-pointer active:scale-95 animate-pulse"
-                        title={lang === 'hi' ? "व्हाट्सएप पर भेजें" : "Send to WhatsApp"}
-                    >
-                        <Send size={16} />
-                        <span className="text-sm font-bold">{loc.sendButton}</span>
-                    </button>
-                    
-                    <PermissionWrapper requiredRole="admin" requiredPermission="can_delete_invoice" fallback="lock">
-                        <button 
-                            onClick={() => setDeleteConfirmOpen(true)} 
-                            className="bg-[var(--money-out)] p-1.5 rounded-lg hover:brightness-105 transition-all flex items-center gap-1.5 px-3.5 shadow-sm border border-red-500/20 text-white cursor-pointer active:scale-95"
-                            title={lang === 'hi' ? "चयनित बिल हटाएं" : "Delete Selected Invoices"}
-                        >
-                            <Trash2 size={16} />
-                            <span className="text-sm font-bold">{loc.deleteButton}</span>
-                        </button>
-                    </PermissionWrapper>
-                </div>
-            ) : (
-                <div className="flex gap-1.5">
-                    <button 
-                        onClick={handleDownload}
-                        className="bg-[var(--bg-app)] text-[var(--text-main)] border border-slate-200 dark:border-transparent hover:bg-[var(--brand-light)] p-2 rounded-lg transition-all cursor-pointer shadow-none animate-none"
-                        title={loc.downloadTooltip}
-                    >
-                        <Download size={18} />
-                    </button>
-                    <button 
-                        onClick={handleCreateNew} 
-                        className="bg-[var(--brand-primary)] text-white hover:brightness-110 p-2 rounded-lg transition-all shadow-md cursor-pointer active:scale-95"
-                        title={loc.addNewTooltip}
-                    >
-                        <Plus size={18} strokeWidth={2.5} />
-                    </button>
-                </div>
-            )}
+          {selectedIds.length > 0 ? (
+            <div className="flex gap-1.5 animate-in zoom-in-95 duration-150">
+              <button 
+                onClick={handleBulkShare} 
+                className="bg-emerald-605 p-1.5 rounded-lg hover:brightness-105 transition-all flex items-center gap-1.5 px-3.5 shadow-sm border border-emerald-500/20 text-white cursor-pointer active:scale-95 animate-pulse"
+                title={lang === 'hi' ? "व्हाट्सएप पर भेजें" : "Send to WhatsApp"}
+              >
+                <Send size={16} />
+                <span className="text-sm font-bold">{loc.sendButton}</span>
+              </button>
+              
+              <PermissionWrapper requiredRole="admin" requiredPermission="can_delete_invoice" fallback="lock">
+                <button 
+                  onClick={() => setDeleteConfirmOpen(true)} 
+                  className="bg-rose-600 p-1.5 rounded-lg hover:brightness-105 transition-all flex items-center gap-1.5 px-3.5 shadow-sm border border-red-500/20 text-white cursor-pointer active:scale-95"
+                  title={lang === 'hi' ? "चयनित बिल हटाएं" : "Delete Selected Invoices"}
+                >
+                  <Trash2 size={16} />
+                  <span className="text-sm font-bold">{loc.deleteButton}</span>
+                </button>
+              </PermissionWrapper>
+            </div>
+          ) : (
+            <div className="flex gap-1.5">
+              <button 
+                onClick={handleDownload}
+                className="bg-slate-50 dark:bg-slate-800 text-slate-705 dark:text-slate-300 border border-gray-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 p-2.5 rounded-lg transition-all cursor-pointer"
+                title={loc.downloadTooltip}
+              >
+                <Download size={18} />
+              </button>
+              <button 
+                onClick={handleCreateNew} 
+                className="bg-indigo-600 hover:bg-indigo-700 text-white p-2.5 rounded-lg transition-all shadow-md cursor-pointer active:scale-95"
+                title={loc.addNewTooltip}
+              >
+                <Plus size={18} strokeWidth={2.5} />
+              </button>
+            </div>
+          )}
         </div>
       </header>
 
       {/* Tabs */}
-      <div className="bg-[var(--bg-card)] py-3.5 px-4 overflow-x-auto hide-scrollbar border-b border-transparent dark:border-transparent transition-all duration-200 shrink-0 shadow-none">
+      <div className="bg-white dark:bg-slate-900 py-3.5 px-4 overflow-x-auto hide-scrollbar border-b border-gray-200 dark:border-slate-805 transition-all duration-200 shrink-0 shadow-sm">
           <div className="flex gap-2 min-w-max max-w-7xl mx-auto">
               {tabsArray.map((t: TransactionType) => {
                   const isActive = activeTab === t;
@@ -730,8 +682,8 @@ export const BusinessReportScreen: React.FC<BusinessReportScreenProps> = ({
                         }}
                         className={`px-4 py-2 rounded-full text-xs font-extrabold uppercase tracking-wider transition-all border cursor-pointer ${
                             isActive 
-                            ? 'bg-[var(--brand-primary)] text-white border-[var(--brand-primary)] shadow-md' 
-                            : 'bg-[var(--bg-app)] text-[var(--text-secondary)] border-slate-200 dark:border-transparent hover:bg-[var(--brand-light)] hover:text-[var(--text-main)]'
+                            ? 'bg-indigo-600 text-white border-indigo-600 shadow-md' 
+                            : 'bg-slate-50 dark:bg-slate-850 text-slate-500 dark:text-slate-400 border-gray-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'
                         }`}
                       >
                           {loc.tabs[t]}
@@ -749,7 +701,7 @@ export const BusinessReportScreen: React.FC<BusinessReportScreenProps> = ({
       >
           
           {/* Filters Area styled as interactive card block */}
-          <div className="bg-[var(--bg-card)] rounded-xl border border-[var(--border-ui)] shadow-xs p-4 transition-all duration-200 shrink-0 hover:-translate-y-0.5">
+          <div className="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm p-4 transition-all duration-200 shrink-0">
               <div className="flex gap-1.5 mb-3">
                   {[
                       { id: 'Today', label: loc.today },
@@ -761,13 +713,13 @@ export const BusinessReportScreen: React.FC<BusinessReportScreenProps> = ({
                         onClick={() => {
                             setDateFilter(f.id);
                             if (f.id === 'Month') {
-                                setSelectedSummaryMonth(currentMonthStr); // Reset to current month when clicking tab
+                                setSelectedSummaryMonth(currentMonthStr); 
                             }
                         }}
                         className={`flex-1 border text-xs font-extrabold py-2.5 flex items-center justify-center rounded-lg uppercase tracking-wide transition-colors cursor-pointer ${
                             dateFilter === f.id 
-                            ? 'border-[var(--brand-primary)] bg-[var(--brand-primary)] text-white shadow-xs' 
-                            : 'border-[var(--border-ui)] text-[var(--text-secondary)] hover:bg-[var(--brand-light)] hover:text-[var(--text-main)]'
+                            ? 'border-indigo-600 bg-indigo-600 text-white shadow-sm' 
+                            : 'border-gray-200 dark:border-slate-805 text-slate-500 dark:text-slate-400 hover:bg-slate-55 dark:hover:bg-slate-805 hover:text-slate-900 dark:hover:text-white'
                         }`}
                       >
                           {f.label}
@@ -777,12 +729,12 @@ export const BusinessReportScreen: React.FC<BusinessReportScreenProps> = ({
 
               <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <Search className="h-4 w-4 text-[var(--text-secondary)] opacity-70" />
+                      <Search className="h-4 w-4 text-slate-400" />
                   </div>
                   <input
                     type="text"
                     placeholder={loc.searchPlaceholder}
-                    className="block w-full pl-9 pr-3 py-2 bg-[var(--bg-app)] text-[var(--text-main)] border border-[var(--border-ui)] rounded-lg outline-none transition-all placeholder-[var(--text-secondary)]/50 focus:border-[var(--brand-primary)] focus:ring-2 focus:ring-[var(--brand-light)] text-sm"
+                    className="block w-full pl-9 pr-3 py-2.5 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white border border-gray-200 dark:border-slate-800 rounded-lg outline-none transition-all placeholder-slate-400 focus:border-indigo-500 focus-active-light dark:focus-active-dark text-sm min-h-[44px]"
                     value={searchQuery}
                     onChange={e => setSearchQuery(e.target.value)}
                   />
@@ -815,29 +767,29 @@ export const BusinessReportScreen: React.FC<BusinessReportScreenProps> = ({
                     stiffness: 300,
                     damping: 32,
                 }}
-                className="absolute inset-0 bg-[var(--bg-card)] rounded-xl border border-[var(--border-ui)] shadow-xs flex flex-col overflow-auto custom-scrollbar"
+                className="absolute inset-0 bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm flex flex-col overflow-auto custom-scrollbar"
               >
               {loading ? (
-                  <div className="flex-1 flex flex-col items-center justify-center py-10 text-[var(--text-secondary)] text-sm font-medium gap-2">
-                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--brand-primary)]"></div>
+                  <div className="flex-1 flex flex-col items-center justify-center py-10 text-slate-400 text-sm font-medium gap-2">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-650"></div>
                       <span>{loc.loadingData}</span>
                   </div>
               ) : dateFilter === 'All' ? (
                   <div className="min-w-full inline-block align-middle flex-1">
                       <div className="overflow-x-auto overflow-y-visible w-full">
                           <table className="min-w-max w-full text-left text-sm whitespace-nowrap">
-                              <thead className="bg-[var(--bg-card)] text-[var(--text-main)] font-semibold sticky top-0 z-10 border-b border-[var(--border-ui)]">
+                              <thead className="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-white font-semibold sticky top-0 z-10 border-b border-gray-200 dark:border-slate-800">
                                   <tr>
-                                      <th className="p-3 border-r border-[var(--border-ui)] sticky left-0 z-20 bg-[var(--bg-card)] shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] text-[var(--brand-primary)] font-bold">{loc.monthCol}</th>
-                                      <th className="p-3 border-r border-[var(--border-ui)] text-[var(--text-main)]">{loc.billsCol}</th>
-                                      <th className="p-3 border-r border-[var(--border-ui)] text-right text-[var(--text-main)]">{loc.totalQtyCol}</th>
-                                      <th className="p-3 border-r border-[var(--border-ui)] text-right text-[var(--text-main)]">{loc.billTotalCol}</th>
-                                      <th className="p-3 border-r border-[var(--border-ui)] text-right text-[var(--text-main)]">{loc.paymentCol}</th>
-                                      <th className="p-3 border-r border-[var(--border-ui)] text-right text-[var(--text-main)]">{loc.balanceCol}</th>
-                                      <th className="p-3 text-right text-[var(--money-warn)]">{loc.advanceCol}</th>
+                                      <th className="p-3 border-r border-gray-200 dark:border-slate-800 sticky left-0 z-20 bg-slate-50 dark:bg-slate-950 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] text-indigo-600 dark:text-indigo-400 font-bold">{loc.monthCol}</th>
+                                      <th className="p-3 border-r border-gray-200 dark:border-slate-800 text-slate-900 dark:text-white">{loc.billsCol}</th>
+                                      <th className="p-3 border-r border-gray-200 dark:border-slate-800 text-right text-slate-900 dark:text-white">{loc.totalQtyCol}</th>
+                                      <th className="p-3 border-r border-gray-200 dark:border-slate-800 text-right text-slate-900 dark:text-white">{loc.billTotalCol}</th>
+                                      <th className="p-3 border-r border-gray-200 dark:border-slate-800 text-right text-slate-900 dark:text-white">{loc.paymentCol}</th>
+                                      <th className="p-3 border-r border-gray-200 dark:border-slate-800 text-right text-slate-900 dark:text-white">{loc.balanceCol}</th>
+                                      <th className="p-3 text-right text-amber-650 font-bold">{loc.advanceCol}</th>
                                   </tr>
                               </thead>
-                              <tbody className="divide-y divide-[var(--border-ui)]">
+                              <tbody className="divide-y divide-gray-200 dark:divide-slate-800">
                                   {monthlySummary.map((m) => (
                                       <tr 
                                           key={m.monthStr}
@@ -845,41 +797,41 @@ export const BusinessReportScreen: React.FC<BusinessReportScreenProps> = ({
                                               setSelectedSummaryMonth(m.monthStr);
                                               setDateFilter('Month');
                                           }}
-                                          className="cursor-pointer hover:bg-[var(--brand-light)] transition-colors bg-[var(--bg-card)] text-[var(--text-main)] group relative"
+                                          className="cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/65 transition-colors bg-white dark:bg-slate-900 text-slate-900 dark:text-white group relative"
                                       >
-                                          <td className="p-3 border-r border-[var(--border-ui)] sticky left-0 z-10 bg-[var(--bg-card)] group-hover:bg-[var(--brand-light)] shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)] transition-colors text-[var(--brand-primary)] font-bold">
+                                          <td className="p-3 border-r border-gray-200 dark:border-slate-800 sticky left-0 z-10 bg-white dark:bg-slate-900 group-hover:bg-slate-50 dark:group-hover:bg-slate-800/65 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)] transition-colors text-indigo-600 dark:text-indigo-400 font-bold">
                                             <div className="flex items-center justify-between">
                                               <span>{getTranslatedMonthName(m.name)}</span>
-                                              <span className="text-[var(--text-secondary)] opacity-60 text-xs font-normal ml-2">{m.monthStr.split('-')[0]}</span>
+                                              <span className="text-slate-400 text-xs font-normal ml-2">{m.monthStr.split('-')[0]}</span>
                                             </div>
                                           </td>
-                                          <td className="p-3 border-r border-[var(--border-ui)] font-bold">{m.bills}</td>
-                                          <td className="p-3 border-r border-[var(--border-ui)] text-right font-medium">{m.totalQty.toFixed(2)}</td>
-                                          <td className="p-3 border-r border-[var(--border-ui)] text-right font-extrabold text-[var(--brand-primary)]">₹{formatNumber(m.totalAmount)}</td>
-                                          <td className="p-3 border-r border-[var(--border-ui)] text-right text-[var(--money-in)] font-bold">₹{formatNumber(m.totalPayment)}</td>
-                                          <td className="p-3 border-r border-[var(--border-ui)] text-right text-[var(--money-out)] font-bold">₹{formatNumber(m.totalBalance)}</td>
-                                          <td className="p-3 text-right text-[var(--money-warn)] font-bold">₹{formatNumber(m.totalAdvance)}</td>
+                                          <td className="p-3 border-r border-gray-200 dark:border-slate-800 font-bold">{m.bills}</td>
+                                          <td className="p-3 border-r border-gray-200 dark:border-slate-800 text-right font-medium">{m.totalQty.toFixed(2)}</td>
+                                          <td className="p-3 border-r border-gray-200 dark:border-slate-800 text-right font-extrabold text-indigo-600 dark:text-indigo-450">₹{formatNumber(m.totalAmount)}</td>
+                                          <td className="p-3 border-r border-gray-200 dark:border-slate-800 text-right text-emerald-600 dark:text-emerald-400 font-bold">₹{formatNumber(m.totalPayment)}</td>
+                                          <td className="p-3 border-r border-gray-200 dark:border-slate-800 text-right text-rose-605 dark:text-rose-450 font-bold">₹{formatNumber(m.totalBalance)}</td>
+                                          <td className="p-3 text-right text-amber-650 font-bold">₹{formatNumber(m.totalAdvance)}</td>
                                       </tr>
                                   ))}
                               </tbody>
-                              <tfoot className="bg-[var(--bg-card)] border-t-2 border-[var(--border-ui)] text-[var(--text-main)] sticky bottom-0 z-30 shadow-[0_-2px_10px_rgba(0,0,0,0.08)] font-extrabold">
-                                  <tr className="bg-[var(--bg-card)]">
-                                      <td className="p-3 sticky left-0 bg-[var(--bg-card)] z-40 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] text-[var(--text-main)] font-extrabold">{loc.monthsCount}</td>
-                                      <td className="p-3 text-[var(--brand-primary)] font-extrabold">{monthlySummary.reduce((acc, curr) => acc + curr.bills, 0)}</td>
+                              <tfoot className="bg-slate-50 dark:bg-slate-950 border-t-2 border-gray-200 dark:border-slate-800 text-slate-900 dark:text-white sticky bottom-0 z-30 shadow-[0_-2px_10px_rgba(0,0,0,0.08)] font-extrabold">
+                                  <tr className="bg-slate-50 dark:bg-slate-950">
+                                      <td className="p-3 sticky left-0 bg-slate-50 dark:bg-slate-950 z-40 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] text-slate-900 dark:text-white font-extrabold">{loc.monthsCount}</td>
+                                      <td className="p-3 text-indigo-600 dark:text-indigo-400 font-extrabold">{monthlySummary.reduce((acc, curr) => acc + curr.bills, 0)}</td>
                                       <td className="p-3 text-right font-medium">{monthlySummary.reduce((acc, curr) => acc + curr.totalQty, 0).toFixed(2)}</td>
-                                      <td className="p-3 text-right text-[var(--brand-primary)] font-extrabold">₹{formatNumber(monthlySummary.reduce((acc, curr) => acc + curr.totalAmount, 0))}</td>
-                                      <td className="p-3 text-right text-[var(--money-in)] font-extrabold">₹{formatNumber(monthlySummary.reduce((acc, curr) => acc + curr.totalPayment, 0))}</td>
-                                      <td className="p-3 text-right text-[var(--money-out)] font-extrabold">₹{formatNumber(monthlySummary.reduce((acc, curr) => acc + curr.totalBalance, 0))}</td>
-                                      <td className="p-3 text-right text-[var(--money-warn)] font-extrabold">₹{formatNumber(monthlySummary.reduce((acc, curr) => acc + curr.totalAdvance, 0))}</td>
+                                      <td className="p-3 text-right text-indigo-600 dark:text-indigo-400 font-extrabold">₹{formatNumber(monthlySummary.reduce((acc, curr) => acc + curr.totalAmount, 0))}</td>
+                                      <td className="p-3 text-right text-emerald-600 dark:text-emerald-400 font-extrabold">₹{formatNumber(monthlySummary.reduce((acc, curr) => acc + curr.totalPayment, 0))}</td>
+                                      <td className="p-3 text-right text-rose-600 dark:text-rose-400 font-extrabold">₹{formatNumber(monthlySummary.reduce((acc, curr) => acc + curr.totalBalance, 0))}</td>
+                                      <td className="p-3 text-right text-amber-650 font-extrabold">₹{formatNumber(monthlySummary.reduce((acc, curr) => acc + curr.totalAdvance, 0))}</td>
                                   </tr>
                               </tfoot>
                           </table>
                       </div>
                   </div>
               ) : processedInvoices.length === 0 ? (
-                  <div className="flex-1 flex flex-col items-center justify-center py-14 text-[var(--text-secondary)] text-center px-4">
-                      <AlertCircle size={40} className="mx-auto text-[var(--text-secondary)] opacity-40 mb-3" />
-                      <p className="text-base font-bold text-[var(--text-main)] mb-1">
+                  <div className="flex-1 flex flex-col items-center justify-center py-14 text-slate-400 text-center px-4">
+                      <AlertCircle size={40} className="mx-auto text-slate-350 opacity-40 mb-3" />
+                      <p className="text-base font-bold text-slate-800 dark:text-slate-205 mb-1">
                           {loc.noRecordsFound.replace('{filter}', getFilterLabel())}
                       </p>
                   </div>
@@ -887,99 +839,99 @@ export const BusinessReportScreen: React.FC<BusinessReportScreenProps> = ({
                   <div className="min-w-full inline-block align-middle flex-1">
                       <div className="overflow-x-auto w-full">
                           <table className="min-w-[850px] w-full text-left text-sm whitespace-nowrap">
-                              <thead className="bg-[var(--bg-card)] text-[var(--text-secondary)] font-bold uppercase tracking-wider sticky top-0 z-10 text-xs border-b border-[var(--border-ui)] shadow-2xs">
+                              <thead className="bg-slate-50 dark:bg-slate-950 text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider sticky top-0 z-10 text-xs border-b border-gray-200 dark:border-slate-850 shadow-sm">
                                   <tr>
-                                      <th className="p-3 w-8 text-center sticky left-0 bg-[var(--bg-card)] z-20 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] border-r border-[var(--border-ui)]">
+                                      <th className="p-3 w-8 text-center sticky left-0 bg-slate-50 dark:bg-slate-950 z-20 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] border-r border-gray-200 dark:border-slate-800">
                                           <button onClick={handleSelectAll} className="cursor-pointer">
                                               {selectedIds.length === processedInvoices.length && processedInvoices.length > 0 ? (
-                                                  <CheckSquare size={20} className="text-[var(--brand-primary)]" />
+                                                  <CheckSquare size={20} className="text-indigo-600" />
                                               ) : (
-                                                  <Square size={20} className="text-[var(--text-secondary)] opacity-50" />
+                                                  <Square size={20} className="text-slate-400 opacity-50" />
                                               )}
                                           </button>
                                       </th>
-                                      <th className="p-3 border-r border-[var(--border-ui)]">{loc.billNoCol}</th>
-                                      <th className="p-3 border-r border-[var(--border-ui)]">{loc.dateCol}</th>
-                                      <th className="p-3 border-r border-[var(--border-ui)] min-w-[140px]">{loc.nameCol}</th>
-                                      <th className="p-3 border-r border-[var(--border-ui)] text-center">{loc.qtyCol}</th>
-                                      <th className="p-3 border-r border-[var(--border-ui)] text-right">{loc.billTotalCol}</th>
-                                      <th className="p-3 border-r border-[var(--border-ui)] text-right">{loc.paymentCol}</th>
-                                      <th className="p-3 border-r border-[var(--border-ui)] text-right">{loc.gstCol}</th>
-                                      <th className="p-3 border-r border-[var(--border-ui)] text-right">{loc.balanceCol}</th>
+                                      <th className="p-3 border-r border-gray-200 dark:border-slate-800">{loc.billNoCol}</th>
+                                      <th className="p-3 border-r border-gray-200 dark:border-slate-800">{loc.dateCol}</th>
+                                      <th className="p-3 border-r border-gray-200 dark:border-slate-800 min-w-[140px]">{loc.nameCol}</th>
+                                      <th className="p-3 border-r border-gray-200 dark:border-slate-800 text-center">{loc.qtyCol}</th>
+                                      <th className="p-3 border-r border-gray-200 dark:border-slate-800 text-right">{loc.billTotalCol}</th>
+                                      <th className="p-3 border-r border-gray-200 dark:border-slate-800 text-right">{loc.paymentCol}</th>
+                                      <th className="p-3 border-r border-gray-200 dark:border-slate-800 text-right">{loc.gstCol}</th>
+                                      <th className="p-3 border-r border-gray-200 dark:border-slate-800 text-right">{loc.balanceCol}</th>
                                       <th className="p-3 text-right">{loc.advanceCol}</th>
                                   </tr>
                               </thead>
-                              <tbody className="divide-y divide-[var(--border-ui)]">
+                              <tbody className="divide-y divide-gray-200 dark:divide-slate-800">
                                   {processedInvoices.map((inv) => {
                                       const isSelected = selectedIds.includes(inv.id);
                                       const isSynced = inv.isSyncedToCloud && (inv.type === 'Sale' || inv.type === 'Purchase Return');
                                       
-                                      let rowBg = 'bg-[var(--bg-card)] text-[var(--text-main)]';
+                                      let rowBg = 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white';
                                       if (isSynced) {
-                                          rowBg = 'bg-[rgba(5,150,105,0.04)] dark:bg-[rgba(16,185,129,0.06)] text-[var(--text-main)]';
+                                          rowBg = 'bg-emerald-500/5 dark:bg-emerald-500/10 text-slate-900 dark:text-white';
                                       }
                                       if (isSelected) {
-                                          rowBg = 'bg-[var(--brand-light)] text-[var(--text-main)]';
+                                          rowBg = 'bg-indigo-50 dark:bg-indigo-950/40 text-slate-900 dark:text-white';
                                       }
 
                                       return (
                                           <tr 
                                             key={inv.id} 
-                                            className={`cursor-pointer hover:bg-[var(--brand-light)] transition-colors ${rowBg}`}
+                                            className={`cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/80 transition-colors ${rowBg}`}
                                             onClick={() => onEditInvoice(inv.id, inv.type)}
                                           >
-                                              <td className={`p-3 text-center sticky left-0 z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)] border-r border-[var(--border-ui)] ${rowBg}`} onClick={(e) => e.stopPropagation()}>
+                                              <td className={`p-3 text-center sticky left-0 z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)] border-r border-gray-200 dark:border-slate-800 ${rowBg}`} onClick={(e) => e.stopPropagation()}>
                                                   <button onClick={() => handleSelectRow(inv.id)} className="cursor-pointer">
                                                       {isSelected ? (
-                                                          <CheckSquare size={20} className="text-[var(--brand-primary)]" />
+                                                          <CheckSquare size={20} className="text-indigo-600" />
                                                       ) : (
-                                                          <Square size={20} className="text-[var(--text-secondary)] opacity-55" />
+                                                          <Square size={20} className="text-slate-400 opacity-55" />
                                                       )}
                                                   </button>
                                               </td>
-                                              <td className="p-3 border-r border-[var(--border-ui)] font-bold">
+                                              <td className="p-3 border-r border-gray-200 dark:border-slate-800 font-bold">
                                                   {inv.invoiceNo}
                                               </td>
-                                              <td className="p-3 border-r border-[var(--border-ui)] font-semibold text-[var(--text-secondary)]">
+                                              <td className="p-3 border-r border-gray-200 dark:border-slate-800 font-semibold text-slate-500 dark:text-slate-400">
                                                   {inv.date}
                                               </td>
-                                              <td className="p-3 border-r border-[var(--border-ui)] font-bold truncate max-w-[160px]" title={inv.partyName}>
+                                              <td className="p-3 border-r border-gray-200 dark:border-slate-800 font-bold truncate max-w-[160px]" title={inv.partyName}>
                                                   {inv.partyName}
                                               </td>
-                                              <td className="p-3 border-r border-[var(--border-ui)] text-center font-semibold text-[var(--text-main)]">
+                                              <td className="p-3 border-r border-gray-200 dark:border-slate-800 text-center font-semibold">
                                                   {inv.totalQty}
                                               </td>
-                                              <td className="p-3 border-r border-[var(--border-ui)] text-right font-extrabold text-[var(--brand-primary)]">
+                                              <td className="p-3 border-r border-gray-200 dark:border-slate-800 text-right font-extrabold text-indigo-650 dark:text-indigo-400">
                                                   ₹{formatNumber(inv.totalAmount)}
                                               </td>
-                                              <td className="p-3 border-r border-[var(--border-ui)] text-right font-semibold text-[var(--money-in)]">
+                                              <td className="p-3 border-r border-gray-200 dark:border-slate-800 text-right font-semibold text-emerald-650 dark:text-emerald-450">
                                                   {inv.paidAmount > 0 ? `₹${formatNumber(inv.paidAmount)}` : '-'}
                                               </td>
-                                              <td className="p-3 border-r border-[var(--border-ui)] text-right text-[var(--text-secondary)] font-medium">
+                                              <td className="p-3 border-r border-gray-200 dark:border-slate-800 text-right text-slate-500 dark:text-slate-400 font-medium">
                                                   {formatNumber(inv.gstAmount)}
                                               </td>
-                                              <td className="p-3 border-r border-[var(--border-ui)] text-right font-extrabold text-[var(--money-out)]">
+                                              <td className="p-3 border-r border-gray-200 dark:border-slate-800 text-right font-extrabold text-rose-650 dark:text-rose-450">
                                                   {inv.balance > 0 ? `₹${formatNumber(inv.balance)}` : '-'}
                                               </td>
-                                              <td className="p-3 text-right font-extrabold text-[var(--money-in)]">
+                                              <td className="p-3 text-right font-extrabold text-emerald-650 dark:text-emerald-450">
                                                   {inv.advance > 0 ? `₹${formatNumber(inv.advance)}` : '-'}
                                               </td>
                                           </tr>
                                       );
                                   })}
                               </tbody>
-                              <tfoot className="bg-[var(--bg-card)] font-extrabold text-[var(--text-main)] sticky bottom-0 z-20 border-t-2 border-[var(--border-ui)] text-sm shadow-[0_-2px_8px_rgba(0,0,0,0.06)] bg-slate-50 dark:bg-slate-900">
-                                  <tr className="bg-[var(--bg-card)]">
-                                      <td className="p-3 sticky left-0 bg-[var(--bg-card)] shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] border-r border-[var(--border-ui)]"></td>
-                                      <td colSpan={3} className="p-3 text-right border-r border-[var(--border-ui)] uppercase text-[var(--text-secondary)] text-xs tracking-wider">
+                              <tfoot className="bg-slate-50 dark:bg-slate-950 font-extrabold text-slate-900 dark:text-white sticky bottom-0 z-20 border-t-2 border-gray-200 dark:border-slate-800 text-sm shadow-[0_-2px_8px_rgba(0,0,0,0.06)]">
+                                  <tr className="bg-slate-50 dark:bg-slate-950">
+                                      <td className="p-3 sticky left-0 bg-slate-50 dark:bg-slate-950 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] border-r border-gray-200 dark:border-slate-800"></td>
+                                      <td colSpan={3} className="p-3 text-right border-r border-gray-200 dark:border-slate-800 uppercase text-slate-500 dark:text-slate-400 text-xs tracking-wider">
                                           {loc.grandTotal}
                                       </td>
-                                      <td className="p-3 text-center border-r border-[var(--border-ui)] font-extrabold text-[var(--text-main)]">{totals.qty}</td>
-                                      <td className="p-3 text-right border-r border-[var(--border-ui)] text-[var(--brand-primary)] font-extrabold">₹{formatNumber(totals.billTotal)}</td>
-                                      <td className="p-3 text-right border-r border-[var(--border-ui)] text-[var(--money-in)] font-extrabold">₹{formatNumber(totals.payment)}</td>
-                                      <td className="p-3 text-right border-r border-[var(--border-ui)] text-[var(--text-secondary)] font-bold">{formatNumber(totals.gst)}</td>
-                                      <td className="p-3 text-right border-r border-[var(--border-ui)] text-[var(--money-out)] font-extrabold">₹{formatNumber(totals.balance)}</td>
-                                      <td className="p-3 text-right text-[var(--money-in)] font-extrabold">₹{formatNumber(totals.advance)}</td>
+                                      <td className="p-3 text-center border-r border-gray-200 dark:border-slate-800 font-extrabold">{totals.qty}</td>
+                                      <td className="p-3 text-right border-r border-gray-200 dark:border-slate-800 text-indigo-600 dark:text-indigo-400 font-extrabold">₹{formatNumber(totals.billTotal)}</td>
+                                      <td className="p-3 text-right border-r border-gray-200 dark:border-slate-800 text-emerald-600 dark:text-emerald-400 font-extrabold">₹{formatNumber(totals.payment)}</td>
+                                      <td className="p-3 text-right border-r border-gray-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 font-bold">{formatNumber(totals.gst)}</td>
+                                      <td className="p-3 text-right border-r border-gray-200 dark:border-slate-800 text-rose-600 dark:text-rose-450 font-extrabold">₹{formatNumber(totals.balance)}</td>
+                                      <td className="p-3 text-right text-emerald-600 dark:text-emerald-450 font-extrabold">₹{formatNumber(totals.advance)}</td>
                                   </tr>
                               </tfoot>
                           </table>
@@ -996,7 +948,7 @@ export const BusinessReportScreen: React.FC<BusinessReportScreenProps> = ({
           <div className="fixed bottom-[max(1rem,env(safe-area-inset-bottom))] right-4 z-30">
               <button 
                 onClick={handleCreateNew}
-                className="w-14 h-14 rounded-full bg-[var(--brand-primary)] text-white shadow-xl flex items-center justify-center hover:bg-[var(--brand-hover)] hover:scale-105 active:scale-95 transition-all border-2 border-[var(--bg-card)] cursor-pointer"
+                className="w-14 h-14 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white shadow-xl flex items-center justify-center hover:scale-105 active:scale-95 transition-all border-2 border-white dark:border-slate-900 cursor-pointer"
                 title={loc.addNewTooltip}
               >
                   <Plus size={26} strokeWidth={2.5} />
@@ -1013,25 +965,25 @@ export const BusinessReportScreen: React.FC<BusinessReportScreenProps> = ({
                      initial={{ opacity: 0, scale: 0.9 }}
                      animate={{ opacity: 1, scale: 1 }}
                      exit={{ opacity: 0, scale: 0.9 }}
-                     className="bg-[var(--bg-card)] rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden p-6 text-center border border-[var(--border-ui)]"
+                     className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden p-6 text-center border border-gray-200 dark:border-slate-800"
                   >
-                      <div className="w-16 h-16 bg-[rgba(220,38,38,0.1)] dark:bg-[rgba(248,113,113,0.15)] text-[var(--money-out)] border border-[var(--money-out)]/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <div className="w-16 h-16 bg-red-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
                           <Trash2 size={32} />
                       </div>
-                      <h3 className="text-xl font-bold text-[var(--text-main)] mb-2">{loc.confirmDeleteTitle}</h3>
-                      <p className="text-[var(--text-secondary)] mb-6 font-medium text-sm">
+                      <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">{loc.confirmDeleteTitle}</h3>
+                      <p className="text-slate-500 dark:text-slate-400 mb-6 font-medium text-sm">
                           {loc.confirmDeleteMsg.replace('{count}', selectedIds.length.toString())}
                       </p>
                       <div className="flex gap-3">
                           <button 
                               onClick={() => setDeleteConfirmOpen(false)} 
-                              className="flex-1 py-3 rounded-xl font-bold bg-[var(--bg-app)] text-[var(--text-main)] border border-[var(--border-ui)] hover:bg-[var(--brand-light)] transition-colors cursor-pointer"
+                              className="flex-1 py-3 rounded-xl font-bold bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-205 border border-gray-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-850 transition-colors cursor-pointer"
                           >
                               {loc.cancel}
                           </button>
                           <button 
                               onClick={handleBulkDelete} 
-                              className="flex-1 py-3 rounded-xl font-bold bg-[var(--money-out)] hover:brightness-105 text-white shadow-lg transition-all cursor-pointer"
+                              className="flex-1 py-3 rounded-xl font-bold bg-rose-600 hover:bg-rose-700 text-white shadow-lg transition-all cursor-pointer"
                           >
                               {loc.deleteButton}
                           </button>
@@ -1047,24 +999,24 @@ export const BusinessReportScreen: React.FC<BusinessReportScreenProps> = ({
                      initial={{ opacity: 0, scale: 0.9 }}
                      animate={{ opacity: 1, scale: 1 }}
                      exit={{ opacity: 0, scale: 0.9 }}
-                     className="bg-[var(--bg-card)] rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden p-6 text-center border border-[var(--border-ui)]"
+                     className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden p-6 text-center border border-gray-200 dark:border-slate-800"
                   >
                       <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 border ${
                           alertModal.type === 'success' 
-                              ? 'bg-[rgba(5,150,105,0.1)] dark:bg-[rgba(16,185,129,0.15)] text-[var(--money-in)] border-emerald-500/20 dark:border-emerald-400/30' 
+                              ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-450 border-emerald-500/20 dark:border-emerald-400/30' 
                               : alertModal.type === 'error'
-                                  ? 'bg-[rgba(220,38,38,0.1)] dark:bg-[rgba(248,113,113,0.15)] text-[var(--money-out)] border-red-500/20 dark:border-red-400/30'
-                                  : 'bg-[var(--brand-light)] text-[var(--brand-primary)] border-indigo-600/20 dark:border-indigo-500/30'
+                                  ? 'bg-red-500/10 text-rose-600 dark:text-rose-455 border-red-500/20 dark:border-red-400/30'
+                                  : 'bg-indigo-50/10 text-indigo-650 dark:text-indigo-400 border-indigo-600/20 dark:border-indigo-500/30'
                       }`}>
                           {alertModal.type === 'success' ? <Check size={32} /> : <AlertCircle size={32} />}
                       </div>
-                      <h3 className="text-xl font-extrabold text-[var(--text-main)] mb-2">{alertModal.title}</h3>
-                      <p className="text-[var(--text-secondary)] mb-6 font-medium text-sm sm:text-base">
+                      <h3 className="text-xl font-extrabold text-slate-900 dark:text-white mb-2">{alertModal.title}</h3>
+                      <p className="text-slate-500 dark:text-slate-400 mb-6 font-medium text-sm sm:text-base">
                           {alertModal.message}
                       </p>
                       <button 
                           onClick={() => setAlertModal(prev => ({ ...prev, isOpen: false }))} 
-                          className="w-full py-3 rounded-xl font-bold bg-[var(--brand-primary)] text-white hover:bg-[var(--brand-hover)] transition-colors text-base cursor-pointer"
+                          className="w-full py-3 rounded-xl font-bold bg-indigo-600 hover:bg-indigo-700 text-white transition-colors text-base cursor-pointer"
                       >
                           {loc.ok}
                       </button>
