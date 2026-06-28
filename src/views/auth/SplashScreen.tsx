@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { ShieldCheck, Zap, Server } from 'lucide-react';
-import { billingService } from '../../services/billingService';
+import { ShieldCheck, Zap, Server, Wifi } from 'lucide-react';
+import { motion } from 'motion/react';
 
 interface SplashScreenProps {
   onComplete: (isSetup: boolean) => void;
@@ -8,102 +8,146 @@ interface SplashScreenProps {
 
 export const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
   const [statusMessage, setStatusMessage] = useState('Initializing Secure Ledger...');
-  const [fadeOut, setFadeOut] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [bootLogs, setBootLogs] = useState<string[]>(['[SYSTEM] Core boot initialized...']);
 
   useEffect(() => {
-    // Elegant cycling game-style statuses
     const messages = [
       'Initializing Secure Ledger...',
       'Loading Atomic Core Engine...',
       'Verifying Data Integrity Chain...',
-      'Readying Offline Database...'
+      'Syncing Offline IndexedDB...',
+      'Readying Secure Ledger Console...'
     ];
-    let currentIndex = 0;
     
-    const statusInterval = setInterval(() => {
-      if (currentIndex < messages.length - 1) {
-        currentIndex++;
-        setStatusMessage(messages[currentIndex]);
+    const logs = [
+      '[OK] Database instances resolved.',
+      '[OK] Security encryption protocols active.',
+      '[OK] Dexie sync client handshake completed.',
+      '[SYSTEM] Boot flow finalized.'
+    ];
+
+    let msgIndex = 0;
+    const msgInterval = setInterval(() => {
+      if (msgIndex < messages.length - 1) {
+        msgIndex++;
+        setStatusMessage(messages[msgIndex]);
+        setBootLogs(prev => [...prev, `[INFO] ${messages[msgIndex]}`]);
       }
     }, 600);
 
-    // After 2.5 seconds, initiate fade out and navigate
-    const navTimeout = setTimeout(async () => {
-      setFadeOut(true);
-      
-      // Let fade transition complete (300ms) before changing screen
-      setTimeout(async () => {
-        try {
-          const profile = await billingService.getCompanyProfile();
-          const hasSetup = !!(profile && profile.name && profile.mobile) || localStorage.getItem('companyProfileSetup') === 'true';
-          onComplete(hasSetup);
-        } catch (e) {
-          console.warn('Splash navigation state fetch failed, defaulting to setup', e);
-          onComplete(false);
+    let logIndex = 0;
+    const logInterval = setInterval(() => {
+      if (logIndex < logs.length) {
+        setBootLogs(prev => [...prev, logs[logIndex]]);
+        logIndex++;
+      }
+    }, 800);
+
+    const progressInterval = setInterval(() => {
+      setProgress(prev => {
+        if (prev >= 100) {
+          clearInterval(progressInterval);
+          return 100;
         }
-      }, 300);
-    }, 2500);
+        return prev + 2;
+      });
+    }, 50);
 
     return () => {
-      clearInterval(statusInterval);
-      clearTimeout(navTimeout);
+      clearInterval(msgInterval);
+      clearInterval(logInterval);
+      clearInterval(progressInterval);
     };
   }, [onComplete]);
 
   return (
-    <div 
-      className={`relative h-full w-full flex flex-col justify-between items-center bg-gradient-to-b from-slate-950 via-slate-900 to-indigo-950 text-white p-6 transition-opacity duration-300 ${
-        fadeOut ? 'opacity-0 scale-95' : 'opacity-100'
-      }`}
-      style={{ contentVisibility: 'auto' }}
-    >
-      {/* Top micro details */}
-      <div className="w-full flex justify-between items-center text-[9px] font-mono tracking-widest text-slate-500 uppercase mt-4">
+    <div className="relative h-full w-full flex flex-col justify-between items-center bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white p-6 overflow-hidden select-none font-sans transition-colors duration-200">
+      {/* Background glowing particles/radial pattern (adaptive) */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(99,102,241,0.05)_0%,transparent_70%)] pointer-events-none" />
+      <div 
+        className="absolute inset-0 opacity-[0.02] dark:opacity-[0.03] pointer-events-none" 
+        style={{ 
+          backgroundImage: 'radial-gradient(#3b82f6 1px, transparent 1px)', 
+          backgroundSize: '16px 16px' 
+        }} 
+      />
+
+      {/* Top Header Row */}
+      <div className="w-full flex justify-between items-center text-[9px] font-mono tracking-widest text-slate-450 dark:text-slate-500 uppercase mt-4 shrink-0 z-10">
         <div className="flex items-center gap-1.5">
           <Server size={10} className="text-emerald-500 animate-pulse" />
-          <span>LOCAL HOST IP: OK</span>
+          <span>LEDGER CONNECTED</span>
         </div>
-        <span>CRC-32: SECURE</span>
+        <div className="flex items-center gap-1">
+          <Wifi size={10} className="text-indigo-650 dark:text-indigo-400" />
+          <span>OFFLINE ENGINE ACTIVE</span>
+        </div>
       </div>
 
-      {/* Center glowing logo and text */}
-      <div className="my-auto space-y-8 flex flex-col items-center">
-        {/* Game-style double rotating glowing ring logo */}
+      {/* Center Shield Graphic and Glowing Logo */}
+      <div className="my-auto space-y-8 flex flex-col items-center z-10 w-full max-w-sm">
         <div className="relative flex items-center justify-center">
-          {/* Ring 1 - Outer Rotating Border */}
-          <div className="absolute w-28 h-28 rounded-full border border-dashed border-brand-primary/30 animate-spin" style={{ animationDuration: '15s' }}></div>
-          {/* Ring 2 - Inner Fast Rotating Border */}
-          <div className="absolute w-24 h-24 rounded-full border-2 border-dashed border-money-out/40 animate-spin" style={{ animationDuration: '6s', animationDirection: 'reverse' }}></div>
-          {/* Glowing Shadow Panel */}
-          <div className="absolute w-20 h-20 rounded-full bg-brand-primary/10 blur-xl animate-pulse"></div>
+          {/* Animated rings */}
+          <motion.div 
+            animate={{ rotate: 360 }}
+            transition={{ repeat: Infinity, duration: 12, ease: 'linear' }}
+            className="absolute w-36 h-36 rounded-full border border-dashed border-indigo-500/20 dark:border-indigo-400/20"
+          />
+          <motion.div 
+            animate={{ rotate: -360 }}
+            transition={{ repeat: Infinity, duration: 6, ease: 'linear' }}
+            className="absolute w-28 h-28 rounded-full border-2 border-dashed border-emerald-500/10 dark:border-emerald-500/10"
+          />
+          <div className="absolute w-24 h-24 rounded-full bg-indigo-600/5 dark:bg-indigo-650/10 blur-xl animate-pulse" />
           
-          {/* Main central shield icon */}
-          <div className="relative bg-gradient-to-tr from-brand-primary to-money-out p-5 rounded-[2rem] w-20 h-20 flex items-center justify-center shadow-2xl shadow-brand-primary/40 animate-pulse border border-white/20">
-            <ShieldCheck size={40} className="text-white drop-shadow-[0_2px_10px_rgba(255,255,255,0.4)]" />
-          </div>
+          {/* Main Shield Icon */}
+          <motion.div 
+            animate={{ scale: [1, 1.03, 1] }}
+            transition={{ repeat: Infinity, duration: 2, ease: 'easeInOut' }}
+            className="relative bg-gradient-to-tr from-indigo-600 to-indigo-800 p-5 rounded-[2.2rem] w-20 h-20 flex items-center justify-center shadow-2xl shadow-indigo-500/30 border border-white/10"
+          >
+            <ShieldCheck size={40} className="text-white drop-shadow-[0_4px_10px_rgba(255,255,255,0.25)]" />
+          </motion.div>
         </div>
 
-        <div className="space-y-2">
-          <span className="inline-block text-[10px] bg-slate-800 text-brand-primary font-extrabold px-3.5 py-1.5 rounded-full uppercase tracking-widest border border-slate-700/60 shadow-md">
-            🛡️ ONLINE SYNC • OFFLINE LEDGER
+        {/* Text Details */}
+        <div className="space-y-2.5 text-center">
+          <span className="inline-block text-[9px] bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 text-indigo-600 dark:text-indigo-400 font-extrabold px-3.5 py-1.5 rounded-full uppercase tracking-widest shadow-xs">
+            🔒 SECURE LEDGER SYSTEM • VER 2.0
           </span>
-          <h1 className="text-4xl font-extrabold tracking-tight mt-3 text-white uppercase select-none">
-            EAZY BILLING <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-primary to-money-out font-black">v2.0</span>
+          <h1 className="text-3xl font-black tracking-tight text-slate-950 dark:text-white uppercase mt-3">
+            EAZY BILLING
           </h1>
-          <p className="text-slate-400 text-xs font-medium tracking-wide">Atomic Accounting • High Performance Core</p>
+          <p className="text-slate-500 dark:text-slate-400 text-xs font-semibold tracking-wide uppercase opacity-75">Atomic Accounting • Hybrid PWA Client</p>
+        </div>
+
+        {/* Console Boot Logs stream */}
+        <div className="w-full h-24 bg-white/80 dark:bg-slate-950/80 rounded-xl border border-gray-200 dark:border-slate-900 p-3 font-mono text-[9px] text-slate-500 dark:text-slate-400 overflow-y-auto space-y-1 text-left select-text custom-scrollbar">
+          {bootLogs.map((log, idx) => (
+            <div key={idx} className="truncate">
+              <span className="text-indigo-600 dark:text-indigo-500 font-bold">&gt; </span>
+              {log}
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* Bottom loading status */}
-      <div className="mb-12 flex flex-col items-center gap-3">
-        <div className="relative w-48 h-1 bg-slate-800 rounded-full overflow-hidden shadow-inner">
-          <div className="absolute h-full bg-gradient-to-r from-brand-primary to-money-in rounded-full animate-pulse transition-all duration-300" style={{ width: '80%' }}></div>
+      {/* Bottom Loading Progress Bar Section */}
+      <div className="w-full max-w-xs mb-12 flex flex-col items-center gap-3.5 shrink-0 z-10">
+        <div className="relative w-full h-1 bg-gray-200 dark:bg-slate-900 rounded-full overflow-hidden border border-gray-200/50 dark:border-slate-900/50">
+          <div 
+            className="absolute h-full bg-gradient-to-r from-indigo-600 to-indigo-400 rounded-full transition-all duration-300" 
+            style={{ width: `${progress}%` }} 
+          />
         </div>
-        <div className="flex items-center gap-2">
-          <Zap size={12} className="text-brand-primary animate-bounce" />
-          <span className="text-[10px] font-mono tracking-widest uppercase text-slate-400">
-            {statusMessage}
-          </span>
+        
+        <div className="w-full flex justify-between items-center text-[9px] font-mono tracking-widest uppercase text-slate-550 dark:text-slate-400 px-1">
+          <div className="flex items-center gap-1.5">
+            <Zap size={10} className="text-indigo-600 dark:text-indigo-400 animate-bounce" />
+            <span>{statusMessage}</span>
+          </div>
+          <span className="font-bold text-indigo-650 dark:text-indigo-400">{progress}%</span>
         </div>
       </div>
     </div>
