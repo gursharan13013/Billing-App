@@ -74,13 +74,13 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
       />
 
       {/* Top Header Row */}
-      <div className="w-full flex justify-between items-center text-[9px] font-mono tracking-widest text-slate-450 dark:text-slate-500 uppercase mt-4 shrink-0 z-10">
+      <div className="w-full flex justify-between items-center text-[9px] font-mono tracking-widest text-slate-400 dark:text-slate-500 uppercase mt-4 shrink-0 z-10">
         <div className="flex items-center gap-1.5">
           <Server size={10} className="text-emerald-500 animate-pulse" />
           <span>LEDGER CONNECTED</span>
         </div>
         <div className="flex items-center gap-1">
-          <Wifi size={10} className="text-indigo-650 dark:text-indigo-400" />
+          <Wifi size={10} className="text-indigo-600 dark:text-indigo-400" />
           <span>OFFLINE ENGINE ACTIVE</span>
         </div>
       </div>
@@ -99,7 +99,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
             transition={{ repeat: Infinity, duration: 6, ease: 'linear' }}
             className="absolute w-28 h-28 rounded-full border-2 border-dashed border-emerald-500/10 dark:border-emerald-500/10"
           />
-          <div className="absolute w-24 h-24 rounded-full bg-indigo-600/5 dark:bg-indigo-650/10 blur-xl animate-pulse" />
+          <div className="absolute w-24 h-24 rounded-full bg-indigo-600/5 dark:bg-indigo-600/10 blur-xl animate-pulse" />
           
           {/* Main Shield Icon */}
           <motion.div 
@@ -142,12 +142,12 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
           />
         </div>
         
-        <div className="w-full flex justify-between items-center text-[9px] font-mono tracking-widest uppercase text-slate-550 dark:text-slate-400 px-1">
+        <div className="w-full flex justify-between items-center text-[9px] font-mono tracking-widest uppercase text-slate-500 dark:text-slate-400 px-1">
           <div className="flex items-center gap-1.5">
             <Zap size={10} className="text-indigo-600 dark:text-indigo-400 animate-bounce" />
             <span>{statusMessage}</span>
           </div>
-          <span className="font-bold text-indigo-650 dark:text-indigo-400">{progress}%</span>
+          <span className="font-bold text-indigo-600 dark:text-indigo-400">{progress}%</span>
         </div>
       </div>
     </div>
