@@ -1,0 +1,122 @@
+{
+  "entities": {
+    "CompanyProfile": {
+      "title": "CompanyProfile",
+      "description": "User's company profile containing business data",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "name": { "type": "string", "nullable": true },
+        "address": { "type": "string", "nullable": true },
+        "city": { "type": "string", "nullable": true },
+        "state": { "type": "string", "nullable": true },
+        "pincode": { "type": "string", "nullable": true },
+        "gstin": { "type": "string", "nullable": true },
+        "pan": { "type": "string", "nullable": true },
+        "mobile": { "type": "string", "nullable": true },
+        "email": { "type": "string", "nullable": true },
+        "website": { "type": "string", "nullable": true },
+        "is_gst_registered": { "type": "boolean", "nullable": true },
+        "business_category": { "type": "string", "nullable": true },
+        "business_type": { "type": "string", "nullable": true },
+        "updated_at": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid"]
+    },
+    "Message": {
+      "title": "Message",
+      "description": "A chat message",
+      "type": "object",
+      "properties": {
+        "text": { "type": "string" },
+        "senderPhone": { "type": "string" },
+        "senderUid": { "type": "string" },
+        "senderName": { "type": "string", "nullable": true },
+        "senderProfile": { "type": "object", "nullable": true },
+        "receiverPhone": { "type": "string" },
+        "receiverUid": { "type": "string", "nullable": true },
+        "timestamp": { "type": "number" },
+        "status": { "type": "string", "enum": ["sent", "delivered", "read"] },
+        "type": { "type": "string", "enum": ["text", "image", "video", "file"] },
+        "contentUrl": { "type": "string", "nullable": true },
+        "fileName": { "type": "string", "nullable": true },
+        "fileSize": { "type": "number", "nullable": true }
+      },
+      "required": ["senderPhone", "senderUid", "receiverPhone", "timestamp"]
+    },
+    "SharedInvoice": {
+      "title": "SharedInvoice",
+      "description": "A shared invoice.",
+      "type": "object",
+      "properties": {
+        "senderPhone": { "type": "string" },
+        "senderUid": { "type": "string" },
+        "senderName": { "type": "string", "nullable": true },
+        "senderProfile": { "type": "object", "nullable": true },
+        "receiverPhone": { "type": "string" },
+        "receiverUid": { "type": "string", "nullable": true },
+        "invoice": { "type": "object" },
+        "timestamp": { "type": "number" },
+        "status": { "type": "string", "enum": ["pending", "processed"] }
+      },
+      "required": ["senderPhone", "senderUid", "receiverPhone", "invoice", "timestamp"]
+    },
+    "SharedPayment": {
+      "title": "SharedPayment",
+      "description": "A shared payment.",
+      "type": "object",
+      "properties": {
+        "senderPhone": { "type": "string" },
+        "senderUid": { "type": "string" },
+        "senderName": { "type": "string", "nullable": true },
+        "senderProfile": { "type": "object", "nullable": true },
+        "receiverPhone": { "type": "string" },
+        "receiverUid": { "type": "string", "nullable": true },
+        "payment": { "type": "object" },
+        "timestamp": { "type": "number" },
+        "status": { "type": "string", "enum": ["pending", "processed"] }
+      },
+      "required": ["senderPhone", "senderUid", "receiverPhone", "payment", "timestamp"]
+    },
+    "SharedItem": {
+      "title": "SharedItem",
+      "description": "A list of shared items.",
+      "type": "object",
+      "properties": {
+        "senderPhone": { "type": "string" },
+        "senderUid": { "type": "string" },
+        "senderName": { "type": "string", "nullable": true },
+        "senderProfile": { "type": "object", "nullable": true },
+        "senderCategory": { "type": "string", "nullable": true },
+        "receiverPhone": { "type": "string" },
+        "receiverUid": { "type": "string", "nullable": true },
+        "items": { "type": "array" },
+        "timestamp": { "type": "number" },
+        "status": { "type": "string", "enum": ["pending", "processed"] }
+      },
+      "required": ["senderPhone", "senderUid", "receiverPhone", "items", "timestamp"]
+    }
+  },
+  "firestore": {
+    "/company_profile/{mobile}": {
+      "schema": { "$ref": "CompanyProfile" },
+      "description": "Company profiles mapping mobile to uid"
+    },
+    "/messages/{messageId}": {
+      "schema": { "$ref": "Message" },
+      "description": "Chat messages between users"
+    },
+    "/shared_invoices/{invoiceId}": {
+      "schema": { "$ref": "SharedInvoice" },
+      "description": "Shared invoices"
+    },
+    "/shared_payments/{paymentId}": {
+      "schema": { "$ref": "SharedPayment" },
+      "description": "Shared payments"
+    },
+    "/shared_items/{itemId}": {
+      "schema": { "$ref": "SharedItem" },
+      "description": "Shared items"
+    }
+  }
+}

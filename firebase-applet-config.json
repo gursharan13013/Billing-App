@@ -1,0 +1,10 @@
+{
+  "projectId": "my-billing-app-5b7b7",
+  "appId": "1:168900415876:web:aac8a519f9eba8c77b8dd1",
+  "apiKey": "AIzaSyAPtiHQiY2W6xl9-wPlRfTZUvgZcR_QPZM",
+  "authDomain": "my-billing-app-5b7b7.firebaseapp.com",
+  "storageBucket": "my-billing-app-5b7b7.firebasestorage.app",
+  "messagingSenderId": "168900415876",
+  "measurementId": "",
+  "firestoreDatabaseId": "eazy-billing-db"
+}

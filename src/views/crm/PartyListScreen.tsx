@@ -1,0 +1,661 @@
+import React, { useState, useEffect } from 'react';
+import { ArrowLeft, Plus, Edit2, Users, X, Save, Search, Phone, MapPin, Tag, Trash2, FolderTree, Mail } from 'lucide-react';
+import { Party, Category, UNIFIED_CATEGORIES, Language } from '../../core/types/';
+import { billingService } from '../../services/billingService';
+import { SwipeableRow } from '../../components/layout/SwipeableRow';
+
+const labels = {
+  en: {
+    customerList: 'Customer List',
+    ledgerList: 'Ledger List',
+    searchPlaceholderCustomer: 'Search Customer Name, Mobile or Group...',
+    searchPlaceholderLedger: 'Search Ledger Name or Group...',
+    noCustomers: 'No customers found.',
+    noLedgers: 'No ledgers found.',
+    noLabel: 'No.',
+    nameLabel: 'Name',
+    deleteTitle: 'Delete Contact?',
+    deleteConfirm: 'Are you sure? This action cannot be undone.',
+    cancel: 'Cancel',
+    delete: 'Delete',
+    editCustomer: 'Edit Customer',
+    editLedger: 'Edit Ledger',
+    addCustomer: 'Add Customer',
+    addLedger: 'Add Ledger',
+    name: 'Name',
+    namePlaceholder: 'e.g. Ramesh Kumar',
+    save: 'Save',
+    saveLedger: 'Save Ledger',
+    mobile: 'Mobile No',
+    mobilePlaceholder: '10-digit number',
+    partyType: 'Party Type',
+    category: 'Category',
+    categoryPlaceholder: '- Select Category -',
+    email: 'Email',
+    emailPlaceholder: 'email@example.com',
+    gstin: 'GSTIN',
+    gstinPlaceholder: 'GST Number',
+    pan: 'PAN',
+    panPlaceholder: 'PAN Number',
+    bankDetails: 'Bank Details',
+    bankDetailsPlaceholder: 'A/C No, IFSC, Bank Name',
+    address: 'Address',
+    addressPlaceholder: 'Street Address',
+    state: 'State',
+    statePlaceholder: '- Select State -',
+    city: 'City',
+    cityPlaceholder: 'City',
+    pincode: 'Pincode',
+    pincodePlaceholder: 'Pincode',
+    openingBalance: 'Opening Balance',
+    debit: 'Debit',
+    credit: 'Credit',
+    gstRegistered: 'GST Registered (जीएसटी)',
+    nonGst: 'Non-GST (नो जीएसटी)',
+    selectGroup: 'Select Group (खाता समूह)',
+    selectGroupPlaceholder: '- Select Group -',
+    balance: 'Balance',
+    groupLabel: 'Group'
+  },
+  hi: {
+    customerList: 'ग्राहक सूची',
+    ledgerList: 'लेजर सूची',
+    searchPlaceholderCustomer: 'ग्राहक का नाम, मोबाइल या ग्रुप खोजें...',
+    searchPlaceholderLedger: 'लेजर का नाम या ग्रुप खोजें...',
+    noCustomers: 'कोई ग्राहक नहीं मिला।',
+    noLedgers: 'कोई लेजर नहीं मिला।',
+    noLabel: 'क्र.',
+    nameLabel: 'नाम',
+    deleteTitle: 'संपर्क हटाएं?',
+    deleteConfirm: 'क्या आप सुनिश्चित हैं? यह क्रिया वापस नहीं ली जा सकती।',
+    cancel: 'रद्द करें',
+    delete: 'हटाएं',
+    editCustomer: 'ग्राहक संपादित करें',
+    editLedger: 'लेजर संपादित करें',
+    addCustomer: 'ग्राहक जोड़ें',
+    addLedger: 'लेजर जोड़ें',
+    name: 'नाम',
+    namePlaceholder: 'उदा. रमेश कुमार',
+    save: 'सुरक्षित करें',
+    saveLedger: 'लेजर सुरक्षित करें',
+    mobile: 'मोबाइल नंबर',
+    mobilePlaceholder: '10-अंकों का नंबर',
+    partyType: 'पार्टी का प्रकार',
+    category: 'श्रेणी',
+    categoryPlaceholder: '- श्रेणी चुनें -',
+    email: 'ईमेल',
+    emailPlaceholder: 'email@example.com',
+    gstin: 'जीएसटीिन (GSTIN)',
+    gstinPlaceholder: 'जीएसटी नंबर',
+    pan: 'पैन (PAN)',
+    panPlaceholder: 'पैन नंबर',
+    bankDetails: 'बैंक विवरण',
+    bankDetailsPlaceholder: 'खाता संख्या, आईएफएससी, बैंक का नाम',
+    address: 'पता',
+    addressPlaceholder: 'गली, मोहल्ला का पता',
+    state: 'राज्य',
+    statePlaceholder: '- राज्य चुनें -',
+    city: 'शहर',
+    cityPlaceholder: 'शहर',
+    pincode: 'पिनकोड',
+    pincodePlaceholder: 'पिनकोड',
+    openingBalance: 'प्रारंभिक शेष',
+    debit: 'डेबिट (नाम)',
+    credit: 'क्रेडिट (जमा)',
+    gstRegistered: 'जीएसटी पंजीकृत',
+    nonGst: 'गैर-जीएसटी',
+    selectGroup: 'खाता समूह चुनें',
+    selectGroupPlaceholder: '- खाता समूह चुनें -',
+    balance: 'शेष',
+    groupLabel: 'ग्रुप'
+  }
+};
+
+interface PartyListScreenProps {
+  onBack: () => void;
+  initialMode?: 'customer' | 'ledger';
+  language?: Language;
+}
+
+const INDIAN_STATES = [
+    "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", "Goa", "Gujarat", 
+    "Haryana", "Himachal Pradesh", "Jharkhand", "Karnataka", "Kerala", "Madhya Pradesh", 
+    "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Punjab", 
+    "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", "Tripura", "Uttar Pradesh", 
+    "Uttarakhand", "West Bengal", "Andaman and Nicobar Islands", "Chandigarh", 
+    "Dadra and Nagar Haveli and Daman and Diu", "Delhi", "Jammu and Kashmir", "Ladakh", 
+    "Lakshadweep", "Puducherry"
+];
+
+export const PartyListScreen: React.FC<PartyListScreenProps> = ({ onBack, initialMode, language }) => {
+  const [parties, setParties] = useState<Party[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [accountGroups, setAccountGroups] = useState<{ id: string; name: string }[]>([]); 
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [formData, setFormData] = useState<Partial<Party>>({});
+  const [openingBalanceType, setOpeningBalanceType] = useState<'Dr' | 'Cr'>('Dr');
+
+  // Delete State
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+
+  const currentLanguage = language || (localStorage.getItem('language') as Language) || 'en';
+  const t = labels[currentLanguage] || labels.en;
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const loadData = async () => {
+    try {
+      setLoading(true);
+      const [partiesData, categoriesData, groupsData] = await Promise.all([
+          billingService.getAllParties(),
+          billingService.getAllCategories(),
+          billingService.getAllAccountGroups(),
+      ]);
+      setParties(partiesData);
+      setCategories(categoriesData);
+      setAccountGroups(groupsData);
+    } catch (error) {
+      console.error("Failed to load data", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEdit = (party: Party) => {
+    setEditingId(party.id);
+    setFormData({ ...party, currentBalance: Math.abs(party.currentBalance || 0) });
+    setOpeningBalanceType(party.currentBalance >= 0 ? 'Dr' : 'Cr');
+    setIsModalOpen(true);
+  };
+
+  const confirmDelete = async () => {
+      if (deleteId) {
+          await billingService.deleteParty(deleteId);
+          setDeleteId(null);
+          loadData();
+      }
+  };
+
+  const handleAddNew = () => {
+      setEditingId(null);
+      setFormData({ 
+          name: '', 
+          mobile: '', 
+          type: 'Customer',
+          accountGroup: accountGroups[0]?.name || '', // Default
+          currentBalance: 0,
+          gstin: '',
+          pan: '',
+          address: '',
+          city: '',
+          state: '',
+          pincode: '',
+          email: '',
+          category: '',
+          isGstRegistered: false,
+          bankDetails: ''
+      });
+      setOpeningBalanceType('Dr');
+      setIsModalOpen(true);
+  };
+
+  const handleAccountGroupChange = (groupName: string) => {
+      setFormData(prev => ({
+          ...prev,
+          accountGroup: groupName,
+          type: 'Customer' 
+      }));
+  };
+
+  const handleSave = async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!formData.name) return;
+      
+      const absBalance = Math.abs(Number(formData.currentBalance) || 0);
+      const finalBalance = openingBalanceType === 'Dr' ? absBalance : -absBalance;
+
+      const party: Party = {
+          id: editingId || Math.random().toString(36).substr(2, 9),
+          name: formData.name,
+          mobile: formData.mobile || '',
+          type: formData.type as 'Customer' | 'Supplier',
+          accountGroup: formData.accountGroup || 'Sundry Debtors',
+          currentBalance: finalBalance,
+          gstin: formData.gstin,
+          pan: formData.pan,
+          address: formData.address,
+          city: formData.city,
+          state: formData.state,
+          pincode: formData.pincode,
+          email: formData.email,
+          category: formData.category,
+          isGstRegistered: formData.isGstRegistered ?? !!formData.gstin,
+          bankDetails: formData.bankDetails
+      };
+
+      await billingService.saveParty(party);
+      setIsModalOpen(false);
+      loadData();
+  };
+
+  const filteredParties = parties.filter(p => 
+    p.name && p.name.toLowerCase().includes(searchQuery.trim().toLowerCase()) || 
+    p.mobile.includes(searchQuery) ||
+    (p.accountGroup && p.accountGroup.toLowerCase().includes(searchQuery.trim().toLowerCase()))
+  );
+
+  return (
+    <div className="flex flex-col h-full bg-[var(--bg-app)] text-[var(--text-main)] transition-colors pb-[max(env(safe-area-inset-bottom),0px)]">
+      <header className="bg-[var(--bg-card)] text-[var(--text-main)] p-4 flex items-center justify-between shadow-sm shrink-0 border-b border-[var(--border-ui)]/40 dark:border-[var(--border-ui)]/10 pt-[max(env(safe-area-inset-top),48px)] transition-colors">
+        <div className="flex items-center gap-3">
+            <button onClick={onBack} className="hover:bg-[var(--brand-light)] text-[var(--text-secondary)] hover:text-[var(--text-main)] p-1.5 rounded-full transition-colors"><ArrowLeft size={24} /></button>
+            <h1 className="text-xl font-extrabold tracking-tight">{initialMode === 'customer' ? t.customerList : t.ledgerList}</h1>
+        </div>
+        <button onClick={handleAddNew} className="hover:bg-[var(--brand-light)] text-[var(--text-secondary)] hover:text-[var(--brand-primary)] p-1.5 rounded-full transition-colors">
+            <Plus size={24} />
+        </button>
+      </header>
+
+      <div className="p-4 pb-0 z-10">
+        <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <Search className="h-5 w-5 text-[var(--text-secondary)]/60" />
+            </div>
+            <input
+              type="text"
+              placeholder={initialMode === 'customer' ? t.searchPlaceholderCustomer : t.searchPlaceholderLedger}
+              className="block w-full h-12 pl-10 pr-3 border border-[var(--border-ui)] dark:border-slate-800 rounded-lg bg-[var(--bg-card)] text-[var(--text-main)] placeholder-[var(--text-secondary)]/50 focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)]/30 transition-all"
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+            />
+        </div>
+      </div>
+
+      <div className="flex-1 overflow-y-auto p-4 pb-24">
+        {loading ? (
+            <div className="flex justify-center py-12">
+                <div className="animate-spin rounded-full h-8 w-8 border-2 border-[var(--brand-primary)] border-t-transparent"></div>
+            </div>
+        ) : filteredParties.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-64 text-[var(--text-secondary)]">
+                <Users size={48} className="opacity-20 mb-2 text-[var(--brand-primary)]" />
+                <p className="font-medium">{initialMode === 'customer' ? t.noCustomers : t.noLedgers}</p>
+            </div>
+        ) : (
+            <div className="grid gap-3">
+                 <div className="flex items-center text-xs font-extrabold uppercase tracking-wider text-[var(--text-secondary)] px-2">
+                     <span className="w-12">{t.noLabel}</span>
+                     <span className="flex-1">{t.nameLabel}</span>
+                 </div>
+                {filteredParties.map((party, index) => (
+                    <SwipeableRow 
+                        key={party.id}
+                        onEdit={() => handleEdit(party)}
+                        onDelete={() => setDeleteId(party.id)}
+                    >
+                        <div 
+                            onClick={() => handleEdit(party)} 
+                            className="bg-[var(--bg-card)] p-4 rounded-xl border border-[var(--border-ui)]/40 dark:border-slate-800 shadow-sm flex items-start gap-3 transition-all duration-300 hover:border-indigo-600 dark:hover:border-indigo-500 hover:-translate-y-0.5 hover:shadow-md group cursor-pointer w-full"
+                        >
+                            <div className="flex items-start gap-3 flex-1 min-w-0">
+                                {/* Letter/Initial Avatar */}
+                                <div className="w-10 h-10 rounded-full bg-[var(--brand-light)] text-[var(--brand-primary)] flex items-center justify-center font-black text-sm shrink-0 uppercase border border-indigo-600/20 dark:border-indigo-500/30">
+                                    {party.name ? party.name.trim().charAt(0) : 'P'}
+                                </div>
+                                
+                                <div className="flex-1 min-w-0">
+                                    <h3 className="font-extrabold text-[var(--text-main)] text-lg leading-tight transition-colors group-hover:text-[var(--brand-primary)]">
+                                        {party.name}
+                                    </h3>
+                                    
+                                    <div className="flex flex-wrap gap-1.5 mt-2">
+                                        {party.accountGroup && (
+                                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 shadow-2xs">
+                                                <FolderTree size={12} className="opacity-70 shrink-0" />
+                                                <span className="uppercase text-[9px] opacity-75 mr-0.5 shrink-0">{t.groupLabel}:</span>
+                                                <span className="truncate max-w-[120px] sm:max-w-none">{party.accountGroup}</span>
+                                            </span>
+                                        )}
+
+                                        {party.mobile && (
+                                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 shadow-2xs">
+                                                <Phone size={12} className="opacity-70 shrink-0" />
+                                                <span>{party.mobile}</span>
+                                            </span>
+                                        )}
+
+                                        {party.gstin && (
+                                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 shadow-2xs">
+                                                <Tag size={12} className="opacity-70 shrink-0" />
+                                                <span className="uppercase text-[9px] opacity-75 mr-0.5 shrink-0">{t.gstin}:</span>
+                                                <span className="font-mono">{party.gstin}</span>
+                                            </span>
+                                        )}
+
+                                        {party.category && (
+                                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20 shadow-2xs">
+                                                <Tag size={12} className="opacity-70 shrink-0" />
+                                                <span>{party.category}</span>
+                                            </span>
+                                        )}
+
+                                        {(party.city || party.state) && (
+                                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-500/10 text-slate-600 dark:text-slate-400 border border-slate-500/20 shadow-2xs">
+                                                <MapPin size={12} className="opacity-70 shrink-0" />
+                                                <span className="truncate max-w-[100px] sm:max-w-none">{[party.city, party.state].filter(Boolean).join(', ')}</span>
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="text-right shrink-0 flex flex-col items-end gap-2.5 ml-2">
+                                <div>
+                                    <div className={`font-extrabold text-xl tracking-tight ${
+                                        party.currentBalance > 0 
+                                            ? 'text-[var(--money-in)]' 
+                                            : party.currentBalance < 0 
+                                            ? 'text-[var(--money-out)]' 
+                                            : 'text-[var(--text-secondary)]'
+                                    }`}>
+                                        ₹{Math.abs(party.currentBalance || 0).toFixed(2)}
+                                        <span className="text-xs font-bold ml-1 uppercase opacity-90">
+                                            {party.currentBalance > 0 ? 'Dr' : party.currentBalance < 0 ? 'Cr' : ''}
+                                        </span>
+                                    </div>
+                                    <div className="text-[10px] uppercase text-[var(--text-secondary)] font-extrabold tracking-wider whitespace-nowrap opacity-80 mt-0.5">
+                                        {t.balance}
+                                    </div>
+                                </div>
+                                <div className="flex gap-1.5 pt-0.5">
+                                    <button 
+                                        onClick={(e) => { e.stopPropagation(); handleEdit(party); }} 
+                                        className="p-2 text-[var(--text-secondary)] hover:text-[var(--brand-primary)] hover:bg-[var(--brand-light)] bg-[var(--bg-app)] rounded-lg transition-all duration-150 active:scale-90 border border-[var(--border-ui)]/10 dark:border-slate-700/20 shadow-xs" 
+                                        title={initialMode === 'customer' ? t.editCustomer : t.editLedger}
+                                    >
+                                        <Edit2 size={16} />
+                                    </button>
+                                    <button 
+                                        onClick={(e) => { e.stopPropagation(); setDeleteId(party.id); }} 
+                                        className="p-2 text-[var(--text-secondary)] hover:text-[var(--money-out)] hover:bg-red-500/10 bg-[var(--bg-app)] rounded-lg transition-all duration-150 active:scale-90 border border-[var(--border-ui)]/10 dark:border-slate-700/20 shadow-xs" 
+                                        title={t.delete}
+                                    >
+                                        <Trash2 size={16} />
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </SwipeableRow>
+                ))}
+            </div>
+        )}
+      </div>
+
+      {/* Delete Modal */}
+      {deleteId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+            <div className="bg-[var(--bg-card)] rounded-xl shadow-2xl w-full max-w-sm overflow-hidden p-6 text-center animate-in fade-in zoom-in duration-200 border border-[var(--border-ui)]/40 dark:border-slate-800">
+                <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 text-[var(--money-out)] rounded-full flex items-center justify-center mx-auto mb-4 border border-red-200 dark:border-red-900/50">
+                    <Trash2 size={32} />
+                </div>
+                <h3 className="text-xl font-bold text-[var(--text-main)] mb-2">{t.deleteTitle}</h3>
+                <p className="text-[var(--text-secondary)] mb-6 font-medium">{t.deleteConfirm}</p>
+                <div className="flex gap-3">
+                    <button onClick={() => setDeleteId(null)} className="flex-1 py-3 rounded-xl font-bold bg-[var(--bg-app)] text-[var(--text-secondary)] hover:bg-[var(--border-ui)]/10 transition-colors">{t.cancel}</button>
+                    <button onClick={confirmDelete} className="flex-1 py-3 rounded-xl font-bold bg-[var(--money-out)] hover:opacity-90 text-white shadow-lg transition-colors">{t.delete}</button>
+                </div>
+            </div>
+        </div>
+      )}
+
+      {/* Add / Edit Modal */}
+      {isModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-0 md:p-6 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
+              <div className="w-full h-full md:h-auto md:max-h-[90vh] md:max-w-2xl md:rounded-2xl bg-[var(--bg-app)] text-[var(--text-main)] flex flex-col shadow-2xl overflow-hidden border border-[var(--border-ui)]/40 dark:border-slate-800 animate-in slide-in-from-bottom-8 duration-300 pb-[max(env(safe-area-inset-bottom),0px)]">
+                  {/* Modal Header */}
+                  <div className="bg-[var(--bg-card)] p-4 sm:p-5 border-b border-[var(--border-ui)]/40 dark:border-slate-800 flex justify-between items-center shadow-sm shrink-0">
+                      <h2 className="text-xl font-extrabold text-[var(--text-main)] tracking-tight">
+                          {editingId ? (initialMode === 'customer' ? t.editCustomer : t.editLedger) : (initialMode === 'customer' ? t.addCustomer : t.addLedger)}
+                      </h2>
+                      <div className="flex gap-2">
+                          {editingId && (
+                              <button type="button" onClick={() => setDeleteId(editingId)} className="text-[var(--money-out)] hover:bg-red-500/10 p-2 rounded-full transition-colors" title={t.delete}>
+                                  <Trash2 size={22} />
+                              </button>
+                          )}
+                          <button type="button" onClick={() => setIsModalOpen(false)} className="text-[var(--text-secondary)] hover:bg-[var(--border-ui)]/10 p-2 rounded-full transition-colors">
+                              <X size={22} />
+                          </button>
+                      </div>
+                  </div>
+                  
+                  {/* Modal Form */}
+                  <form id="ledgerForm" onSubmit={handleSave} className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5 custom-scrollbar">
+                      {/* Registration Type Toggle */}
+                      {initialMode === 'customer' && (
+                      <div className="flex bg-[var(--bg-card)] p-1 rounded-xl shadow-inner border border-[var(--border-ui)]/40 dark:border-slate-800">
+                        <button
+                          type="button"
+                          className={`flex-1 py-3 rounded-lg font-black text-sm transition-all ${!formData.isGstRegistered ? 'bg-[var(--brand-primary)] text-white shadow-md' : 'text-[var(--text-secondary)] hover:text-[var(--text-main)] hover:bg-[var(--border-ui)]/10'}`}
+                          onClick={() => setFormData({...formData, isGstRegistered: false, gstin: ''})}
+                        >
+                          {t.nonGst}
+                        </button>
+                        <button
+                          type="button"
+                          className={`flex-1 py-3 rounded-lg font-black text-sm transition-all ${formData.isGstRegistered ? 'bg-[var(--brand-primary)] text-white shadow-md' : 'text-[var(--text-secondary)] hover:text-[var(--text-main)]'}`}
+                          onClick={() => setFormData({...formData, isGstRegistered: true})}
+                        >
+                          {t.gstRegistered}
+                        </button>
+                      </div>
+                      )}
+
+                      <div className="space-y-1.5">
+                          <label className="block text-xs font-black tracking-wider uppercase text-[var(--text-secondary)] flex items-center gap-1.5">
+                              <Tag size={13} className="text-[var(--brand-primary)] shrink-0" />
+                              {t.name} *
+                          </label>
+                          <input 
+                            type="text" 
+                            required 
+                            className="w-full border border-[var(--border-ui)]/60 dark:border-slate-800 bg-[var(--bg-card)] text-[var(--text-main)] rounded-xl p-3.5 focus:ring-4 focus:ring-[var(--brand-primary)]/10 focus:border-[var(--brand-primary)] outline-none text-base font-bold placeholder-[var(--text-secondary)]/30 transition-all shadow-xs" 
+                            value={formData.name || ''} 
+                            onChange={e => setFormData({...formData, name: e.target.value})} 
+                            placeholder={t.namePlaceholder} 
+                          />
+                      </div>
+
+                      {/* Under Group Dropdown */}
+                      <div className="bg-[var(--brand-light)] p-3.5 sm:p-4 rounded-xl border border-[var(--brand-primary)]/15 dark:border-slate-800/80 shadow-xs transition-all duration-300">
+                          <label className="block text-xs font-black tracking-wider text-[var(--brand-primary)] uppercase mb-2 flex items-center gap-1.5">
+                              <FolderTree size={15} className="shrink-0" /> {t.selectGroup}
+                          </label>
+                          <select 
+                            value={formData.accountGroup || ''} 
+                            onChange={(e) => handleAccountGroupChange(e.target.value)} 
+                            className="w-full bg-[var(--bg-card)] text-[var(--text-main)] border border-[var(--border-ui)]/40 dark:border-slate-700/60 rounded-lg p-2.5 outline-none text-base font-extrabold focus:border-[var(--brand-primary)] focus:ring-2 focus:ring-[var(--brand-primary)]/20 transition-all cursor-pointer"
+                          >
+                              <option value="">{t.selectGroupPlaceholder}</option>
+                              {accountGroups.map(g => (
+                                  <option key={g.id} value={g.name}>{g.name}</option>
+                              ))}
+                          </select>
+                      </div>
+
+                      {initialMode === 'customer' && (
+                        <>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="space-y-1.5">
+                             <label className="block text-xs font-black tracking-wider uppercase text-[var(--text-secondary)] flex items-center gap-1.5">
+                                 <Phone size={13} className="text-[var(--brand-primary)] shrink-0" />
+                                 {t.mobile}
+                             </label>
+                             <input type="tel" className="w-full border border-[var(--border-ui)]/60 dark:border-slate-800 bg-[var(--bg-card)] text-[var(--text-main)] rounded-xl p-3.5 focus:ring-4 focus:ring-[var(--brand-primary)]/10 focus:border-[var(--brand-primary)] outline-none text-base font-bold placeholder-[var(--text-secondary)]/30 transition-all shadow-xs" value={formData.mobile || ''} onChange={e => setFormData({...formData, mobile: e.target.value})} placeholder={t.mobilePlaceholder} />
+                        </div>
+                        <div className="space-y-1.5">
+                             <label className="block text-xs font-black tracking-wider uppercase text-[var(--text-secondary)] flex items-center gap-1.5">
+                                 <Users size={13} className="text-[var(--brand-primary)] shrink-0" />
+                                 {t.partyType}
+                             </label>
+                             {/* Disabled because it's driven by Group, but visible */}
+                             <select disabled className="w-full border border-[var(--border-ui)]/60 dark:border-slate-800 bg-[var(--border-ui)]/20 text-[var(--text-secondary)]/75 rounded-xl p-3.5 outline-none text-base font-bold cursor-not-allowed shadow-xs" value={formData.type || 'Customer'} onChange={e => setFormData({...formData, type: e.target.value as any})}>
+                                 <option value="Customer">Customer</option>
+                                 <option value="Supplier">Supplier</option>
+                              </select>
+                        </div>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div className="space-y-1.5">
+                              <label className="block text-xs font-black tracking-wider uppercase text-[var(--text-secondary)] flex items-center gap-1.5">
+                                  <Tag size={13} className="text-[var(--brand-primary)] shrink-0" />
+                                  {t.category}
+                              </label>
+                              <select 
+                                  className="w-full border border-[var(--border-ui)]/60 dark:border-slate-800 bg-[var(--bg-card)] text-[var(--text-main)] rounded-xl p-3.5 focus:ring-4 focus:ring-[var(--brand-primary)]/10 focus:border-[var(--brand-primary)] outline-none text-base font-bold transition-all shadow-xs"
+                                  value={formData.category || ''}
+                                  onChange={e => setFormData({...formData, category: e.target.value})}
+                              >
+                                  <option value="">{t.categoryPlaceholder}</option>
+                                  {UNIFIED_CATEGORIES.map((cat, idx) => (
+                                      <option key={idx} value={cat.en}>
+                                          {cat.en} ({cat.hi})
+                                      </option>
+                                  ))}
+                              </select>
+                          </div>
+                          <div className="space-y-1.5">
+                              <label className="block text-xs font-black tracking-wider uppercase text-[var(--text-secondary)] flex items-center gap-1.5">
+                                  <Mail size={13} className="text-[var(--brand-primary)] shrink-0" />
+                                  {t.email}
+                              </label>
+                              <input type="email" className="w-full border border-[var(--border-ui)]/60 dark:border-slate-800 bg-[var(--bg-card)] text-[var(--text-main)] rounded-xl p-3.5 focus:ring-4 focus:ring-[var(--brand-primary)]/10 focus:border-[var(--brand-primary)] outline-none text-base font-bold placeholder-[var(--text-secondary)]/30 transition-all shadow-xs" value={formData.email || ''} onChange={e => setFormData({...formData, email: e.target.value})} placeholder={t.emailPlaceholder} />
+                          </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {formData.isGstRegistered && (
+                            <div className="space-y-1.5 animate-in fade-in slide-in-from-top-1 duration-150">
+                                <label className="block text-xs font-black tracking-wider uppercase text-[var(--text-secondary)] flex items-center gap-1.5">
+                                    <Tag size={13} className="text-[var(--brand-primary)] shrink-0" />
+                                    {t.gstin}
+                                </label>
+                                <input type="text" className="w-full border border-[var(--border-ui)]/60 dark:border-slate-800 bg-[var(--bg-card)] text-[var(--text-main)] rounded-xl p-3.5 focus:ring-4 focus:ring-[var(--brand-primary)]/10 focus:border-[var(--brand-primary)] outline-none uppercase text-base font-bold placeholder-[var(--text-secondary)]/30 transition-all shadow-xs" value={formData.gstin || ''} onChange={e => setFormData({...formData, gstin: e.target.value})} placeholder={t.gstinPlaceholder} />
+                            </div>
+                        )}
+                        <div className={`${formData.isGstRegistered ? '' : 'sm:col-span-2'} space-y-1.5`}>
+                            <label className="block text-xs font-black tracking-wider uppercase text-[var(--text-secondary)] flex items-center gap-1.5">
+                                <Tag size={13} className="text-[var(--brand-primary)] shrink-0" />
+                                {t.pan}
+                            </label>
+                            <input type="text" className="w-full border border-[var(--border-ui)]/60 dark:border-slate-800 bg-[var(--bg-card)] text-[var(--text-main)] rounded-xl p-3.5 focus:ring-4 focus:ring-[var(--brand-primary)]/10 focus:border-[var(--brand-primary)] outline-none uppercase text-base font-bold placeholder-[var(--text-secondary)]/30 transition-all shadow-xs" value={formData.pan || ''} onChange={e => setFormData({...formData, pan: e.target.value})} placeholder={t.panPlaceholder} />
+                        </div>
+                      </div>
+
+                      <div className="space-y-1.5">
+                          <label className="block text-xs font-black tracking-wider uppercase text-[var(--text-secondary)] flex items-center gap-1.5">
+                              <FolderTree size={13} className="text-[var(--brand-primary)] shrink-0" />
+                              {t.bankDetails}
+                          </label>
+                          <textarea rows={2} className="w-full border border-[var(--border-ui)]/60 dark:border-slate-800 bg-[var(--bg-card)] text-[var(--text-main)] rounded-xl p-3.5 focus:ring-4 focus:ring-[var(--brand-primary)]/10 focus:border-[var(--brand-primary)] outline-none text-base font-bold placeholder-[var(--text-secondary)]/30 transition-all shadow-xs" value={formData.bankDetails || ''} onChange={e => setFormData({...formData, bankDetails: e.target.value})} placeholder={t.bankDetailsPlaceholder} />
+                      </div>
+
+                      <div className="space-y-1.5">
+                          <label className="block text-xs font-black tracking-wider uppercase text-[var(--text-secondary)] flex items-center gap-1.5">
+                              <MapPin size={13} className="text-[var(--brand-primary)] shrink-0" />
+                              {t.address}
+                          </label>
+                          <textarea rows={2} className="w-full border border-[var(--border-ui)]/60 dark:border-slate-800 bg-[var(--bg-card)] text-[var(--text-main)] rounded-xl p-3.5 focus:ring-4 focus:ring-[var(--brand-primary)]/10 focus:border-[var(--brand-primary)] outline-none text-base font-bold placeholder-[var(--text-secondary)]/30 transition-all shadow-xs" value={formData.address || ''} onChange={e => setFormData({...formData, address: e.target.value})} placeholder={t.addressPlaceholder} />
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                         <div className="space-y-1.5">
+                             <label className="block text-xs font-black tracking-wider uppercase text-[var(--text-secondary)] flex items-center gap-1.5">
+                                 <MapPin size={13} className="text-[var(--brand-primary)] shrink-0" />
+                                 {t.state}
+                             </label>
+                             <select value={formData.state || ''} onChange={e => setFormData({...formData, state: e.target.value})} className="w-full border border-[var(--border-ui)]/60 dark:border-slate-800 bg-[var(--bg-card)] text-[var(--text-main)] rounded-xl p-3.5 focus:ring-4 focus:ring-[var(--brand-primary)]/10 focus:border-[var(--brand-primary)] outline-none text-base font-bold transition-all shadow-xs">
+                                <option value="">{t.statePlaceholder}</option>
+                                {INDIAN_STATES.map(st => <option key={st} value={st}>{st}</option>)}
+                             </select>
+                         </div>
+                         <div className="space-y-1.5">
+                             <label className="block text-xs font-black tracking-wider uppercase text-[var(--text-secondary)] flex items-center gap-1.5">
+                                 <MapPin size={13} className="text-[var(--brand-primary)] shrink-0" />
+                                 {t.city}
+                             </label>
+                             <input type="text" className="w-full border border-[var(--border-ui)]/60 dark:border-slate-800 bg-[var(--bg-card)] text-[var(--text-main)] rounded-xl p-3.5 focus:ring-4 focus:ring-[var(--brand-primary)]/10 focus:border-[var(--brand-primary)] outline-none text-base font-bold placeholder-[var(--text-secondary)]/30 transition-all shadow-xs" value={formData.city || ''} onChange={e => setFormData({...formData, city: e.target.value})} placeholder={t.cityPlaceholder} />
+                         </div>
+                      </div>
+                        </>
+                      )}
+
+                      <div className={`grid grid-cols-1 ${initialMode === 'customer' ? 'sm:grid-cols-2' : ''} gap-5`}>
+                         {initialMode === 'customer' && (
+                          <div className="space-y-1.5">
+                              <label className="block text-xs font-black tracking-wider uppercase text-[var(--text-secondary)] flex items-center gap-1.5">
+                                  <MapPin size={13} className="text-[var(--brand-primary)] shrink-0" />
+                                  {t.pincode}
+                              </label>
+                              <input type="number" className="w-full border border-[var(--border-ui)]/60 dark:border-slate-800 bg-[var(--bg-card)] text-[var(--text-main)] rounded-xl p-3.5 focus:ring-4 focus:ring-[var(--brand-primary)]/10 focus:border-[var(--brand-primary)] outline-none text-base font-bold placeholder-[var(--text-secondary)]/30 transition-all shadow-xs" value={formData.pincode || ''} onChange={e => setFormData({...formData, pincode: e.target.value})} placeholder={t.pincodePlaceholder} />
+                          </div>
+                          )}
+                          
+                           <div className="bg-[var(--bg-card)] border border-[var(--border-ui)]/40 dark:border-slate-800/80 p-4 rounded-2xl shadow-xs transition-all duration-300">
+                              <label className="block text-xs font-black tracking-wider uppercase text-[var(--text-secondary)] mb-3 text-center">
+                                  {t.openingBalance}
+                              </label>
+                              
+                              {/* Debit / Credit Segment Control */}
+                              <div className="flex bg-[var(--bg-app)] p-1 rounded-xl border border-[var(--border-ui)]/30 dark:border-slate-800 max-w-xs mx-auto mb-4">
+                                  <button
+                                      type="button"
+                                      className={`flex-1 py-2 rounded-lg font-black text-xs transition-all ${openingBalanceType === 'Dr' ? 'bg-emerald-600 text-white shadow-md' : 'text-[var(--text-secondary)] hover:text-[var(--text-main)]'}`}
+                                      onClick={() => setOpeningBalanceType('Dr')}
+                                  >
+                                      {t.debit}
+                                  </button>
+                                  <button
+                                      type="button"
+                                      className={`flex-1 py-2 rounded-lg font-black text-xs transition-all ${openingBalanceType === 'Cr' ? 'bg-red-600 text-white shadow-md' : 'text-[var(--text-secondary)] hover:text-[var(--text-main)]'}`}
+                                      onClick={() => setOpeningBalanceType('Cr')}
+                                  >
+                                      {t.credit}
+                                  </button>
+                              </div>
+
+                              <div className="relative max-w-xs mx-auto">
+                                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                                      <span className="text-[var(--text-secondary)]/50 font-black text-lg">₹</span>
+                                  </div>
+                                  <input 
+                                      type="number" 
+                                      className="w-full pl-8 pr-3.5 border border-[var(--border-ui)]/60 dark:border-slate-800 bg-[var(--bg-app)] text-[var(--text-main)] rounded-xl p-3 outline-none text-lg font-black placeholder-[var(--text-secondary)]/30 text-center focus:border-[var(--brand-primary)] focus:ring-4 focus:ring-[var(--brand-primary)]/10 transition-all" 
+                                      value={formData.currentBalance || ''} 
+                                      onChange={e => setFormData({...formData, currentBalance: Number(e.target.value)})} 
+                                      placeholder="0" 
+                                  />
+                              </div>
+                           </div>
+                      </div>
+                  </form>
+                  
+                  {/* Fixed bottom footer within the modal wrapper container */}
+                  <div className="p-4 sm:p-5 bg-[var(--bg-card)] border-t border-[var(--border-ui)]/40 dark:border-slate-800 shadow-[0_-2px_10px_rgba(0,0,0,0.03)] shrink-0">
+                      <button type="submit" form="ledgerForm" className="w-full bg-[var(--brand-primary)] hover:bg-[var(--brand-hover)] text-white font-extrabold py-3.5 sm:py-3 rounded-xl shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all active:translate-y-0 active:scale-[0.98] flex justify-center items-center gap-2 text-lg">
+                          <Save size={22} /> {initialMode === 'customer' ? t.save : t.saveLedger}
+                      </button>
+                  </div>
+              </div>
+          </div>
+      )}
+    </div>
+  );
+};
