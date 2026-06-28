@@ -180,23 +180,24 @@ export const GSTReportScreen: React.FC<GSTReportScreenProps> = ({ onBack, langua
     return (
       <div className="flex-1 flex flex-col min-h-0">
         {/* Summary Cards */}
-        <div className="grid grid-cols-3 gap-3.5 p-4 bg-[var(--bg-card)] border-b border-[var(--border-ui)]">
-          <div className="bg-[var(--brand-light)] p-3 rounded-xl border border-[var(--brand-primary)]/10">
-            <p className="text-[10px] font-bold text-[var(--brand-primary)] uppercase tracking-wider">{t.taxableVal}</p>
-            <p className="text-base font-bold text-[var(--text-main)] mt-0.5">₹{Math.abs(totals.taxable).toFixed(2)}</p>
+        {/* Summary Cards */}
+        <div className="grid grid-cols-3 gap-3.5 p-4 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800">
+          <div className="bg-slate-50 dark:bg-slate-800 p-3 rounded-xl border border-gray-200 dark:border-slate-700">
+            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{t.taxableVal}</p>
+            <p className="text-base font-bold text-slate-900 dark:text-white mt-0.5">₹{Math.abs(totals.taxable).toFixed(2)}</p>
           </div>
-          <div className="bg-[var(--brand-light)] p-3 rounded-xl border border-[var(--brand-primary)]/10">
-            <p className="text-[10px] font-bold text-[var(--brand-primary)] uppercase tracking-wider">{t.totalTax}</p>
-            <p className="text-base font-bold text-[var(--text-main)] mt-0.5">₹{Math.abs(totals.taxAmt).toFixed(2)}</p>
+          <div className="bg-slate-50 dark:bg-slate-800 p-3 rounded-xl border border-gray-200 dark:border-slate-700">
+            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{t.totalTax}</p>
+            <p className="text-base font-bold text-slate-900 dark:text-white mt-0.5">₹{Math.abs(totals.taxAmt).toFixed(2)}</p>
           </div>
-          <div className="bg-[var(--brand-light)] p-3 rounded-xl border border-[var(--brand-primary)]/10">
-            <p className="text-[10px] font-bold text-[var(--brand-primary)] uppercase tracking-wider">{t.totalAmount}</p>
-            <p className="text-base font-bold text-[var(--text-main)] mt-0.5">₹{Math.abs(totals.total).toFixed(2)}</p>
+          <div className="bg-slate-50 dark:bg-slate-800 p-3 rounded-xl border border-gray-200 dark:border-slate-700">
+            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{t.totalAmount}</p>
+            <p className="text-base font-bold text-slate-900 dark:text-white mt-0.5">₹{Math.abs(totals.total).toFixed(2)}</p>
           </div>
         </div>
 
         {/* Table Header */}
-        <div className="grid grid-cols-12 bg-[var(--bg-app)] p-3.5 text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-widest border-b border-[var(--border-ui)]">
+        <div className="grid grid-cols-12 bg-slate-50 dark:bg-slate-950 p-3.5 text-[10px] font-bold text-slate-500 uppercase tracking-widest border-b border-gray-200 dark:border-slate-800">
           <div className="col-span-3 pl-2">{t.dateInv}</div>
           <div className="col-span-4">{t.party}</div>
           <div className="col-span-2 text-right">{t.taxable}</div>
@@ -204,30 +205,30 @@ export const GSTReportScreen: React.FC<GSTReportScreenProps> = ({ onBack, langua
         </div>
 
         {/* List */}
-        <div className="flex-1 overflow-y-auto bg-[var(--bg-app)] custom-scrollbar">
+        <div className="flex-1 overflow-y-auto bg-slate-50 dark:bg-slate-950 custom-scrollbar">
           {gstEntries.length === 0 ? (
-            <div className="flex flex-col items-center justify-center pt-24 text-[var(--text-secondary)]/60">
+            <div className="flex flex-col items-center justify-center pt-24 text-slate-400">
               <FileText size={40} className="mb-2 opacity-50" />
               <p className="text-xs font-bold uppercase tracking-wider">{t.noTrans} {selectedMonth}</p>
             </div>
           ) : (
-            <div className="divide-y divide-[var(--border-ui)]/40 bg-[var(--bg-card)]">
+            <div className="divide-y divide-gray-100 dark:divide-slate-800 bg-white dark:bg-slate-900">
               {gstEntries.map(entry => (
-                <div key={entry.id} className="grid grid-cols-12 p-3.5 items-center hover:bg-[var(--bg-app)] transition-colors">
+                <div key={entry.id} className="grid grid-cols-12 p-3.5 items-center hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
                   <div className="col-span-3 pl-2">
-                    <p className="text-xs font-bold text-[var(--text-main)]">{entry.invoiceNo}</p>
-                    <p className="text-[10px] text-[var(--text-secondary)] mt-0.5">{entry.date}</p>
+                    <p className="text-xs font-bold text-slate-900 dark:text-white">{entry.invoiceNo}</p>
+                    <p className="text-[10px] text-slate-400 mt-0.5">{entry.date}</p>
                   </div>
                   <div className="col-span-4 pr-1">
-                    <p className="text-xs font-bold text-[var(--text-main)] truncate">{entry.partyName}</p>
-                    <p className="text-[10px] text-[var(--text-secondary)] truncate mt-0.5">GST: {entry.gstin}</p>
+                    <p className="text-xs font-bold text-slate-900 dark:text-white truncate">{entry.partyName}</p>
+                    <p className="text-[10px] text-slate-400 truncate mt-0.5">GST: {entry.gstin}</p>
                   </div>
                   <div className="col-span-2 text-right">
-                    <p className="text-xs font-medium text-[var(--text-secondary)]">₹{Math.abs(entry.taxable).toFixed(2)}</p>
+                    <p className="text-xs font-medium text-slate-500">₹{Math.abs(entry.taxable).toFixed(2)}</p>
                   </div>
                   <div className="col-span-3 text-right pr-2">
-                    <p className="text-xs font-bold text-[var(--text-main)]">₹{Math.abs(entry.totalAmount).toFixed(2)}</p>
-                    <p className="text-[10px] text-[var(--money-in)] font-bold mt-0.5">Tx: ₹{Math.abs(entry.taxAmt).toFixed(2)}</p>
+                    <p className="text-xs font-bold text-slate-900 dark:text-white">₹{Math.abs(entry.totalAmount).toFixed(2)}</p>
+                    <p className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold mt-0.5">Tx: ₹{Math.abs(entry.taxAmt).toFixed(2)}</p>
                   </div>
                 </div>
               ))}
@@ -255,59 +256,59 @@ export const GSTReportScreen: React.FC<GSTReportScreenProps> = ({ onBack, langua
     };
 
     return (
-      <div className="flex-1 overflow-y-auto p-4 bg-[var(--bg-app)] space-y-4 custom-scrollbar">
+      <div className="flex-1 overflow-y-auto p-4 bg-slate-50 dark:bg-slate-950 space-y-4 custom-scrollbar">
         {/* Output Tax Card */}
-        <div className="bg-[var(--bg-card)] rounded-xl border border-[var(--border-ui)] overflow-hidden shadow-sm">
-          <div className="bg-[var(--brand-light)] p-3 border-b border-[var(--brand-primary)]/10 flex items-center justify-between">
+        <div className="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 overflow-hidden shadow-sm">
+          <div className="bg-indigo-500/10 p-3 border-b border-indigo-500/20 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="bg-[var(--brand-primary)]/20 p-1.5 rounded-lg text-[var(--brand-primary)]"><ArrowUpRight size={18} /></div>
-              <h3 className="font-bold text-[var(--text-main)] text-sm">{t.outward}</h3>
+              <div className="bg-indigo-500/20 p-1.5 rounded-lg text-indigo-600 dark:text-indigo-400"><ArrowUpRight size={18} /></div>
+              <h3 className="font-bold text-slate-900 dark:text-white text-sm">{t.outward}</h3>
             </div>
-            <span className="text-[10px] font-bold bg-[var(--bg-card)] px-2.5 py-0.5 rounded text-[var(--brand-primary)] border border-[var(--border-ui)]">3.1</span>
+            <span className="text-[10px] font-bold bg-white dark:bg-slate-900 px-2.5 py-0.5 rounded text-indigo-600 border border-gray-200 dark:border-slate-800">3.1</span>
           </div>
           <div className="p-4 grid grid-cols-2 gap-4">
             <div>
-              <p className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-wider">{t.taxableVal}</p>
-              <p className="text-base font-bold text-[var(--text-main)] mt-0.5">₹{Math.abs(outTotals.taxable).toFixed(2)}</p>
+              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{t.taxableVal}</p>
+              <p className="text-base font-bold text-slate-900 dark:text-white mt-0.5">₹{Math.abs(outTotals.taxable).toFixed(2)}</p>
             </div>
             <div>
-              <p className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-wider">{t.totalTax}</p>
-              <p className="text-base font-bold text-[var(--brand-primary)] mt-0.5">₹{Math.abs(outTotals.taxAmt).toFixed(2)}</p>
+              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{t.totalTax}</p>
+              <p className="text-base font-bold text-indigo-600 dark:text-indigo-400 mt-0.5">₹{Math.abs(outTotals.taxAmt).toFixed(2)}</p>
             </div>
           </div>
         </div>
 
         {/* Input Tax Card */}
-        <div className="bg-[var(--bg-card)] rounded-xl border border-[var(--border-ui)] overflow-hidden shadow-sm">
+        <div className="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 overflow-hidden shadow-sm">
           <div className="bg-emerald-500/10 p-3 border-b border-emerald-500/20 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <div className="bg-emerald-500/20 p-1.5 rounded-lg text-emerald-600 dark:text-emerald-400"><ArrowDownLeft size={18} /></div>
-              <h3 className="font-bold text-[var(--text-main)] text-sm">{t.inward}</h3>
+              <h3 className="font-bold text-slate-900 dark:text-white text-sm">{t.inward}</h3>
             </div>
-            <span className="text-[10px] font-bold bg-[var(--bg-card)] px-2.5 py-0.5 rounded text-emerald-600 border border-[var(--border-ui)]">4</span>
+            <span className="text-[10px] font-bold bg-white dark:bg-slate-900 px-2.5 py-0.5 rounded text-emerald-600 border border-gray-200 dark:border-slate-800">4</span>
           </div>
           <div className="p-4 grid grid-cols-2 gap-4">
             <div>
-              <p className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-wider">{t.taxableVal}</p>
-              <p className="text-base font-bold text-[var(--text-main)] mt-0.5">₹{Math.abs(inTotals.taxable).toFixed(2)}</p>
+              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{t.taxableVal}</p>
+              <p className="text-base font-bold text-slate-900 dark:text-white mt-0.5">₹{Math.abs(inTotals.taxable).toFixed(2)}</p>
             </div>
             <div>
-              <p className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-wider">ITC Available</p>
-              <p className="text-base font-bold text-[var(--money-in)] mt-0.5">₹{Math.abs(inTotals.taxAmt).toFixed(2)}</p>
+              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">ITC Available</p>
+              <p className="text-base font-bold text-emerald-600 dark:text-emerald-400 mt-0.5">₹{Math.abs(inTotals.taxAmt).toFixed(2)}</p>
             </div>
           </div>
         </div>
 
         {/* Net Payable Card */}
-        <div className="bg-[var(--bg-card)] rounded-xl border border-[var(--border-ui)] overflow-hidden shadow-md">
-          <div className="p-4 border-b border-[var(--border-ui)] flex justify-between items-center bg-[var(--bg-app)]">
-            <h3 className="font-bold text-sm text-[var(--text-main)] flex items-center gap-2">
-              <CheckCircle2 size={18} className="text-[var(--money-in)]" /> {t.netPayable}
+        <div className="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 overflow-hidden shadow-md">
+          <div className="p-4 border-b border-gray-205 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-950">
+            <h3 className="font-bold text-sm text-slate-900 dark:text-white flex items-center gap-2">
+              <CheckCircle2 size={18} className="text-emerald-500" /> {t.netPayable}
             </h3>
           </div>
           <div className="p-6 text-center">
-            <p className="text-xs text-[var(--text-secondary)] font-bold uppercase tracking-wider mb-1">{taxPayable >= 0 ? t.toPay : t.toCredit}</p>
-            <h2 className={`text-3xl font-black tracking-tight ${taxPayable >= 0 ? 'text-[var(--money-out)]' : 'text-[var(--money-in)]'}`}>
+            <p className="text-xs text-slate-500 uppercase tracking-wider mb-1">{taxPayable >= 0 ? t.toPay : t.toCredit}</p>
+            <h2 className={`text-3xl font-black tracking-tight ${taxPayable >= 0 ? 'text-rose-600 dark:text-rose-450' : 'text-emerald-600'}`}>
               ₹{Math.abs(taxPayable).toFixed(2)}
             </h2>
           </div>
@@ -334,20 +335,20 @@ export const GSTReportScreen: React.FC<GSTReportScreenProps> = ({ onBack, langua
       className="flex flex-col h-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white pb-[max(env(safe-area-inset-bottom),0px)] relative overflow-hidden transition-colors"
     >
       {/* Premium Top Header */}
-      <header className="bg-[var(--bg-card)] p-4 flex items-center justify-between shadow-sm shrink-0 border-b border-[var(--border-ui)] pt-[max(env(safe-area-inset-top),48px)] transition-colors">
+      <header className="bg-white dark:bg-slate-900 p-4 flex items-center justify-between shadow-sm shrink-0 border-b border-gray-200 dark:border-slate-800 pt-[max(env(safe-area-inset-top),48px)] transition-colors">
         <div className="flex items-center gap-4">
           <button 
             onClick={onBack}
-            className="hover:bg-slate-100 dark:hover:bg-slate-800 text-[var(--text-secondary)] hover:text-[var(--text-main)] p-2 rounded-full transition-all min-w-[44px] min-h-[44px] flex items-center justify-center active:scale-90"
+            className="hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 hover:text-slate-900 dark:hover:text-white p-2 rounded-full transition-all min-w-[44px] min-h-[44px] flex items-center justify-center active:scale-90"
             aria-label="Go back"
           >
             <ArrowLeft size={24} />
           </button>
           <div>
-            <h1 className="text-xl font-bold tracking-tight text-[var(--text-main)] leading-tight">
+            <h1 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white leading-tight">
               {t.title}
             </h1>
-            <p className="text-[10px] font-bold text-[var(--text-secondary)] tracking-widest mt-0.5 opacity-80 uppercase">
+            <p className="text-[10px] font-bold text-slate-500 tracking-widest mt-0.5 opacity-80 uppercase">
               {t.subtitle}
             </p>
           </div>
@@ -358,11 +359,11 @@ export const GSTReportScreen: React.FC<GSTReportScreenProps> = ({ onBack, langua
             type="month" 
             value={selectedMonth}
             onChange={(e) => setSelectedMonth(e.target.value)}
-            className="bg-[var(--bg-app)] text-[var(--text-main)] border border-[var(--border-ui)] rounded-lg px-3 py-2.5 text-xs font-bold outline-none focus-active-light dark:focus-active-dark min-h-[44px]"
+            className="bg-slate-50 dark:bg-slate-850 text-slate-900 dark:text-white border border-gray-200 dark:border-slate-800 rounded-lg px-3 py-2.5 text-xs font-bold outline-none focus-active-light dark:focus-active-dark min-h-[44px]"
           />
           <button 
             onClick={downloadExcel}
-            className="bg-[var(--brand-primary)] hover:bg-[var(--brand-hover)] text-white p-2 rounded-lg transition-all flex items-center justify-center min-w-[44px] min-h-[44px] active:scale-95 shadow-sm cursor-pointer"
+            className="bg-indigo-600 hover:bg-indigo-700 text-white p-2 rounded-lg transition-all flex items-center justify-center min-w-[44px] min-h-[44px] active:scale-95 shadow-sm cursor-pointer"
             title="Download Report"
           >
             <Download size={18} />
@@ -372,12 +373,12 @@ export const GSTReportScreen: React.FC<GSTReportScreenProps> = ({ onBack, langua
 
       {/* Tabs segment controller */}
       <div className="p-4 pb-0">
-        <div className="flex p-1 bg-[var(--bg-card)] border border-[var(--border-ui)] rounded-xl shadow-xs">
+        <div className="flex p-1 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-xl shadow-xs">
           {(['GSTR-1', 'GSTR-2', 'GSTR-3B'] as const).map(tab => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`flex-1 py-2.5 text-xs font-bold rounded-lg uppercase tracking-wider transition-all min-h-[38px] ${activeTab === tab ? 'bg-[var(--brand-primary)] text-white shadow-sm' : 'text-[var(--text-secondary)] hover:text-[var(--text-main)]'}`}
+              className={`flex-1 py-2.5 text-xs font-bold rounded-lg uppercase tracking-wider transition-all min-h-[38px] ${activeTab === tab ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'}`}
             >
               {tab}
             </button>
