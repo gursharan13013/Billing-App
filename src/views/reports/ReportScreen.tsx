@@ -155,10 +155,10 @@ export const ReportScreen: React.FC<ReportScreenProps> = ({
               </button>
             )}
             <div className="flex flex-col gap-0.5">
-              <span className="text-[9px] uppercase font-bold tracking-widest text-emerald-500 font-mono">
+              <span className="text-[9px] uppercase font-bold tracking-widest text-slate-500 dark:text-indigo-400 font-mono">
                 {view === 'accounting' ? t.accountingDesk : t.auditorConsole}
               </span>
-              <h1 className="text-lg font-bold tracking-tight text-[var(--text-main)] line-clamp-1">
+              <h1 className="text-lg font-extrabold tracking-tight text-slate-900 dark:text-white line-clamp-1">
                 {view === 'accounting' ? t.accountingFinancials : (companyProfile?.name || t.myBusiness)}
               </h1>
             </div>
@@ -166,12 +166,12 @@ export const ReportScreen: React.FC<ReportScreenProps> = ({
 
           <div className="flex items-center gap-1.5">
             {/* Notification Button */}
-            <button onClick={onNotification} className="p-2 rounded-lg hover:bg-[var(--bg-app)] text-[var(--text-secondary)] hover:text-[var(--text-main)] transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center relative active:scale-95">
+            <button onClick={onNotification} className="p-2 rounded-lg bg-slate-100 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center relative active:scale-95">
               <Bell size={18} />
               <span className="absolute top-2.5 right-2.5 w-1.5 h-1.5 bg-rose-500 rounded-full"></span>
             </button>
             
-            <button onClick={(e) => { e.stopPropagation(); setIsMenuOpen(!isMenuOpen); }} className="p-2 rounded-lg hover:bg-[var(--bg-app)] text-[var(--text-secondary)] hover:text-[var(--text-main)] transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center active:scale-95 relative">
+            <button onClick={(e) => { e.stopPropagation(); setIsMenuOpen(!isMenuOpen); }} className="p-2 rounded-lg bg-slate-100 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center active:scale-95 relative">
               <MoreVertical size={18} />
             </button>
             
@@ -183,17 +183,17 @@ export const ReportScreen: React.FC<ReportScreenProps> = ({
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95, y: -10 }}
                   transition={{ duration: 0.15 }}
-                  className="absolute top-16 right-5 w-48 bg-[var(--bg-card)] border border-[var(--border-ui)] rounded-xl shadow-2xl z-50 overflow-hidden divide-y divide-[var(--border-ui)] text-[var(--text-main)]"
+                  className="absolute top-16 right-5 w-48 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-2xl z-50 overflow-hidden divide-y divide-slate-100 dark:divide-slate-800/60 text-slate-800 dark:text-white"
                 >
-                  <button onClick={onOpenSettings} className="w-full text-left px-4 py-3 hover:bg-[var(--bg-app)] text-xs font-bold flex items-center gap-2"><Settings size={14}/> {t.setting}</button>
-                  <button onClick={() => onNavigate && onNavigate('helpLegal' as any)} className="w-full text-left px-4 py-3 hover:bg-[var(--bg-app)] text-xs font-bold flex items-center gap-2"><Info size={14}/> {t.aboutUs}</button>
-                  <button className="w-full text-left px-4 py-3 hover:bg-[var(--bg-app)] text-xs font-bold flex items-center gap-2"><Phone size={14}/> {t.contactUs}</button>
+                  <button onClick={onOpenSettings} className="w-full text-left px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-bold flex items-center gap-2"><Settings size={14}/> {t.setting}</button>
+                  <button onClick={() => onNavigate && onNavigate('helpLegal' as any)} className="w-full text-left px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-bold flex items-center gap-2"><Info size={14}/> {t.aboutUs}</button>
+                  <button className="w-full text-left px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-bold flex items-center gap-2"><Phone size={14}/> {t.contactUs}</button>
                   <button onClick={() => {
                     const next = localStorage.getItem('showDashboardQR') === 'false' ? 'true' : 'false';
                     localStorage.setItem('showDashboardQR', next);
                     window.dispatchEvent(new Event('storage'));
-                  }} className="w-full text-left px-4 py-3 hover:bg-[var(--bg-app)] text-xs font-bold flex items-center gap-2"><QrCode size={14}/> {t.qrCode}</button>
-                  <div className="px-4 py-2.5 text-[10px] text-center text-slate-400 dark:text-slate-500 font-bold bg-[var(--bg-app)]">
+                  }} className="w-full text-left px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-bold flex items-center gap-2"><QrCode size={14}/> {t.qrCode}</button>
+                  <div className="px-4 py-2.5 text-[10px] text-center text-slate-400 dark:text-slate-500 font-bold bg-slate-50 dark:bg-slate-950/40">
                     v{APP_VERSION}
                   </div>
                 </motion.div>
@@ -202,13 +202,13 @@ export const ReportScreen: React.FC<ReportScreenProps> = ({
           </div>
         </div>
 
-        <div className="mt-3 flex items-center gap-2 bg-[var(--bg-app)] border border-[var(--border-ui)] px-3 py-1.5 rounded-full w-fit">
+        <div className="mt-3 flex items-center gap-2 bg-slate-100 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 px-3 py-1.5 rounded-full w-fit">
           <Calendar size={13} className="text-teal-600 dark:text-teal-400" />
           <input 
             type="date" 
             value={datePickerValue} 
             onChange={handleDateChange} 
-            className="bg-transparent text-[var(--text-secondary)] text-xs font-bold outline-none cursor-pointer [color-scheme:light] dark:[color-scheme:dark]"
+            className="bg-transparent text-slate-700 dark:text-slate-200 text-xs font-bold outline-none cursor-pointer [color-scheme:light] dark:[color-scheme:dark]"
           />
         </div>
       </div>
@@ -216,32 +216,31 @@ export const ReportScreen: React.FC<ReportScreenProps> = ({
       {/* Main Scroll Area */}
       <div className="flex-1 overflow-y-auto px-4 pb-6 pt-4 relative flex flex-col w-full max-w-6xl mx-auto custom-scrollbar">
         <div className="w-full space-y-4">
-          <div className="text-[10px] font-bold uppercase tracking-widest text-[#ea580c] px-1 flex items-center justify-between">
+          <div className="text-xs font-black uppercase tracking-widest text-indigo-500 px-1 flex items-center justify-between">
             <span>
               {view === 'accounting' ? t.accountingBooksLedger : t.businessAuditsReports}
             </span>
             {view === 'accounting' && (
-              <span className="text-[9px] bg-[var(--brand-light)] text-[var(--brand-primary)] font-bold px-2.5 py-0.5 rounded-full border border-[var(--brand-primary)]/10">
+              <span className="text-[9px] bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-black px-2.5 py-0.5 rounded">
                 {t.secureLedger}
               </span>
             )}
           </div>
 
-          {/* Premium Grid Menu - Styling inspired by Customer List & Tax Master layouts */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+          {/* Premium Grid Menu */}
+          <div className="grid grid-cols-2 gap-3 mb-2">
             {(view === 'accounting' ? accountingMenu : menuGrid).map((item, index) => (
               <button 
                 key={index} 
                 onClick={item.action}
                 type="button"
-                className="flex items-center gap-4 bg-[var(--bg-card)] hover:bg-[var(--bg-app)] border border-[var(--border-ui)] rounded-xl p-4 shadow-sm text-[var(--text-main)] active:scale-[0.99] hover:scale-[1.01] transition-all duration-200 text-left w-full"
+                className="flex items-center gap-3 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/80 border border-slate-100 dark:border-slate-850 rounded-xl p-3.5 shadow-xs text-slate-800 dark:text-slate-200 active:scale-[0.98] transition-all duration-150 text-left w-full h-[62px]"
               >
-                {/* Visual Initial Emblem box flanking left */}
-                <div className={`w-10 h-10 rounded-lg ${item.bgColor} flex items-center justify-center shrink-0`}>
+                <div className={`p-2.5 rounded-xl shrink-0 ${item.bgColor} flex items-center justify-center`}>
                   {item.icon}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <span className="text-sm font-bold tracking-tight uppercase block text-[var(--text-main)]">
+                  <span className="text-xs md:text-sm font-extrabold tracking-tight leading-none uppercase font-sans select-none block text-slate-700 dark:text-slate-300">
                     {item.label}
                   </span>
                 </div>
