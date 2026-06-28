@@ -47,16 +47,18 @@ export const ReportOptionsScreen: React.FC<ReportOptionsScreenProps> = ({ onBack
       </header>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col justify-center items-center bg-slate-50 dark:bg-slate-950 border-b border-gray-200 dark:border-slate-800">
-        {/* The textured Rupee Icon Block */}
-        <div 
-          className="w-48 h-48 bg-slate-900 dark:bg-slate-900 flex justify-center items-center overflow-hidden mb-8 shadow-xl border-4 border-slate-700/80 rounded-2xl" 
-          style={{ 
-            backgroundImage: 'radial-gradient(circle, #333 2px, transparent 2px)', 
-            backgroundSize: '10px 10px' 
-          }}
-        >
-          <IndianRupee size={120} className="text-white drop-shadow-lg" />
+      <div className="flex-1 flex flex-col justify-center items-center bg-slate-50 dark:bg-slate-950 p-4 border-b border-gray-200 dark:border-slate-800">
+        {/* Card wrapper matching Stock Summary visual patterns */}
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-200 dark:border-slate-800 shadow-sm w-72 h-72 flex flex-col justify-center items-center overflow-hidden mb-4 p-6 transition-colors">
+          <div 
+            className="w-48 h-48 bg-slate-50 dark:bg-slate-950 flex justify-center items-center overflow-hidden shadow-inner border border-gray-200 dark:border-slate-800 rounded-2xl" 
+            style={{ 
+              backgroundImage: 'radial-gradient(circle, #333 1.5px, transparent 1.5px)', 
+              backgroundSize: '8px 8px' 
+            }}
+          >
+            <IndianRupee size={100} className="text-indigo-600 dark:text-indigo-400 drop-shadow-md" />
+          </div>
         </div>
       </div>
 
