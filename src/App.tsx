@@ -105,35 +105,10 @@ export const AppContent = () => {
     };
   }, [currentUser?.businessId]);
 
-  const [showSplash, setShowSplash] = useState(() => {
-      const isAppInitialized = safeLocalStorage.getItem('app_initialized') === 'true';
-      if (isAppInitialized) return false;
-      return true;
-  });
+  const [showSplash, setShowSplash] = useState(false);
   const [showFYSelection, setShowFYSelection] = useState(false);
   const [isLocked, setIsLocked] = useState(false);
-  const [navState, setNavState] = useState<NavigationState>(() => {
-      const isAppInitialized = safeLocalStorage.getItem('app_initialized') === 'true';
-      if (!isAppInitialized) {
-          const isLanguageSelected = safeLocalStorage.getItem('onboarding_language_selected') === 'true';
-          const isRoleSelected = safeLocalStorage.getItem('onboarding_role_selected') === 'true';
-          const savedRole = safeLocalStorage.getItem('locked_role');
-          if (!isLanguageSelected) {
-              return { screen: 'language' };
-          }
-          if (!isRoleSelected) {
-              return { screen: 'roleSelection' };
-          }
-          if (savedRole === 'staff') {
-              return { screen: 'joinStore' };
-          }
-          return { screen: 'companyProfile' };
-      }
-      try {
-          const saved = safeSessionStorage.getItem('navState');
-          return saved ? JSON.parse(saved) : { screen: 'dashboard' };
-      } catch (e) { return { screen: 'dashboard' }; }
-  });
+  const [navState, setNavState] = useState<NavigationState>({ screen: 'language' });
   const [history, setHistory] = useState<NavigationState[]>(() => {
       try {
           const saved = safeSessionStorage.getItem('history');
@@ -661,6 +636,8 @@ export const AppContent = () => {
       case 'language':
         return <LanguageScreen 
           currentLanguage={language}
+          currentTheme={theme}
+          onThemeChange={setTheme}
           onSelect={(lang) => {
             setLanguage(lang);
             try {
@@ -673,20 +650,18 @@ export const AppContent = () => {
         />;
       case 'roleSelection':
         return <RoleSelectionScreen 
-          language={language}
-          onLanguageChange={setLanguage}
-          onBack={() => {
-            // Unset onboarding language selected if we go back
-            safeLocalStorage.removeItem('onboarding_language_selected');
-            navigateTo('language');
-          }}
+          onBack={goBack} 
+          currentTheme={theme}
+          onThemeChange={setTheme}
           onSelect={(role) => {
             if (role === 'staff') {
               navigateTo('joinStore');
             } else {
               navigateTo('companyProfile');
             }
-          }}
+          }} 
+          language={language}
+          onLanguageChange={setLanguage}
         />;
       case 'joinStore':
         return <JoinStoreScreen 
