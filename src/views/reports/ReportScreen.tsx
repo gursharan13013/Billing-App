@@ -53,11 +53,7 @@ export const ReportScreen: React.FC<ReportScreenProps> = ({
 
   const handleClick = (type: string) => {
     if (type === 'Accounting') {
-      if (onNavigate) {
-        onNavigate('report', { reportView: 'accounting' });
-      } else {
-        setView('accounting');
-      }
+      setView('accounting');
     } else if (type === 'Stock' && onNavigate) {
       onNavigate('stockSummary');
     } else if (type === 'GST' && onNavigate) {
