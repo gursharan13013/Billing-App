@@ -1,58 +1,59 @@
 import React, { useState, useEffect } from 'react';
-import { DashboardScreen } from './views/admin/DashboardScreen';
-import { InvoiceScreen } from './views/billing/InvoiceScreen';
-import { MasterScreen } from './views/admin/MasterScreen';
-import { ReportScreen } from './views/reports/ReportScreen';
-import { PaymentScreen } from './views/billing/PaymentScreen';
-import { PaymentListScreen } from './views/billing/PaymentListScreen';
-import { OrderListScreen } from './views/billing/OrderListScreen';
-import { SettingsScreen } from './views/admin/SettingsScreen';
-import { UnitListScreen } from './views/inventory/UnitListScreen';
-import { ItemListScreen } from './views/inventory/ItemListScreen';
-import { PartyListScreen } from './views/crm/PartyListScreen';
-import { CompanyProfileScreen } from './views/admin/CompanyProfileScreen';
-import { TaxListScreen } from './views/inventory/TaxListScreen';
-import { CategoryListScreen } from './views/inventory/CategoryListScreen';
-import { AccountGroupListScreen } from './views/admin/AccountGroupListScreen';
-import { HSNListScreen } from './views/inventory/HSNListScreen';
-import { BusinessReportScreen } from './views/reports/BusinessReportScreen';
-import { ReportOptionsScreen } from './views/reports/ReportOptionsScreen';
-import { AggregatedReportScreen } from './views/reports/AggregatedReportScreen';
-import { PartySelectReportScreen } from './views/reports/PartySelectReportScreen';
-import { PartyDetailReportScreen } from './views/reports/PartyDetailReportScreen';
-import { PartyItemDetailReportScreen } from './views/reports/PartyItemDetailReportScreen';
-import { ItemSelectReportScreen } from './views/reports/ItemSelectReportScreen';
-import { ItemDetailReportScreen } from './views/reports/ItemDetailReportScreen';
-import { StockSummaryScreen } from './views/inventory/StockSummaryScreen';
-import { GSTReportScreen } from './views/reports/GSTReportScreen';
-import { ChatListScreen } from './views/crm/ChatListScreen';
-import { ChatDetailScreen } from './views/crm/ChatDetailScreen';
-import { JournalListScreen } from './views/billing/JournalListScreen';
-import { JournalEntryScreen } from './views/billing/JournalEntryScreen';
-import { AttendanceScreen } from './views/crm/AttendanceScreen';
-import { ContraScreen } from './views/billing/ContraScreen';
-import { FinancialReportScreen } from './views/reports/FinancialReportScreen';
-import { LedgerReportScreen } from './views/reports/LedgerReportScreen';
-import { MasterDataTableScreen } from './views/admin/MasterDataTableScreen';
-import { NearbyShopsScreen } from './views/crm/NearbyShopsScreen';
-import { NotificationScreen } from './views/admin/NotificationScreen'; // Import
-import { FinancialYearScreen } from './views/admin/FinancialYearScreen';
-import { ManufacturingScreen } from './views/inventory/ManufacturingScreen';
-import { ManufacturingReportScreen } from './views/inventory/ManufacturingReportScreen';
-import { OpeningStockScreen } from './views/inventory/OpeningStockScreen';
-import { CreateBroadcastScreen } from './views/crm/CreateBroadcastScreen';
-import { BroadcastChatScreen } from './views/crm/BroadcastChatScreen';
-import { HelpLegalScreen } from './views/admin/HelpLegalScreen';
-import { SplashScreen } from './views/auth/SplashScreen';
-import { LanguageScreen } from './views/auth/LanguageScreen';
+import { DashboardScreen } from './features/admin/screens/DashboardScreen';
+import { InvoiceScreen } from './features/billing/screens/InvoiceScreen';
+import { MasterScreen } from './features/admin/screens/MasterScreen';
+import { ReportScreen } from './features/reports/screens/ReportScreen';
+import { PaymentScreen } from './features/billing/screens/PaymentScreen';
+import { PaymentListScreen } from './features/billing/screens/PaymentListScreen';
+import { OrderListScreen } from './features/billing/screens/OrderListScreen';
+import { SettingsScreen } from './features/admin/screens/SettingsScreen';
+import { UnitListScreen } from './features/inventory/screens/UnitListScreen';
+import { ItemListScreen } from './features/inventory/screens/ItemListScreen';
+import { PartyListScreen } from './features/crm/screens/PartyListScreen';
+import { CompanyProfileScreen } from './features/admin/screens/CompanyProfileScreen';
+import { TaxListScreen } from './features/inventory/screens/TaxListScreen';
+import { CategoryListScreen } from './features/inventory/screens/CategoryListScreen';
+import { AccountGroupListScreen } from './features/admin/screens/AccountGroupListScreen';
+import { HSNListScreen } from './features/inventory/screens/HSNListScreen';
+import { BusinessReportScreen } from './features/reports/screens/BusinessReportScreen';
+import { ReportOptionsScreen } from './features/reports/screens/ReportOptionsScreen';
+import { AggregatedReportScreen } from './features/reports/screens/AggregatedReportScreen';
+import { PartySelectReportScreen } from './features/reports/screens/PartySelectReportScreen';
+import { PartyDetailReportScreen } from './features/reports/screens/PartyDetailReportScreen';
+import { PartyItemDetailReportScreen } from './features/reports/screens/PartyItemDetailReportScreen';
+import { ItemSelectReportScreen } from './features/reports/screens/ItemSelectReportScreen';
+import { ItemDetailReportScreen } from './features/reports/screens/ItemDetailReportScreen';
+import { StockSummaryScreen } from './features/inventory/screens/StockSummaryScreen';
+import { GSTReportScreen } from './features/reports/screens/GSTReportScreen';
+import { ChatListScreen } from './features/crm/screens/ChatListScreen';
+import { ChatDetailScreen } from './features/crm/screens/ChatDetailScreen';
+import { JournalListScreen } from './features/billing/screens/JournalListScreen';
+import { JournalEntryScreen } from './features/billing/screens/JournalEntryScreen';
+import { AttendanceScreen } from './features/crm/screens/AttendanceScreen';
+import { ContraScreen } from './features/billing/screens/ContraScreen';
+import { FinancialReportScreen } from './features/reports/screens/FinancialReportScreen';
+import { LedgerReportScreen } from './features/reports/screens/LedgerReportScreen';
+import { MasterDataTableScreen } from './features/admin/screens/MasterDataTableScreen';
+import { NearbyShopsScreen } from './features/crm/screens/NearbyShopsScreen';
+import { NotificationScreen } from './features/admin/screens/NotificationScreen'; // Import
+import { FinancialYearScreen } from './features/admin/screens/FinancialYearScreen';
+import { ManufacturingScreen } from './features/inventory/screens/ManufacturingScreen';
+import { ManufacturingReportScreen } from './features/inventory/screens/ManufacturingReportScreen';
+import { OpeningStockScreen } from './features/inventory/screens/OpeningStockScreen';
+import { CreateBroadcastScreen } from './features/crm/screens/CreateBroadcastScreen';
+import { BroadcastChatScreen } from './features/crm/screens/BroadcastChatScreen';
+import { HelpLegalScreen } from './features/admin/screens/HelpLegalScreen';
+import { SplashScreen } from './features/auth/screens/SplashScreen';
+import { LanguageScreen } from './features/auth/screens/LanguageScreen';
 import { TransactionType, Party, Language, Item } from './core/types';
 import { Zap, Home, LayoutGrid, FileBarChart } from 'lucide-react'; // Icon for Splash
 import { billingService, BroadcastGroup } from './services/billingService';
-import { LockScreen } from './views/auth/LockScreen'; // Import LockScreen
+import { LockScreen } from './features/auth/screens/LockScreen'; // Import LockScreen
 import { MasterLayoutShell } from './components/layout/MasterLayoutShell';
 import { MenuPageHarmonizer } from './components/layout/MenuPageHarmonizer';
-import { JoinStoreScreen } from './views/auth/JoinStoreScreen';
-import { RoleSelectionScreen } from './views/auth/RoleSelectionScreen';
+import { JoinStoreScreen } from './features/auth/screens/JoinStoreScreen';
+import { RoleSelectionScreen } from './features/auth/screens/RoleSelectionScreen';
+import { PhoneAuthScreen } from './features/auth/screens/PhoneAuthScreen';
 import { initFirebaseAuth, startChatSync, startInvoiceSync, startPaymentSync, startItemSync } from './services/firebaseService';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { initializeSyncEngine, startPullSync, stopPullSync } from './services/syncEngine';
@@ -66,7 +67,7 @@ import { safeLocalStorage, safeSessionStorage } from './core/utils/storage';
 export type Theme = 'system' | 'light' | 'dark';
 
 interface NavigationState {
-  screen: 'roleSelection' | 'joinStore' | 'dashboard' | 'language' | 'invoice' | 'master' | 'report' | 'payment' | 'paymentList' | 'orderList' | 'settings' | 'unitList' | 'itemList' | 'partyList' | 'companyProfile' | 'taxList' | 'categoryList' | 'accountGroupList' | 'hsnList' | 'businessReport' | 'reportOptions' | 'aggregatedReport' | 'partySelectReport' | 'partyDetailReport' | 'itemSelectReport' | 'itemDetailReport' | 'partyItemDetailReport' | 'stockSummary' | 'gstReport' | 'chatList' | 'chatDetail' | 'journalList' | 'journalEntry' | 'attendance' | 'contra' | 'financialReport' | 'ledgerReport' | 'masterDataTable' | 'nearbyShops' | 'notifications' | 'manufacturing' | 'manufacturingReport' | 'openingStock' | 'createBroadcast' | 'broadcastDetail' | 'helpLegal' | 'masterLayoutShell';
+  screen: 'roleSelection' | 'phoneAuth' | 'joinStore' | 'dashboard' | 'language' | 'invoice' | 'master' | 'report' | 'payment' | 'paymentList' | 'orderList' | 'settings' | 'unitList' | 'itemList' | 'partyList' | 'companyProfile' | 'taxList' | 'categoryList' | 'accountGroupList' | 'hsnList' | 'businessReport' | 'reportOptions' | 'aggregatedReport' | 'partySelectReport' | 'partyDetailReport' | 'itemSelectReport' | 'itemDetailReport' | 'partyItemDetailReport' | 'stockSummary' | 'gstReport' | 'chatList' | 'chatDetail' | 'journalList' | 'journalEntry' | 'attendance' | 'contra' | 'financialReport' | 'ledgerReport' | 'masterDataTable' | 'nearbyShops' | 'notifications' | 'manufacturing' | 'manufacturingReport' | 'openingStock' | 'createBroadcast' | 'broadcastDetail' | 'helpLegal' | 'masterLayoutShell';
   activeTab?: 'dashboard' | 'master' | 'report';
   params?: {
     type?: TransactionType;
@@ -653,14 +654,43 @@ export const AppContent = () => {
           onBack={goBack} 
           currentTheme={theme}
           onThemeChange={setTheme}
-          onSelect={(role) => {
+          onSelect={async (role) => {
             if (role === 'staff') {
               navigateTo('joinStore');
             } else {
-              navigateTo('companyProfile');
+              try {
+                const profile = await billingService.getCompanyProfile();
+                if (profile && profile.mobile && profile.name) {
+                  // PROFILE FOUND: Direct entry to Home/Dashboard!
+                  setHistory([]);
+                  setNavState({ screen: 'dashboard' });
+                  setActiveTab('dashboard');
+                } else {
+                  // PROFILE NOT FOUND: Unified OTP auth gate
+                  setHistory(prev => [...prev, { ...navState, activeTab }]);
+                  setNavState({ screen: 'phoneAuth' });
+                }
+              } catch (e) {
+                setHistory(prev => [...prev, { ...navState, activeTab }]);
+                setNavState({ screen: 'phoneAuth' });
+              }
             }
           }} 
           language={language}
+          onLanguageChange={setLanguage}
+        />;
+      case 'phoneAuth':
+        return <PhoneAuthScreen 
+          onSuccess={(isNewUser, phone) => {
+            // Both returning and new users navigate to companyProfile stepper for review
+            navigateTo('companyProfile');
+          }}
+          onBack={() => {
+            navigateTo('roleSelection');
+          }}
+          currentTheme={theme}
+          onThemeChange={setTheme}
+          currentLanguage={language}
           onLanguageChange={setLanguage}
         />;
       case 'joinStore':
@@ -771,6 +801,10 @@ export const AppContent = () => {
       case 'companyProfile': 
          return <CompanyProfileScreen 
           onBack={goBack} 
+          currentTheme={theme}
+          onThemeChange={setTheme}
+          currentLanguage={language}
+          onLanguageChange={setLanguage}
           onSaveSuccess={() => {
             setHistory([]);
             setShowFYSelection(true);
@@ -925,6 +959,9 @@ export const AppContent = () => {
         {showFYSelection ? (
           <FinancialYearScreen 
             language={language}
+            currentTheme={theme}
+            onThemeChange={setTheme}
+            onBack={() => setShowFYSelection(false)}
             onSelect={async (fyId) => {
               safeLocalStorage.setItem('activeFY', fyId);
               await billingService.initDB(fyId);

@@ -510,3 +510,24 @@ export const UNIFIED_CATEGORIES = [
     { en: "YouTuber", hi: "यूट्यूबर" },
     { en: "Other", hi: "अन्य" }
 ];
+
+export interface AccountRow {
+    name: string;
+    amount: number;
+    subRows?: AccountRow[];
+    isTotal?: boolean;
+    isHeading?: boolean;
+}
+
+export interface FinancialData {
+    trialBalance: { dr: AccountRow[], cr: AccountRow[], totalDr: number, totalCr: number };
+    pl: { 
+        expenses: AccountRow[], incomes: AccountRow[], 
+        grossProfit: number, netProfit: number,
+        totalExpense: number, totalIncome: number 
+    };
+    bs: {
+        liabilities: AccountRow[], assets: AccountRow[],
+        totalLiabilities: number, totalAssets: number
+    };
+}
