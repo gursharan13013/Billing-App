@@ -95,36 +95,36 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
 
   // Color variables determined by system preference bypassing stylesheet overrides
   const canvasStyle = {
-    backgroundColor: isSystemDark ? '#090D16' : '#F9F6F0',
-    color: isSystemDark ? '#F1F5F9' : '#0F172A'
+    backgroundColor: 'var(--bg-app)',
+    color: 'var(--text-main)'
   };
 
   const logPanelStyle = {
-    backgroundColor: isSystemDark ? 'rgba(19, 27, 46, 0.85)' : '#FFFFFF',
-    borderColor: isSystemDark ? '#1E293B' : '#CBD5E1',
-    color: isSystemDark ? '#94A3B8' : '#475569'
+    backgroundColor: 'var(--bg-card)',
+    borderColor: 'var(--border-ui)',
+    color: 'var(--text-secondary)'
   };
 
   const badgeStyle = {
-    backgroundColor: isSystemDark ? '#131B2E' : '#FFFFFF',
-    borderColor: isSystemDark ? '#1E293B' : '#CBD5E1',
-    color: isSystemDark ? '#6366F1' : '#4F46E5'
+    backgroundColor: 'var(--bg-card)',
+    borderColor: 'var(--border-ui)',
+    color: 'var(--brand-primary)'
   };
 
   const titleStyle = {
-    color: isSystemDark ? '#FFFFFF' : '#0F172A'
+    color: 'var(--text-main)'
   };
 
   const labelStyle = {
-    color: isSystemDark ? '#94A3B8' : '#475569'
+    color: 'var(--text-secondary)'
   };
 
   const progressTrackStyle = {
-    backgroundColor: isSystemDark ? '#131B2E' : '#CBD5E1',
-    borderColor: isSystemDark ? 'rgba(30, 41, 59, 0.5)' : 'rgba(203, 213, 225, 0.5)'
+    backgroundColor: 'var(--bg-card)',
+    borderColor: 'var(--border-ui)'
   };
 
-  const wifiColor = isSystemDark ? '#6366F1' : '#4F46E5';
+  const wifiColor = 'var(--brand-primary)';
 
   return (
     <div 

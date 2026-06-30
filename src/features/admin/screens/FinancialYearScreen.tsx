@@ -87,32 +87,32 @@ export const FinancialYearScreen: React.FC<FinancialYearScreenProps> = ({
     // Styling configurations synced with the premium onboarding flow layouts
     const canvasStyle = {
         background: isDark 
-            ? 'linear-gradient(to bottom, #020617 0%, #0f172a 70%, #1e1b4b 100%)' // Cosmic gradient matching onboarding
-            : 'linear-gradient(to bottom, #f8fafc 0%, #f1f5f9 100%)',
-        color: isDark ? '#F1F5F9' : '#0F172A'
+            ? 'linear-gradient(to bottom, var(--bg-app) 0%, #020617 100%)' 
+            : 'linear-gradient(to bottom, var(--bg-app) 0%, #EFEBE4 100%)',
+        color: 'var(--text-main)'
     };
 
     const cardStyle = {
-        backgroundColor: isDark ? 'rgba(9, 13, 22, 0.75)' : '#FFFFFF',
-        borderColor: isDark ? 'rgba(255, 255, 255, 0.05)' : '#E2E8F0',
+        backgroundColor: 'var(--bg-card)',
+        borderColor: 'var(--border-ui)',
         backdropFilter: 'blur(12px)',
         WebkitBackdropFilter: 'blur(12px)'
     };
 
     const headerBtnStyle = {
-        backgroundColor: isDark ? 'rgba(255, 255, 255, 0.03)' : '#FFFFFF',
-        borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : '#E2E8F0',
-        color: isDark ? '#F59E0B' : '#4F46E5'
+        backgroundColor: 'var(--bg-card)',
+        borderColor: 'var(--border-ui)',
+        color: isDark ? '#F59E0B' : 'var(--brand-primary)'
     };
 
     const subBadgeStyle = {
-        backgroundColor: isDark ? 'rgba(99, 102, 241, 0.1)' : '#FFFFFF',
-        borderColor: isDark ? 'rgba(99, 102, 241, 0.15)' : '#E2E8F0',
-        color: isDark ? '#818cf8' : '#4F46E5'
+        backgroundColor: 'var(--brand-light)',
+        borderColor: 'var(--border-ui)',
+        color: isDark ? '#818cf8' : 'var(--brand-primary)'
     };
 
     const textSecondaryStyle = {
-        color: isDark ? '#94A3B8' : '#475569'
+        color: 'var(--text-secondary)'
     };
 
     const brandColor = '#6366F1';
@@ -228,10 +228,10 @@ export const FinancialYearScreen: React.FC<FinancialYearScreenProps> = ({
                                     
                                     const optionStyle = {
                                         backgroundColor: isSelected 
-                                            ? (isDark ? 'rgba(99, 102, 241, 0.15)' : 'rgba(79, 70, 229, 0.05)') 
-                                            : (isDark ? 'rgba(255, 255, 255, 0.02)' : '#F8FAFC'),
-                                        borderColor: isSelected ? '#6366F1' : (isDark ? 'rgba(255, 255, 255, 0.05)' : '#E2E8F0'),
-                                        color: isDark ? '#F1F5F9' : '#0F172A'
+                                            ? 'var(--brand-light)' 
+                                            : 'var(--bg-card)',
+                                        borderColor: isSelected ? 'var(--brand-primary)' : 'var(--border-ui)',
+                                        color: 'var(--text-main)'
                                     };
 
                                     return (
