@@ -61,6 +61,7 @@ import { runSmokeTest } from './services/smokeTest';
 import { motion, AnimatePresence } from 'motion/react';
 import { TabTransitionWrapper } from './components/layout/TabTransitionWrapper';
 import { SwipeBackProvider } from './components/layout/SwipeBackProvider';
+import { App as CapApp } from '@capacitor/app';
 
 import { safeLocalStorage, safeSessionStorage } from './core/utils/storage';
 
@@ -527,6 +528,22 @@ export const AppContent = () => {
     safeSessionStorage.setItem('history', JSON.stringify(history));
     safeSessionStorage.setItem('activeTab', activeTab);
   }, [navState, history, activeTab]);
+
+  useEffect(() => {
+    const handleBackButton = () => {
+      if (history.length > 0) {
+        goBack();
+      } else {
+        CapApp.exitApp();
+      }
+    };
+
+    const listenerPromise = CapApp.addListener('backButton', handleBackButton);
+
+    return () => {
+      listenerPromise.then(l => l.remove());
+    };
+  }, [history, isTransitioning]);
 
   React.useEffect(() => {
     const handleThemeChange = () => {
