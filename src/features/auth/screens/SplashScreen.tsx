@@ -129,7 +129,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
   return (
     <div 
       style={canvasStyle}
-      className={`relative h-full w-full flex flex-col justify-between items-center p-6 md:p-12 overflow-hidden select-none font-sans transition-all duration-300 ${
+      className={`relative h-full w-full flex flex-col justify-between items-center pt-[max(env(safe-area-inset-top),1.5rem)] pb-6 px-6 md:p-12 overflow-hidden select-none font-sans transition-all duration-300 ${
         fadeOut ? 'opacity-0 scale-95' : 'opacity-100'
       }`}
     >

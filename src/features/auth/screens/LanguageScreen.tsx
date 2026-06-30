@@ -123,7 +123,7 @@ export const LanguageScreen: React.FC<LanguageScreenProps> = ({
   return (
     <div 
       style={canvasStyle}
-      className="relative h-screen w-full flex flex-col justify-between p-5 md:p-8 overflow-hidden select-none font-sans transition-colors duration-200"
+      className="relative h-screen w-full flex flex-col justify-between pt-[max(env(safe-area-inset-top),1.25rem)] pb-5 px-5 md:p-8 overflow-hidden select-none font-sans transition-colors duration-200"
     >
       {/* Background glowing particles/radial pattern (matching splash) */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(99,102,241,0.05)_0%,transparent_70%)] pointer-events-none" />
