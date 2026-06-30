@@ -10,6 +10,7 @@
     "build:android": "node scripts/heal-gradle.js && vite build && npx cap sync android",
     "build:apk": "npm run build:android && cd android && ./gradlew assembleDebug",
     "build:apk:release": "npm run build:android && cd android && ./gradlew assembleRelease",
+    "build:ios": "vite build && npx cap sync ios",
     "lint": "tsc --noEmit"
   },
   "dependencies": {
@@ -37,6 +38,7 @@
   "devDependencies": {
     "@capacitor/android": "^8.2.0",
     "@capacitor/cli": "^8.2.0",
+    "@capacitor/ios": "^8.4.1",
     "@firebase/eslint-plugin-security-rules": "^0.0.2",
     "@types/node": "^22.14.0",
     "@vitejs/plugin-legacy": "^8.0.1",
