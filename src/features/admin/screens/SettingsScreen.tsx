@@ -4,7 +4,7 @@ import {
   ArrowLeft, Upload, Download, CloudUpload, CloudDownload, 
   Key, User, SlidersHorizontal, FileText, ArrowDownCircle,
   Globe, Sun, Moon, Check, Hash, Database, Loader2, AlertTriangle, ShieldCheck, RefreshCcw, Bot, ScanBarcode, HelpCircle, Trash2,
-  ChevronDown, ChevronUp, HardDrive, Info, ExternalLink, Sparkles, Cloud, Laptop, Activity, Lock, Users, ShieldAlert
+  ChevronDown, ChevronUp, HardDrive, Info, ExternalLink, Sparkles, Cloud, Laptop, Activity, Lock, Users, ShieldAlert, Crown
 } from 'lucide-react';
 import { StaffManagement } from './StaffManagement';
 import { Language, VoucherSettings, APP_VERSION, BUILD_DATE, AppSettings } from '../../../core/types/';
@@ -442,6 +442,8 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
   });
 
   const [isPremiumLicensed, setIsPremiumLicensed] = useState(false);
+  const [licenseCode, setLicenseCode] = useState('');
+  const [licenseError, setLicenseError] = useState('');
 
   useEffect(() => {
     billingService.getAppSettings().then(setAppSettings);
@@ -474,6 +476,33 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
     } catch (err: any) {
       console.error(err);
     }
+  };
+
+  const handleValidateLicenseCode = async () => {
+      const key = licenseCode.trim().toUpperCase();
+      if (!key) {
+          setLicenseError(currentLanguage === 'hi' ? 'कृपया लाइसेंस कुंजी दर्ज करें।' : 'Please enter a license key.');
+          return;
+      }
+      if (key === 'EAZY-PREMIUM-2026') {
+          try {
+              await CloudGatewayManager.upgradeToPremium();
+              setIsPremiumLicensed(true);
+              setLicenseCode('');
+              setLicenseError('');
+              setDialogMessage({
+                title: currentLanguage === 'hi' ? 'प्रीमियम पर अपग्रेड हुआ' : 'License Upgraded!',
+                message: currentLanguage === 'hi'
+                  ? 'सफलतापूर्वक प्रीमियम लाइसेंस सक्रिय हो गया है! अब आप क्लाउड सिंक और प्रीमियम सुविधाओं का उपयोग कर सकते हैं।'
+                  : 'You have been granted a full Sandbox Developer Premium Tier license. You can now access Chat, Category Search, and Cloud Sync!',
+                isError: false
+              });
+          } catch (err: any) {
+              setLicenseError(err.message || 'Upgrade failed.');
+          }
+      } else {
+          setLicenseError(currentLanguage === 'hi' ? 'अमान्य लाइसेंस कुंजी! सही कोड दर्ज करें।' : 'Invalid license key! Enter correct code.');
+      }
   };
 
   const handleAppSettingsChange = async <K extends keyof AppSettings>(key: K, value: AppSettings[K]) => {
@@ -1542,6 +1571,38 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                               : (currentLanguage === 'hi' ? 'मुफ़्त प्रीमियम सक्रिय करें' : 'Activate Sandbox Premium License')}
                         </button>
                     </div>
+
+                    {!isPremiumLicensed && (
+                        <div className="border-t border-slate-100 dark:border-slate-800/80 pt-3 mt-2.5 flex flex-col gap-2">
+                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                                {currentLanguage === 'hi' ? 'प्रीमियम सक्रिय करने के लिए लाइसेंस कुंजी दर्ज करें' : 'Enter License Key to Activate Premium'}
+                            </label>
+                            <div className="flex gap-2 w-full">
+                                <input 
+                                    type="text" 
+                                    value={licenseCode}
+                                    onChange={e => {
+                                        setLicenseCode(e.target.value);
+                                        setLicenseError('');
+                                    }}
+                                    placeholder="e.g. EAZY-PREMIUM-2026"
+                                    className="flex-1 bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/60 rounded-xl px-3.5 py-2.5 text-xs font-mono font-bold tracking-widest text-slate-800 dark:text-white outline-none focus:border-amber-500 dark:focus:border-amber-400 transition-colors uppercase"
+                                />
+                                <button 
+                                    onClick={handleValidateLicenseCode}
+                                    className="bg-amber-500 hover:bg-amber-600 text-slate-900 font-extrabold px-5 rounded-xl transition-all active:scale-98 text-xs cursor-pointer shadow-sm flex items-center justify-center gap-1.5"
+                                >
+                                    <Crown size={12} className="fill-slate-900" />
+                                    {currentLanguage === 'hi' ? 'सक्रिय करें' : 'Activate'}
+                                </button>
+                            </div>
+                            {licenseError && (
+                                <p className="text-[10px] font-bold text-rose-500 mt-1">
+                                    ⚠️ {licenseError}
+                                </p>
+                            )}
+                        </div>
+                    )}
                 </div>
  
                 {/* Messaging Toggle */}

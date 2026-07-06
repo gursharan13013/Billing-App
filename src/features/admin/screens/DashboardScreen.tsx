@@ -66,10 +66,6 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
 
   // Premium Status State
   const [isPremium, setIsPremium] = useState(false);
-  const [showPremiumModal, setShowPremiumModal] = useState(false);
-  const [licenseKey, setLicenseKey] = useState('');
-  const [activationError, setActivationError] = useState('');
-  const [pendingFeature, setPendingFeature] = useState('');
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -303,16 +299,12 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
   // QR Code (No longer needs url generation here)
   const qrData = profile?.mobile || 'No Number';
 
-  const filteredMenuItems = menuItems.filter(item => menuFilter === 'all' || item.category === menuFilter);
+  const filteredMenuItems = menuItems.filter(item => {
+      if (item.isPremium && !isPremium) return false;
+      return menuFilter === 'all' || item.category === menuFilter;
+  });
 
   const handleMenuClick = (item: typeof menuItems[0]) => {
-      if (item.isPremium && !isPremium) {
-          setPendingFeature(item.label);
-          setActivationError('');
-          setLicenseKey('');
-          setShowPremiumModal(true);
-          return;
-      }
       if (item.action) item.action();
   };
 
@@ -608,117 +600,6 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
                   >
                       {importLoading ? 'Processing...' : 'Import Data'}
                   </button>
-              </div>
-          </div>
-      )}
-
-      {/* Premium Activation Modal */}
-      {showPremiumModal && (
-          <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in duration-200">
-              <div className="bg-white dark:bg-slate-900 rounded-[2rem] shadow-2xl w-full max-w-md overflow-hidden p-6 relative border border-slate-200 dark:border-slate-800/80 animate-in zoom-in-95 duration-250 flex flex-col text-slate-800 dark:text-white">
-                  <button 
-                    onClick={() => setShowPremiumModal(false)} 
-                    className="absolute top-4 right-4 text-slate-400 hover:text-slate-700 dark:hover:text-white transition-colors"
-                  >
-                      <X size={20} />
-                  </button>
-                  
-                  {/* Top Premium Badge / Icon */}
-                  <div className="mx-auto w-14 h-14 bg-amber-500/10 rounded-2xl flex items-center justify-center text-amber-500 shadow-3xs animate-pulse">
-                      <Crown size={28} className="stroke-[2.5px]" />
-                  </div>
-                  
-                  <h3 className="text-lg font-black text-center mt-4 tracking-tight">
-                      {language === 'hi' ? 'प्रीमियम लाइसेंस आवश्यक' : 'Premium License Required'}
-                  </h3>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 text-center leading-relaxed mt-2 px-2">
-                      {language === 'hi' 
-                          ? `"${pendingFeature}" एक विशेष प्रीमियम फीचर है। इसे चालू करने के लिए लाइसेंस कुंजी दर्ज करें या सैंडबॉक्स अपग्रेड का उपयोग करें।`
-                          : `"${pendingFeature}" is a premium feature. Enter a license key or activate a sandbox upgrade to unlock.`
-                      }
-                  </p>
-
-                  <div className="mt-5 space-y-4">
-                      {/* Activation Key Form */}
-                      <div className="space-y-1.5">
-                          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-                              {language === 'hi' ? 'लाइसेंस कोड दर्ज करें' : 'Enter License Code'}
-                          </label>
-                          <input 
-                              type="text" 
-                              value={licenseKey}
-                              onChange={e => {
-                                  setLicenseKey(e.target.value);
-                                  setActivationError('');
-                              }}
-                              placeholder="e.g. EAZY-PREMIUM-2026"
-                              className="w-full bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/60 rounded-xl px-3.5 py-2.5 text-xs font-mono font-bold tracking-widest text-slate-800 dark:text-white outline-none focus:border-amber-500 dark:focus:border-amber-400 transition-colors uppercase"
-                          />
-                      </div>
-
-                      {/* Error Display */}
-                      {activationError && (
-                          <p className="text-[10px] font-bold text-rose-500 text-center">
-                              ⚠️ {activationError}
-                          </p>
-                      )}
-
-                      <div className="flex flex-col gap-2 pt-2">
-                          <button 
-                              onClick={async () => {
-                                  const key = licenseKey.trim().toUpperCase();
-                                  if (!key) {
-                                      setActivationError(language === 'hi' ? 'कृपया लाइसेंस कुंजी दर्ज करें।' : 'Please enter a license key.');
-                                      return;
-                                  }
-                                  if (key === 'EAZY-PREMIUM-2026') {
-                                      try {
-                                          await CloudGatewayManager.upgradeToPremium();
-                                          setIsPremium(true);
-                                          setShowPremiumModal(false);
-                                          window.dispatchEvent(new Event('appSettingsChanged'));
-                                          // Proceed to feature
-                                          if (pendingFeature === t.chat && onChat) onChat();
-                                          else if (pendingFeature === t.categorySearch) onNavigate('nearbyShops' as any);
-                                      } catch (err: any) {
-                                          setActivationError(err.message || 'Upgrade failed.');
-                                      }
-                                  } else {
-                                      setActivationError(language === 'hi' ? 'अमान्य लाइसेंस कुंजी! सही कोड दर्ज करें।' : 'Invalid license key! Enter correct code.');
-                                  }
-                              }}
-                              className="w-full bg-slate-900 hover:bg-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 text-white font-extrabold py-3 rounded-xl transition-all active:scale-98 text-xs cursor-pointer shadow-sm flex items-center justify-center gap-1.5"
-                          >
-                              <Crown size={14} className="text-amber-500" />
-                              {language === 'hi' ? 'लाइसेंस सत्यापित करें' : 'Verify & Activate'}
-                          </button>
-
-                          <div className="relative flex py-1 items-center">
-                              <div className="flex-grow border-t border-slate-100 dark:border-slate-800"></div>
-                              <span className="flex-shrink mx-3 text-[9px] font-bold text-slate-400 uppercase tracking-widest">Or</span>
-                              <div className="flex-grow border-t border-slate-100 dark:border-slate-800"></div>
-                          </div>
-
-                          <button 
-                              onClick={async () => {
-                                  try {
-                                      await CloudGatewayManager.upgradeToPremium();
-                                      setIsPremium(true);
-                                      setShowPremiumModal(false);
-                                      window.dispatchEvent(new Event('appSettingsChanged'));
-                                      // Proceed to feature
-                                      if (pendingFeature === t.chat && onChat) onChat();
-                                      else if (pendingFeature === t.categorySearch) onNavigate('nearbyShops' as any);
-                                  } catch (err: any) {
-                                      setActivationError(err.message || 'Sandbox upgrade failed.');
-                                  }
-                              }}
-                              className="w-full bg-amber-500 hover:bg-amber-600 text-white font-extrabold py-3 rounded-xl transition-all active:scale-98 text-xs cursor-pointer shadow-md"
-                          >
-                              {language === 'hi' ? 'सैंडबॉक्स अपग्रेड सक्रिय करें (फ्री)' : 'Try Sandbox Upgrade (Free)'}
-                          </button>
-                      </div>
-                  </div>
               </div>
           </div>
       )}
