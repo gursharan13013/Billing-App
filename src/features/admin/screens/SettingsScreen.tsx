@@ -111,7 +111,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
   }, []);
 
   const [activeView, setActiveView] = useState<'main' | 'preferences' | 'preferences2' | 'general_settings' | 'sale_bill_settings' | 'item_settings' | 'purchase_bill_settings' | 'purchase_return_settings' | 'sale_return_settings' | 'ledger_settings' | 'transportation_settings' | 'invoice_numbering' | 'password_settings' | 'ceo_control' | 'time_machine' | 'system_health' | 'master_health' | 'staff_members' | 'audit_logs'>('main');
-  const [selectedCategoryTab, setSelectedCategoryTab] = useState<'business_identity' | 'security_access' | 'data_cloud' | 'app_preferences' | 'admin_panel' | 'diagnostics'>('business_identity');
+  const [selectedCategoryTab, setSelectedCategoryTab] = useState<'business_identity' | 'security_access' | 'data_cloud' | 'app_preferences' | 'admin_panel' | 'diagnostics' | 'premium_license'>('business_identity');
   const [isAdminUnlocked, setIsAdminUnlocked] = useState<boolean>(false);
   const [auditLogUserFilter, setAuditLogUserFilter] = useState<string>('all');
   const [pendingAdminView, setPendingAdminView] = useState<'staff_members' | 'audit_logs'>('staff_members');
@@ -3422,6 +3422,69 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
               </div>
             </div>
           </SettingsAccordion>
+
+          {/* Category 5: Premium License */}
+          {authContext.currentUser?.role === 'admin' && (
+            <SettingsAccordion
+              title={currentLanguage === 'hi' ? 'प्रीमियम लाइसेंस' : 'Premium License'}
+              icon={Crown}
+              description={currentLanguage === 'hi' ? 'लाइसेंस कुंजी सक्रिय करें या मुफ्त सैंडबॉक्स अपग्रेड आज़माएं।' : 'Activate enterprise license keys or try sandbox premium features.'}
+            >
+              {/* Premium License Controls */}
+              <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 space-y-3.5 text-left font-sans">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-left w-full">
+                      <div className="flex items-center gap-1.5 shrink-0">
+                          <div className={`w-2.5 h-2.5 rounded-full ${isPremiumLicensed ? 'bg-amber-500 animate-pulse' : 'bg-slate-300'}`}></div>
+                          <p className="text-[11px] font-mono tracking-tight uppercase text-slate-500 dark:text-slate-400">
+                              License Mode: <span className={isPremiumLicensed ? 'text-amber-500 font-extrabold' : 'text-slate-600 dark:text-slate-500 font-bold'}>{isPremiumLicensed ? 'PREMIUM TIED (V2.0)' : 'FREE BASIC (OFFLINE ONLY)'}</span>
+                          </p>
+                      </div>
+                      <button
+                          type="button"
+                          onClick={handleUpgradeToPremium}
+                          className={`px-3 py-1 text-xs rounded-full font-bold transition shadow-sm shrink-0 cursor-pointer ${isPremiumLicensed ? 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200' : 'bg-amber-500 hover:bg-amber-600 text-slate-900 border border-amber-600/20'}`}
+                          id="premium_toggle_trigger_button_mobile"
+                      >
+                          {isPremiumLicensed 
+                            ? (currentLanguage === 'hi' ? 'मुफ़्त लाइसेंस बंद करें' : 'Demo Downgrade to Basic') 
+                            : (currentLanguage === 'hi' ? 'मुफ़्त प्रीमियम सक्रिय करें' : 'Activate Sandbox Premium License')}
+                      </button>
+                  </div>
+
+                  {!isPremiumLicensed && (
+                      <div className="border-t border-slate-100 dark:border-slate-800/80 pt-3 mt-2 flex flex-col gap-2 w-full">
+                          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                              {currentLanguage === 'hi' ? 'प्रीमियम सक्रिय करने के लिए लाइसेंस कुंजी दर्ज करें' : 'Enter License Key to Activate Premium'}
+                          </label>
+                          <div className="flex gap-2 w-full">
+                              <input 
+                                  type="text" 
+                                  value={licenseCode}
+                                  onChange={e => {
+                                      setLicenseCode(e.target.value);
+                                      setLicenseError('');
+                                  }}
+                                  placeholder="e.g. EAZY-PREMIUM-2026"
+                                  className="flex-1 bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/60 rounded-xl px-3.5 py-2.5 text-xs font-mono font-bold tracking-widest text-slate-800 dark:text-white outline-none focus:border-amber-500 dark:focus:border-amber-400 transition-colors uppercase min-w-0"
+                              />
+                              <button 
+                                  onClick={handleValidateLicenseCode}
+                                  className="bg-amber-500 hover:bg-amber-600 text-slate-900 font-extrabold px-4 py-2.5 rounded-xl transition-all active:scale-98 text-xs cursor-pointer shadow-sm flex items-center justify-center gap-1 shrink-0"
+                              >
+                                  <Crown size={12} className="fill-slate-900" />
+                                  {currentLanguage === 'hi' ? 'सक्रिय' : 'Activate'}
+                              </button>
+                          </div>
+                          {licenseError && (
+                              <p className="text-[10px] font-bold text-rose-500 mt-1">
+                                  ⚠️ {licenseError}
+                              </p>
+                          )}
+                      </div>
+                  )}
+              </div>
+            </SettingsAccordion>
+          )}
         </div>
 
 
@@ -3575,6 +3638,29 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                       </h3>
                       <p className="text-[10px] text-slate-400 dark:text-slate-500 truncate leading-snug font-sans mt-0.5">
                         {currentLanguage === 'hi' ? 'टेस्ट केस और सिस्टम ऑडिट' : 'Run automated trade math trials'}
+                      </p>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => setSelectedCategoryTab('premium_license')}
+                    className={`flex items-start gap-3 p-3 rounded-xl transition text-left cursor-pointer border ${
+                      selectedCategoryTab === 'premium_license'
+                        ? 'bg-amber-50/70 dark:bg-amber-950/40 border-amber-200 dark:border-amber-800/60 text-amber-700 dark:text-amber-400 font-bold'
+                        : 'bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800/65 border-slate-100 dark:border-slate-800/80 text-slate-700 dark:text-slate-300'
+                    }`}
+                  >
+                    <div className={`p-2 rounded-lg shrink-0 ${
+                      selectedCategoryTab === 'premium_license' ? 'bg-amber-500 text-white animate-pulse' : 'bg-slate-100 dark:bg-slate-800 text-amber-500 dark:text-amber-400'
+                    }`}>
+                      <Crown size={16} />
+                    </div>
+                    <div className="flex-1 min-w-0 font-sans">
+                      <h3 className="text-xs font-bold truncate">
+                        {currentLanguage === 'hi' ? 'प्रीमियम लाइसेंस' : 'Premium License'}
+                      </h3>
+                      <p className="text-[10px] text-slate-400 dark:text-slate-500 truncate leading-snug font-sans mt-0.5">
+                        {currentLanguage === 'hi' ? 'लाइसेंस कुंजी सक्रिय करें' : 'Activate license keys & sandbox'}
                       </p>
                     </div>
                   </button>
@@ -4209,6 +4295,79 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
 
                   <div className="pt-4 border-t border-slate-100 dark:border-slate-800/80">
                     <TestCaseRunner />
+                  </div>
+                </motion.div>
+              )}
+              {selectedCategoryTab === 'premium_license' && authContext.currentUser?.role === 'admin' && (
+                <motion.div
+                  key="premium_license"
+                  initial={{ opacity: 0, x: 15 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -15 }}
+                  transition={{ duration: 0.2 }}
+                  className="space-y-6 text-left"
+                >
+                  <div>
+                    <h2 className="text-xl font-extrabold text-amber-500 flex items-center gap-2">
+                      <Crown className="text-amber-500" size={24} />
+                      {currentLanguage === 'hi' ? 'प्रीमियम लाइसेंस' : 'Premium License'}
+                    </h2>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-sans">
+                      {currentLanguage === 'hi' ? 'लाइसेंस कुंजी सक्रिय करें या मुफ्त सैंडबॉक्स अपग्रेड आज़माएं।' : 'Activate enterprise license keys or try the free sandbox developer upgrade.'}
+                    </p>
+                  </div>
+
+                  <div className="pt-4 border-t border-slate-100 dark:border-slate-800/80 bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-200/85 dark:border-slate-800 space-y-4">
+                      <div className="flex items-center justify-between gap-3 text-left w-full">
+                          <div className="flex items-center gap-1.5 shrink-0">
+                              <div className={`w-2.5 h-2.5 rounded-full ${isPremiumLicensed ? 'bg-amber-500 animate-pulse' : 'bg-slate-300'}`}></div>
+                              <p className="text-[11px] font-mono tracking-tight uppercase text-slate-500 dark:text-slate-400">
+                                  License Mode: <span className={isPremiumLicensed ? 'text-amber-500 font-extrabold' : 'text-slate-600 dark:text-slate-500 font-bold'}>{isPremiumLicensed ? 'PREMIUM TIED (V2.0)' : 'FREE BASIC (OFFLINE ONLY)'}</span>
+                              </p>
+                          </div>
+                          <button
+                              type="button"
+                              onClick={handleUpgradeToPremium}
+                              className={`px-3 py-1 text-xs rounded-full font-bold transition shadow-sm shrink-0 cursor-pointer ${isPremiumLicensed ? 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200' : 'bg-amber-500 hover:bg-amber-600 text-slate-900 border border-amber-600/20'}`}
+                              id="premium_toggle_trigger_button_desktop"
+                          >
+                              {isPremiumLicensed 
+                                ? (currentLanguage === 'hi' ? 'मुफ़्त लाइसेंस बंद करें' : 'Demo Downgrade to Basic') 
+                                : (currentLanguage === 'hi' ? 'मुफ़्त प्रीमियम सक्रिय करें' : 'Activate Sandbox Premium License')}
+                          </button>
+                      </div>
+
+                      {!isPremiumLicensed && (
+                          <div className="border-t border-slate-100 dark:border-slate-800/80 pt-3 mt-2 flex flex-col gap-2 w-full">
+                              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                                  {currentLanguage === 'hi' ? 'प्रीमियम सक्रिय करने के लिए लाइसेंस कुंजी दर्ज करें' : 'Enter License Key to Activate Premium'}
+                              </label>
+                              <div className="flex gap-2 w-full">
+                                  <input 
+                                      type="text" 
+                                      value={licenseCode}
+                                      onChange={e => {
+                                          setLicenseCode(e.target.value);
+                                          setLicenseError('');
+                                      }}
+                                      placeholder="e.g. EAZY-PREMIUM-2026"
+                                      className="flex-1 bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/60 rounded-xl px-3.5 py-2.5 text-xs font-mono font-bold tracking-widest text-slate-800 dark:text-white outline-none focus:border-amber-500 dark:focus:border-amber-400 transition-colors uppercase min-w-0"
+                                  />
+                                  <button 
+                                      onClick={handleValidateLicenseCode}
+                                      className="bg-amber-500 hover:bg-amber-600 text-slate-900 font-extrabold px-5 rounded-xl transition-all active:scale-98 text-xs cursor-pointer shadow-sm flex items-center justify-center gap-1.5 shrink-0"
+                                  >
+                                      <Crown size={12} className="fill-slate-900" />
+                                      {currentLanguage === 'hi' ? 'सक्रिय' : 'Activate'}
+                                  </button>
+                              </div>
+                              {licenseError && (
+                                  <p className="text-[10px] font-bold text-rose-500 mt-1">
+                                      ⚠️ {licenseError}
+                                  </p>
+                              )}
+                          </div>
+                      )}
                   </div>
                 </motion.div>
               )}
