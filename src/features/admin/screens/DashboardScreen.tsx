@@ -4,7 +4,7 @@ import {
   FileText, RotateCcw, Banknote, Download, MessageSquare, 
   Edit, Users, BookOpen, Home, LayoutGrid, FileBarChart, 
   Bell, Calendar, MoreVertical, QrCode, ScanLine, 
-  Settings, Info, Phone, ArrowRightLeft, Factory, LogOut, Sparkles, ClipboardPaste, X, ArrowLeft, Search
+  Settings, Info, Phone, ArrowRightLeft, Factory, LogOut, Sparkles, ClipboardPaste, X, ArrowLeft, Search, Crown
 } from 'lucide-react';
 import { TransactionType, Language, CompanyProfile, Party, APP_VERSION, AppSettings } from '../../../core/types/';
 import { BillingService as billingService } from '../../../services/SecureBillingService';
@@ -15,6 +15,7 @@ import { Camera } from '@capacitor/camera';
 import { Capacitor } from '@capacitor/core';
 import { DraggableFAB } from '../../../components/shared/DraggableFAB';
 import { AIAssistant } from '../../../components/features/AIAssistant';
+import { CloudGatewayManager } from '../../../services/CloudGatewayManager';
 
 
 import { HeroGraphic } from '../../../components/shared/HeroGraphic';
@@ -63,6 +64,13 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
   // Menu Category Filter State
   const [menuFilter, setMenuFilter] = useState<'all' | 'bills' | 'cash' | 'misc'>('all');
 
+  // Premium Status State
+  const [isPremium, setIsPremium] = useState(false);
+  const [showPremiumModal, setShowPremiumModal] = useState(false);
+  const [licenseKey, setLicenseKey] = useState('');
+  const [activationError, setActivationError] = useState('');
+  const [pendingFeature, setPendingFeature] = useState('');
+
   useEffect(() => {
     const loadProfile = async () => {
         const data = await billingService.getCompanyProfile();
@@ -71,6 +79,10 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
     const loadSettings = async () => {
         const settings = await billingService.getAppSettings();
         setAppSettings(settings);
+    };
+    const loadPremiumStatus = async () => {
+        const premium = await CloudGatewayManager.checkPremiumStatus();
+        setIsPremium(premium);
     };
     const loadMetrics = async () => {
         try {
@@ -92,10 +104,19 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
     loadProfile();
     loadSettings();
     loadMetrics();
+    loadPremiumStatus();
 
-    const handleSettingsChanged = () => { loadSettings(); loadMetrics(); };
+    const handleSettingsChanged = () => { 
+        loadSettings(); 
+        loadMetrics(); 
+        loadPremiumStatus();
+    };
     window.addEventListener('appSettingsChanged', handleSettingsChanged);
-    return () => window.removeEventListener('appSettingsChanged', handleSettingsChanged);
+    window.addEventListener('storage', loadPremiumStatus);
+    return () => {
+        window.removeEventListener('appSettingsChanged', handleSettingsChanged);
+        window.removeEventListener('storage', loadPremiumStatus);
+    };
   }, []);
 
   const handleRefresh = async () => {
@@ -274,15 +295,26 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
     { label: t.contra, icon: <ArrowRightLeft size={18} className="text-orange-500 dark:text-orange-400" />, action: onContra || (() => onNavigate('Contra')), bgColor: 'bg-orange-500/10 dark:bg-orange-500/15', category: 'cash' },
     { label: t.journal, icon: <BookOpen size={18} className="text-slate-500 dark:text-slate-400" />, action: onJournal || (() => onNavigate('Journal')), bgColor: 'bg-slate-500/10 dark:bg-slate-500/15', category: 'cash' },
 
-    { label: t.chat, icon: <MessageSquare size={18} className="text-purple-500 dark:text-purple-400" />, action: onChat || (() => onNavigate('chatList' as any)), bgColor: 'bg-purple-500/10 dark:bg-purple-500/15', category: 'misc' },
+    { label: t.chat, icon: <MessageSquare size={18} className="text-purple-500 dark:text-purple-400" />, action: onChat || (() => onNavigate('chatList' as any)), bgColor: 'bg-purple-500/10 dark:bg-purple-500/15', category: 'misc', isPremium: true },
     { label: t.attendance, icon: <Users size={18} className="text-pink-500 dark:text-pink-400" />, action: onAttendance || (() => onNavigate('Attendance')), bgColor: 'bg-pink-500/10 dark:bg-pink-500/15', category: 'misc' },
-    { label: t.categorySearch, icon: <Search size={18} className="text-sky-500 dark:text-sky-400" />, action: () => onNavigate('nearbyShops' as any), bgColor: 'bg-sky-500/10 dark:bg-sky-500/15', category: 'misc' },
+    { label: t.categorySearch, icon: <Search size={18} className="text-sky-500 dark:text-sky-400" />, action: () => onNavigate('nearbyShops' as any), bgColor: 'bg-sky-500/10 dark:bg-sky-500/15', category: 'misc', isPremium: true },
   ];
 
   // QR Code (No longer needs url generation here)
   const qrData = profile?.mobile || 'No Number';
 
   const filteredMenuItems = menuItems.filter(item => menuFilter === 'all' || item.category === menuFilter);
+
+  const handleMenuClick = (item: typeof menuItems[0]) => {
+      if (item.isPremium && !isPremium) {
+          setPendingFeature(item.label);
+          setActivationError('');
+          setLicenseKey('');
+          setShowPremiumModal(true);
+          return;
+      }
+      if (item.action) item.action();
+  };
 
   return (
     <div className="flex flex-col h-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white overflow-hidden relative pb-[max(env(safe-area-inset-bottom),0px)]" onClick={() => isMenuOpen && setIsMenuOpen(false)}>
@@ -458,7 +490,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
                               return (
                                   <button 
                                     key={index} 
-                                    onClick={() => { if (item.action) item.action(); }}
+                                    onClick={() => handleMenuClick(item)}
                                     type="button"
                                     className={`flex items-center gap-3 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/80 border border-slate-100 dark:border-slate-850 rounded-xl p-3.5 shadow-xs text-slate-800 dark:text-slate-200 active:scale-[0.98] transition-all duration-150 text-left w-full h-[62px] cursor-pointer ${
                                         isSaleBill ? 'ring-2 ring-emerald-500/30 dark:ring-emerald-400/20 bg-emerald-50/20 dark:bg-emerald-950/20 border-emerald-100 dark:border-emerald-900/30' : ''
@@ -467,12 +499,15 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
                                       <div className={`p-2.5 rounded-xl shrink-0 ${item.bgColor} flex items-center justify-center`}>
                                           {item.icon}
                                       </div>
-                                      <div className="min-w-0 flex-1">
+                                      <div className="min-w-0 flex-1 flex items-center gap-1.5">
                                         <span className={`text-xs md:text-sm font-extrabold tracking-tight leading-none uppercase font-sans select-none block ${
                                             isSaleBill ? 'text-emerald-700 dark:text-emerald-300' : 'text-slate-700 dark:text-slate-300'
                                         }`}>
                                           {item.label}
                                         </span>
+                                        {item.isPremium && (
+                                          <Crown size={12} className="text-amber-500 fill-amber-500 shrink-0" />
+                                        )}
                                       </div>
                                       {isSaleBill && (
                                           <span className="bg-emerald-500 text-white text-[8px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider scale-90 self-center">
@@ -573,6 +608,117 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
                   >
                       {importLoading ? 'Processing...' : 'Import Data'}
                   </button>
+              </div>
+          </div>
+      )}
+
+      {/* Premium Activation Modal */}
+      {showPremiumModal && (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in duration-200">
+              <div className="bg-white dark:bg-slate-900 rounded-[2rem] shadow-2xl w-full max-w-md overflow-hidden p-6 relative border border-slate-200 dark:border-slate-800/80 animate-in zoom-in-95 duration-250 flex flex-col text-slate-800 dark:text-white">
+                  <button 
+                    onClick={() => setShowPremiumModal(false)} 
+                    className="absolute top-4 right-4 text-slate-400 hover:text-slate-700 dark:hover:text-white transition-colors"
+                  >
+                      <X size={20} />
+                  </button>
+                  
+                  {/* Top Premium Badge / Icon */}
+                  <div className="mx-auto w-14 h-14 bg-amber-500/10 rounded-2xl flex items-center justify-center text-amber-500 shadow-3xs animate-pulse">
+                      <Crown size={28} className="stroke-[2.5px]" />
+                  </div>
+                  
+                  <h3 className="text-lg font-black text-center mt-4 tracking-tight">
+                      {language === 'hi' ? 'प्रीमियम लाइसेंस आवश्यक' : 'Premium License Required'}
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 text-center leading-relaxed mt-2 px-2">
+                      {language === 'hi' 
+                          ? `"${pendingFeature}" एक विशेष प्रीमियम फीचर है। इसे चालू करने के लिए लाइसेंस कुंजी दर्ज करें या सैंडबॉक्स अपग्रेड का उपयोग करें।`
+                          : `"${pendingFeature}" is a premium feature. Enter a license key or activate a sandbox upgrade to unlock.`
+                      }
+                  </p>
+
+                  <div className="mt-5 space-y-4">
+                      {/* Activation Key Form */}
+                      <div className="space-y-1.5">
+                          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                              {language === 'hi' ? 'लाइसेंस कोड दर्ज करें' : 'Enter License Code'}
+                          </label>
+                          <input 
+                              type="text" 
+                              value={licenseKey}
+                              onChange={e => {
+                                  setLicenseKey(e.target.value);
+                                  setActivationError('');
+                              }}
+                              placeholder="e.g. EAZY-PREMIUM-2026"
+                              className="w-full bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/60 rounded-xl px-3.5 py-2.5 text-xs font-mono font-bold tracking-widest text-slate-800 dark:text-white outline-none focus:border-amber-500 dark:focus:border-amber-400 transition-colors uppercase"
+                          />
+                      </div>
+
+                      {/* Error Display */}
+                      {activationError && (
+                          <p className="text-[10px] font-bold text-rose-500 text-center">
+                              ⚠️ {activationError}
+                          </p>
+                      )}
+
+                      <div className="flex flex-col gap-2 pt-2">
+                          <button 
+                              onClick={async () => {
+                                  const key = licenseKey.trim().toUpperCase();
+                                  if (!key) {
+                                      setActivationError(language === 'hi' ? 'कृपया लाइसेंस कुंजी दर्ज करें।' : 'Please enter a license key.');
+                                      return;
+                                  }
+                                  if (key === 'EAZY-PREMIUM-2026') {
+                                      try {
+                                          await CloudGatewayManager.upgradeToPremium();
+                                          setIsPremium(true);
+                                          setShowPremiumModal(false);
+                                          window.dispatchEvent(new Event('appSettingsChanged'));
+                                          // Proceed to feature
+                                          if (pendingFeature === t.chat && onChat) onChat();
+                                          else if (pendingFeature === t.categorySearch) onNavigate('nearbyShops' as any);
+                                      } catch (err: any) {
+                                          setActivationError(err.message || 'Upgrade failed.');
+                                      }
+                                  } else {
+                                      setActivationError(language === 'hi' ? 'अमान्य लाइसेंस कुंजी! सही कोड दर्ज करें।' : 'Invalid license key! Enter correct code.');
+                                  }
+                              }}
+                              className="w-full bg-slate-900 hover:bg-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 text-white font-extrabold py-3 rounded-xl transition-all active:scale-98 text-xs cursor-pointer shadow-sm flex items-center justify-center gap-1.5"
+                          >
+                              <Crown size={14} className="text-amber-500" />
+                              {language === 'hi' ? 'लाइसेंस सत्यापित करें' : 'Verify & Activate'}
+                          </button>
+
+                          <div className="relative flex py-1 items-center">
+                              <div className="flex-grow border-t border-slate-100 dark:border-slate-800"></div>
+                              <span className="flex-shrink mx-3 text-[9px] font-bold text-slate-400 uppercase tracking-widest">Or</span>
+                              <div className="flex-grow border-t border-slate-100 dark:border-slate-800"></div>
+                          </div>
+
+                          <button 
+                              onClick={async () => {
+                                  try {
+                                      await CloudGatewayManager.upgradeToPremium();
+                                      setIsPremium(true);
+                                      setShowPremiumModal(false);
+                                      window.dispatchEvent(new Event('appSettingsChanged'));
+                                      // Proceed to feature
+                                      if (pendingFeature === t.chat && onChat) onChat();
+                                      else if (pendingFeature === t.categorySearch) onNavigate('nearbyShops' as any);
+                                  } catch (err: any) {
+                                      setActivationError(err.message || 'Sandbox upgrade failed.');
+                                  }
+                              }}
+                              className="w-full bg-amber-500 hover:bg-amber-600 text-white font-extrabold py-3 rounded-xl transition-all active:scale-98 text-xs cursor-pointer shadow-md"
+                          >
+                              {language === 'hi' ? 'सैंडबॉक्स अपग्रेड सक्रिय करें (फ्री)' : 'Try Sandbox Upgrade (Free)'}
+                          </button>
+                      </div>
+                  </div>
               </div>
           </div>
       )}
