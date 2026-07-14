@@ -148,28 +148,25 @@ export const StaffManagement: React.FC<StaffManagementProps> = ({
   // Admin Verification Gate render shields
   if (!isAdminUnlocked) {
     return (
-      <div className="flex-1 min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col justify-center items-center p-4">
+      <div className="flex-1 min-h-screen bg-slate-50 dark:bg-[#090D16] flex flex-col justify-center items-center p-4">
         
-        {/* Sync Line visible at the top */}
-        <div className="fixed top-0 inset-x-0 bg-indigo-600 dark:bg-indigo-700 text-white text-[10px] py-1.5 px-3 flex items-center justify-between shadow-sm z-50 select-none">
-          <div className="flex items-center gap-1.5 font-medium">
-            <span className="h-2 w-2 rounded-full bg-indigo-300 animate-pulse" />
-            <span>EazyBilling Shield • Administrative Terminal Protection Guard</span>
-          </div>
-          <span className="font-mono text-[9px] tracking-wide bg-indigo-500/30 px-2 rounded">SECURE</span>
-        </div>
-
         <motion.div 
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 max-w-sm w-full shadow-2xl space-y-4 text-center mt-8"
+          className="bg-white dark:bg-[#131B2E] rounded-3xl border border-slate-200/60 dark:border-slate-800/80 p-6 max-w-sm w-full shadow-2xl space-y-4 text-center relative overflow-hidden"
         >
+          {/* Subtle indicator showing security is active */}
+          <div className="absolute top-3 right-3 flex items-center gap-1 bg-indigo-500/10 dark:bg-indigo-500/20 text-indigo-650 dark:text-indigo-400 text-[8px] font-black uppercase px-2 py-0.5 rounded-full border border-indigo-500/20">
+            <span className="h-1.5 w-1.5 rounded-full bg-indigo-500 animate-pulse" />
+            <span>SECURE</span>
+          </div>
+
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-indigo-50 dark:bg-indigo-950/40 text-indigo-650 dark:text-indigo-400">
             <Lock size={28} />
           </div>
           
           <div className="space-y-1.5">
-            <h3 className="text-lg font-black tracking-tight">{isHi ? 'प्रशासक सत्यापन' : 'Admin Security Gate'}</h3>
+            <h3 className="text-lg font-black tracking-tight text-slate-900 dark:text-white">{isHi ? 'प्रशासक सत्यापन' : 'Admin Security Gate'}</h3>
             <p className="text-xs text-slate-500 dark:text-slate-400 select-none leading-relaxed font-semibold">
               {isHi ? 'स्टाफ प्रबंधन तक पहुंचने के लिए सुरक्षा कोड दर्ज करें।' : 'Enter security authorization PIN to manage authorized operators.'}
             </p>
@@ -199,13 +196,13 @@ export const StaffManagement: React.FC<StaffManagementProps> = ({
               <button
                 type="button"
                 onClick={onBack}
-                className="flex-1 py-2.5 rounded-xl border border-slate-20 pointer-events-auto hover:bg-slate-50 text-slate-650 font-bold transition text-xs"
+                className="flex-1 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 font-bold hover:bg-slate-50 dark:hover:bg-slate-950 transition text-xs cursor-pointer"
               >
                 {isHi ? 'वापस' : 'Back'}
               </button>
               <button
                 type="submit"
-                className="flex-1 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold transition text-xs shadow-md shadow-indigo-600/10"
+                className="flex-1 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-755 text-white font-extrabold transition text-xs shadow-md shadow-indigo-600/10 cursor-pointer active:scale-95"
               >
                 {isHi ? 'सत्यापित करें' : 'Unlock Gate'}
               </button>
@@ -217,16 +214,7 @@ export const StaffManagement: React.FC<StaffManagementProps> = ({
   }
 
   return (
-    <div className="relative h-full flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-950 dark:text-slate-100 pb-[max(env(safe-area-inset-bottom),0px)]">
-      
-      {/* Dynamic Sync Status bar visible at the top */}
-      <div className="bg-emerald-600 dark:bg-emerald-700 text-white text-[10.5px] py-1.5 px-4.5 flex items-center justify-between sticky top-0 z-50 shadow-sm leading-none select-none">
-        <div className="flex items-center gap-1.5 font-medium">
-          <span className="h-2 w-2 rounded-full bg-emerald-300 animate-pulse" />
-          <span><b>EazySync Line Active</b> • Cloud database mirroring is live and online</span>
-        </div>
-        <span className="font-mono text-[9px] font-black tracking-widest uppercase opacity-95">ONLINE</span>
-      </div>
+    <div className="relative h-full flex flex-col bg-slate-50 dark:bg-[#090D16] text-slate-950 dark:text-slate-100 pb-[max(env(safe-area-inset-bottom),0px)]">
 
       {/* Roster Pages Container */}
       <div className="flex-1 relative overflow-hidden h-full">

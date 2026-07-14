@@ -40,6 +40,11 @@ class CloudGatewayManagerService {
    */
   async revokePremium(): Promise<void> {
     await dexieDb.system_meta.put({ key: 'isPremiumUser', value: false });
+    try {
+      await this.toggleCloudPipeline(false);
+    } catch (e) {
+      console.warn("Could not disable cloud sync pipeline during revocation:", e);
+    }
   }
 
   /**

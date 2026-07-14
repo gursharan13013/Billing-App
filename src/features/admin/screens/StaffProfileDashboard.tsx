@@ -354,11 +354,11 @@ export const StaffProfileDashboard: React.FC<StaffProfileDashboardProps> = ({
                 type="button"
                 onClick={() => handleTogglePermission('can_delete_invoice')}
                 disabled={updatingPerms}
-                className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                  perms.can_delete_invoice ? 'bg-indigo-600' : 'bg-slate-200 dark:bg-slate-800'
+                className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none items-center ${
+                  perms.can_delete_invoice ? 'bg-indigo-600 dark:bg-indigo-500' : 'bg-slate-300 dark:bg-slate-700'
                 }`}
               >
-                <span className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${
+                <span className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${
                   perms.can_delete_invoice ? 'translate-x-5' : 'translate-x-0'
                 }`} />
               </button>
@@ -375,11 +375,11 @@ export const StaffProfileDashboard: React.FC<StaffProfileDashboardProps> = ({
                 type="button"
                 onClick={() => handleTogglePermission('can_edit_stock')}
                 disabled={updatingPerms}
-                className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                  perms.can_edit_stock ? 'bg-indigo-600' : 'bg-slate-200 dark:bg-slate-800'
+                className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none items-center ${
+                  perms.can_edit_stock ? 'bg-indigo-600 dark:bg-indigo-500' : 'bg-slate-300 dark:bg-slate-700'
                 }`}
               >
-                <span className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${
+                <span className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${
                   perms.can_edit_stock ? 'translate-x-5' : 'translate-x-0'
                 }`} />
               </button>
@@ -396,11 +396,11 @@ export const StaffProfileDashboard: React.FC<StaffProfileDashboardProps> = ({
                 type="button"
                 onClick={() => handleTogglePermission('view_reports')}
                 disabled={updatingPerms}
-                className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                  perms.view_reports ? 'bg-indigo-600' : 'bg-slate-200 dark:bg-slate-800'
+                className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none items-center ${
+                  perms.view_reports ? 'bg-indigo-600 dark:bg-indigo-500' : 'bg-slate-300 dark:bg-slate-700'
                 }`}
               >
-                <span className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${
+                <span className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${
                   perms.view_reports ? 'translate-x-5' : 'translate-x-0'
                 }`} />
               </button>
@@ -417,11 +417,11 @@ export const StaffProfileDashboard: React.FC<StaffProfileDashboardProps> = ({
                 type="button"
                 onClick={() => handleTogglePermission('manage_settings')}
                 disabled={updatingPerms}
-                className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                  perms.manage_settings ? 'bg-indigo-600' : 'bg-slate-200 dark:bg-slate-800'
+                className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none items-center ${
+                  perms.manage_settings ? 'bg-indigo-600 dark:bg-indigo-500' : 'bg-slate-300 dark:bg-slate-700'
                 }`}
               >
-                <span className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${
+                <span className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${
                   perms.manage_settings ? 'translate-x-5' : 'translate-x-0'
                 }`} />
               </button>

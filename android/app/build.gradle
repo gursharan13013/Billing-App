@@ -4,7 +4,7 @@ android {
     namespace = "com.eazybill.app"
     compileSdk = rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "com.eazybill.app"
+        applicationId "com.eazybill.v2"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

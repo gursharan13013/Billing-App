@@ -19,6 +19,18 @@ let offlineListener: (() => void) | null = null;
 export async function getIsCloudSyncEnabled(): Promise<boolean> {
   try {
     const dbInstance = getDb();
+    
+    // Check premium license state: if not premium, cloud sync is strictly false
+    try {
+      const isPremiumRecord = await dbInstance.table('system_meta').get('isPremiumUser');
+      const isPremium = isPremiumRecord ? !!isPremiumRecord.value : false;
+      if (!isPremium) {
+        return false;
+      }
+    } catch (e) {
+      console.warn("Could not retrieve premium status in SyncEngine:", e);
+    }
+
     const directSetting = await dbInstance.settings.get('isCloudSyncEnabled');
     if (directSetting !== undefined) {
       return !!directSetting.value;

@@ -65,6 +65,17 @@ export const InvoiceScreen: React.FC<InvoiceScreenProps> = ({
   // --- Form State ---
   const [saleNo, setSaleNo] = useState('...');
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
+
+  // --- Persistent Settings State ---
+  const [saleSettings, setSaleSettings] = useState<any>(null);
+  const [purchaseBillSettings, setPurchaseBillSettings] = useState<any>(null);
+  const [purchaseReturnSettings, setPurchaseReturnSettings] = useState<any>(null);
+  const [saleReturnSettings, setSaleReturnSettings] = useState<any>(null);
+  const [itemSettings, setItemSettings] = useState<any>(null);
+
+  // --- Bill-Level discount and additional charges ---
+  const [billDiscountAmount, setBillDiscountAmount] = useState<number>(0);
+  const [additionalChargesAmount, setAdditionalChargesAmount] = useState<number>(0);
   
   const defaultEntryItem = {
     code: '',
@@ -128,6 +139,19 @@ export const InvoiceScreen: React.FC<InvoiceScreenProps> = ({
             const profile = await billingService.getCompanyProfile();
             setCompanyProfile(profile);
             
+            // Load settings
+            const sales = await billingService.getSaleSettings();
+            const purchase = await billingService.getPurchaseBillSettings();
+            const purchaseRet = await billingService.getPurchaseReturnSettings();
+            const saleRet = await billingService.getSaleReturnSettings();
+            const itemSet = await billingService.getItemSettings();
+            
+            setSaleSettings(sales);
+            setPurchaseBillSettings(purchase);
+            setPurchaseReturnSettings(purchaseRet);
+            setSaleReturnSettings(saleRet);
+            setItemSettings(itemSet);
+
             // Replaced default pre-fetch, see fetchItems useEffect above.
             const allItems = await billingService.getAllItems();
             allItemsRef.current = allItems;
@@ -153,9 +177,25 @@ export const InvoiceScreen: React.FC<InvoiceScreenProps> = ({
                     
                     // Safely parse items to prevent crashes
                     if(invoiceData.items && Array.isArray(invoiceData.items)) {
+                        // Extract virtual items for Bill Discount and Additional Charges
+                        const discountItem = invoiceData.items.find((i: any) => i.name === 'Bill Discount' || i.item?.name === 'Bill Discount');
+                        const chargesItem = invoiceData.items.find((i: any) => i.name === 'Additional Charges' || i.item?.name === 'Additional Charges');
+                        if (discountItem) {
+                            setBillDiscountAmount(Math.abs(Number(discountItem.rate) || 0));
+                        }
+                        if (chargesItem) {
+                            setAdditionalChargesAmount(Number(chargesItem.rate) || 0);
+                        }
+
+                        // Filter virtual items out of display items list
+                        const actualItems = invoiceData.items.filter((i: any) => 
+                            i.name !== 'Bill Discount' && i.item?.name !== 'Bill Discount' &&
+                            i.name !== 'Additional Charges' && i.item?.name !== 'Additional Charges'
+                        );
+
                         // Parse items
                         const latestItems = await billingService.getAllItems();
-                        const parsedItems = invoiceData.items.map((i: any) => {
+                        const parsedItems = actualItems.map((i: any) => {
                             const latestItem = i.item?.id ? latestItems.find(li => li.id === i.item.id) : null;
                             return {
                             ...i,
@@ -294,7 +334,28 @@ export const InvoiceScreen: React.FC<InvoiceScreenProps> = ({
     );
   }, [entryItem]);
 
-  const totalAmount = useMemo(() => {
+  const activeSettings = useMemo(() => {
+    if (['Sale', 'Sale Order', 'Estimate'].includes(transactionType)) {
+      return saleSettings;
+    } else if (transactionType === 'Sale Return') {
+      return saleReturnSettings;
+    } else if (['Purchase', 'Purchase Order'].includes(transactionType)) {
+      return purchaseBillSettings;
+    } else if (transactionType === 'Purchase Return') {
+      return purchaseReturnSettings;
+    }
+    return null;
+  }, [transactionType, saleSettings, saleReturnSettings, purchaseBillSettings, purchaseReturnSettings]);
+
+  const mrpRateQtyColSpan = useMemo(() => {
+    if (activeSettings?.itemWiseDiscount !== false) {
+      return { mrpRate: 'col-span-6 md:col-span-3', qty: 'col-span-4 md:col-span-2' };
+    } else {
+      return { mrpRate: 'col-span-6 md:col-span-4', qty: 'col-span-12 md:col-span-4' };
+    }
+  }, [activeSettings]);
+
+  const itemsTotal = useMemo(() => {
     return items.reduce((sum, item) => {
        return sum + calculateItemTotal(
          item.qty, 
@@ -305,6 +366,12 @@ export const InvoiceScreen: React.FC<InvoiceScreenProps> = ({
        );
     }, 0);
   }, [items]);
+
+  const totalAmount = useMemo(() => {
+    const discount = activeSettings?.billDiscount ? (billDiscountAmount || 0) : 0;
+    const charges = activeSettings?.additionalCharges ? (additionalChargesAmount || 0) : 0;
+    return itemsTotal - discount + charges;
+  }, [itemsTotal, activeSettings, billDiscountAmount, additionalChargesAmount]);
 
   const totalPaid = useMemo(() => {
       return linkedPayments.reduce((sum, p) => sum + p.amount, 0);
@@ -749,6 +816,10 @@ export const InvoiceScreen: React.FC<InvoiceScreenProps> = ({
   };
 
   const handleDeletePayment = async (id: string) => {
+      if (authContext.currentUser?.role === 'staff' && !authContext.currentUser?.permissions?.can_delete_invoice) {
+          alert(language === 'hi' ? 'आपके पास भुगतान प्रविष्टियाँ हटाने की अनुमति नहीं है।' : 'You do not have permission to delete payments.');
+          return;
+      }
       if(confirm('Delete this payment record?')) {
           await billingService.deletePayment(id);
           if (invoiceId) {
@@ -792,6 +863,30 @@ export const InvoiceScreen: React.FC<InvoiceScreenProps> = ({
       return;
     }
 
+    // Out-of-stock validation check
+    const isSupplierTx = ['Purchase', 'Purchase Return', 'Purchase Order'].includes(transactionType);
+    if (itemSettings?.outOfStockSellRestrict && !isSupplierTx) {
+        const oldInvoice = invoiceId ? await sqliteService.getInvoiceById(invoiceId) : null;
+        for (const item of items) {
+            if (item.item?.id) {
+                const dbItem = await sqliteService.getItemById(item.item.id);
+                if (dbItem) {
+                    const currentStock = dbItem.openingStock || 0;
+                    const oldItem = oldInvoice?.items?.find((oi: any) => oi.item?.id === item.item.id);
+                    const oldQty = oldItem ? (oldItem.qty || 0) : 0;
+                    const effectiveStock = currentStock + oldQty;
+                    if (item.qty > effectiveStock) {
+                        alert(language === 'hi'
+                            ? `आइटम "${item.item.name}" का स्टॉक पर्याप्त नहीं है! उपलब्ध स्टॉक: ${effectiveStock}, आवश्यक: ${item.qty}`
+                            : `Insufficient stock for item "${item.item.name}"! Available: ${effectiveStock}, Requested: ${item.qty}`
+                        );
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
     if (transactionType === 'Purchase Order' && !invoiceId) {
         setPendingShare(share);
         setSelectedDates([]);
@@ -811,9 +906,36 @@ export const InvoiceScreen: React.FC<InvoiceScreenProps> = ({
         
         const settings = await billingService.getAppSettings();
 
+        // Construct items list with virtual items included for Bill Discount and Additional Charges
+        const itemsToSave = [...items];
+        if (activeSettings?.billDiscount && billDiscountAmount > 0) {
+            itemsToSave.push({
+                id: 'discount_item',
+                item: { id: 'temp_discount', name: 'Bill Discount', code: 'DISC', saleRate: 0, purchaseRate: 0, mrp: 0, openingStock: 0, taxPercent: 0, taxType: 'Excluded' },
+                qty: 1,
+                rate: -billDiscountAmount,
+                mrp: 0,
+                taxType: 'Excluded',
+                taxPercent: 0,
+                discountPercent: 0
+            });
+        }
+        if (activeSettings?.additionalCharges && additionalChargesAmount > 0) {
+            itemsToSave.push({
+                id: 'charges_item',
+                item: { id: 'temp_charges', name: 'Additional Charges', code: 'CHARGES', saleRate: 0, purchaseRate: 0, mrp: 0, openingStock: 0, taxPercent: 0, taxType: 'Excluded' },
+                qty: 1,
+                rate: additionalChargesAmount,
+                mrp: 0,
+                taxType: 'Excluded',
+                taxPercent: 0,
+                discountPercent: 0
+            });
+        }
+
         for (const targetDate of datesToSave) {
             const passedId = datesToSave.length === 1 ? invoiceId : undefined;
-            const newInvoiceId = await BillingService.saveInvoice(selectedParty!.id, targetDate, items, transactionType, passedId, ['Purchase', 'Purchase Return'].includes(transactionType) ? saleNo : undefined);
+            const newInvoiceId = await BillingService.saveInvoice(selectedParty!.id, targetDate, itemsToSave, transactionType, passedId, ['Purchase', 'Purchase Return'].includes(transactionType) ? saleNo : undefined);
             lastInvoiceId = newInvoiceId;
 
             // Share invoice through cloud automatically, EXCEPT for 'Purchase' entries, and ONLY if Cloud Sync is enabled
@@ -1190,7 +1312,7 @@ export const InvoiceScreen: React.FC<InvoiceScreenProps> = ({
                 </div>
 
                 {/* Row 3: MRP, Rate, Qty, and Discount % */}
-                <div className="col-span-6 md:col-span-3 relative z-[40]">
+                <div className={`${mrpRateQtyColSpan.mrpRate} relative z-[40]`}>
                     <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">{labels.mrp}</label>
                     <input 
                       type="number" 
@@ -1200,7 +1322,7 @@ export const InvoiceScreen: React.FC<InvoiceScreenProps> = ({
                       className="w-full h-[42px] px-3 border border-slate-200 dark:border-slate-800 rounded-lg text-sm bg-white dark:bg-slate-950 font-semibold text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:focus:ring-indigo-500/20 transition-all duration-200 shadow-sm"
                     />
                 </div>
-                <div className="col-span-6 md:col-span-3 relative z-[45]">
+                <div className={`${mrpRateQtyColSpan.mrpRate} relative z-[45]`}>
                     <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">{labels.rate}</label>
                     <input 
                       type="number" 
@@ -1210,7 +1332,7 @@ export const InvoiceScreen: React.FC<InvoiceScreenProps> = ({
                       className="w-full h-[42px] px-3 border border-slate-200 dark:border-slate-800 rounded-lg text-sm bg-white dark:bg-slate-955 font-bold text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:focus:ring-indigo-500/20 transition-all duration-200 shadow-sm"
                     />
                 </div>
-                <div className="col-span-4 md:col-span-2 relative z-[40]">
+                <div className={`${mrpRateQtyColSpan.qty} relative z-[40]`}>
                     <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5 text-center">{labels.qty}</label>
                     <input 
                       ref={qtyInputRef} 
@@ -1221,23 +1343,25 @@ export const InvoiceScreen: React.FC<InvoiceScreenProps> = ({
                       className="w-full h-[42px] px-2 border border-slate-200 dark:border-slate-800 rounded-lg text-sm text-center bg-white dark:bg-slate-950 font-bold text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:focus:ring-indigo-500/20 transition-all duration-200 shadow-sm"
                     />
                 </div>
-                <div className="col-span-8 md:col-span-4 relative z-[40]">
-                    <div className="flex justify-between items-end mb-1">
-                        <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 leading-none truncate">{labels.disc}(%)</label>
-                        {entryItem.discPercent > 0 && (
-                            <span className="text-[10px] font-bold text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-950/20 px-1.5 py-0.5 rounded border border-green-200 dark:border-green-800/40 leading-none">
-                                ₹{(entryItem.rate - (entryItem.rate * (entryItem.discPercent || 0) / 100)).toFixed(2)}
-                            </span>
-                        )}
+                {activeSettings?.itemWiseDiscount !== false && (
+                    <div className="col-span-8 md:col-span-4 relative z-[40]">
+                        <div className="flex justify-between items-end mb-1">
+                            <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 leading-none truncate">{labels.disc}(%)</label>
+                            {entryItem.discPercent > 0 && (
+                                <span className="text-[10px] font-bold text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-950/20 px-1.5 py-0.5 rounded border border-green-200 dark:border-green-800/40 leading-none">
+                                    ₹{(entryItem.rate - (entryItem.rate * (entryItem.discPercent || 0) / 100)).toFixed(2)}
+                                </span>
+                            )}
+                        </div>
+                        <input 
+                          type="number"
+                          value={entryItem.discPercent}
+                          onChange={e => setEntryItem({...entryItem, discPercent: parseFloat(e.target.value) || 0})}
+                          onFocus={handleFocus}
+                          className="w-full h-[42px] px-3 border border-slate-200 dark:border-slate-800 rounded-lg text-sm bg-white dark:bg-slate-950 font-semibold text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:focus:ring-indigo-500/20 transition-all duration-200 shadow-sm"
+                        />
                     </div>
-                    <input 
-                      type="number"
-                      value={entryItem.discPercent}
-                      onChange={e => setEntryItem({...entryItem, discPercent: parseFloat(e.target.value) || 0})}
-                      onFocus={handleFocus}
-                      className="w-full h-[42px] px-3 border border-slate-200 dark:border-slate-800 rounded-lg text-sm bg-white dark:bg-slate-950 font-semibold text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:focus:ring-indigo-500/20 transition-all duration-200 shadow-sm"
-                    />
-                </div>
+                )}
 
                 {/* Row 4: Tax Type, Purchase Rate, Add Button */}
                 {companyProfile?.isGstRegistered ? (
@@ -1349,7 +1473,7 @@ export const InvoiceScreen: React.FC<InvoiceScreenProps> = ({
                             : 'bg-emerald-500'
                           : 'bg-slate-400'
                      }`} />
-                     {labels.stock} : {entryItem.itemRef ? (entryItem.itemRef.openingStock || 0) : '0'}
+                    {labels.stock} : {entryItem.itemRef ? (entryItem.itemRef.openingStock || 0) : '0'}
                  </span>
                  
                  {/* Sale Rate Badge */}
@@ -1379,7 +1503,9 @@ export const InvoiceScreen: React.FC<InvoiceScreenProps> = ({
                         <th className="p-2 pl-3 w-[30%]">{labels.item}</th>
                         <th className="p-2 text-center w-[10%]">{labels.qty}</th>
                         <th className="p-2 text-right w-[15%]">{labels.rate}</th>
-                        <th className="p-2 text-center w-[10%]">{labels.disc}</th>
+                        {activeSettings?.itemWiseDiscount !== false && (
+                            <th className="p-2 text-center w-[10%]">{labels.disc}</th>
+                        )}
                         {companyProfile?.isGstRegistered && (
                             <th className="p-2 text-center w-[15%]">GST%</th>
                         )}
@@ -1390,7 +1516,7 @@ export const InvoiceScreen: React.FC<InvoiceScreenProps> = ({
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                     {items.length === 0 ? (
                         <tr>
-                            <td colSpan={companyProfile?.isGstRegistered ? 6 : 5} className="p-8 text-center text-slate-500 italic">
+                            <td colSpan={4 + (companyProfile?.isGstRegistered ? 1 : 0) + (activeSettings?.itemWiseDiscount !== false ? 1 : 0)} className="p-8 text-center text-slate-500 italic">
                                 {labels.noItems}
                             </td>
                         </tr>
@@ -1435,9 +1561,11 @@ export const InvoiceScreen: React.FC<InvoiceScreenProps> = ({
                                     <td className="p-2 text-right text-base text-slate-900 dark:text-white align-top pt-3">
                                         ₹{item.rate}
                                     </td>
-                                    <td className="p-2 text-center text-sm text-green-600 dark:text-green-400 font-bold align-top pt-3">
-                                        {item.discountPercent > 0 ? `${item.discountPercent}%` : '-'}
-                                    </td>
+                                    {activeSettings?.itemWiseDiscount !== false && (
+                                        <td className="p-2 text-center text-sm text-green-600 dark:text-green-400 font-bold align-top pt-3">
+                                            {item.discountPercent > 0 ? `${item.discountPercent}%` : '-'}
+                                        </td>
+                                    )}
                                     {companyProfile?.isGstRegistered && (
                                         <td className="p-2 text-center text-sm text-slate-500 dark:text-slate-400 align-top pt-3">
                                             {item.taxPercent > 0 ? `${item.taxPercent}%` : '-'}
@@ -1515,6 +1643,40 @@ export const InvoiceScreen: React.FC<InvoiceScreenProps> = ({
       {/* Footer Actions */}
       <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 shadow-[0_-2px_10px_rgba(0,0,0,0.1)] dark:shadow-[0_-2px_10px_rgba(0,0,0,0.5)] z-30 transition-colors">
         
+        {/* Discount & Charges Inputs (if enabled in settings) */}
+        {((activeSettings?.billDiscount) || (activeSettings?.additionalCharges)) && (
+            <div className="px-4 py-2 bg-slate-50 dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 text-xs flex gap-4">
+                {activeSettings?.billDiscount && (
+                    <div className="flex-1 flex items-center gap-2">
+                        <span className="text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider">
+                            {language === 'hi' ? 'बिल छूट' : 'Bill Discount'}:
+                        </span>
+                        <input 
+                            type="number"
+                            value={billDiscountAmount || ''}
+                            placeholder="0"
+                            onChange={e => setBillDiscountAmount(parseFloat(e.target.value) || 0)}
+                            className="w-20 px-2 py-1 border border-slate-200 dark:border-slate-800 rounded-md text-xs bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500"
+                        />
+                    </div>
+                )}
+                {activeSettings?.additionalCharges && (
+                    <div className="flex-1 flex items-center gap-2">
+                        <span className="text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider">
+                            {language === 'hi' ? 'अतिरिक्त शुल्क' : 'Extra Charges'}:
+                        </span>
+                        <input 
+                            type="number"
+                            value={additionalChargesAmount || ''}
+                            placeholder="0"
+                            onChange={e => setAdditionalChargesAmount(parseFloat(e.target.value) || 0)}
+                            className="w-20 px-2 py-1 border border-slate-200 dark:border-slate-800 rounded-md text-xs bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500"
+                        />
+                    </div>
+                )}
+            </div>
+        )}
+
         {/* Total Summary Row */}
         <div className="px-4 py-2 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 text-sm">
             <div className="flex justify-between items-center mb-1">

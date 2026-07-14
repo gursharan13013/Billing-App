@@ -531,3 +531,72 @@ export interface FinancialData {
         totalLiabilities: number, totalAssets: number
     };
 }
+
+export interface SaleSettings {
+  cashBilling: boolean;
+  billDiscount: boolean;
+  additionalCharges: boolean;
+  itemWiseDiscount: boolean;
+  transportationDetail: boolean;
+  ecommerceDetail: boolean;
+  reverseCharge: boolean;
+  showLogo: boolean;
+  outOfStockAlert: boolean;
+  discountedQuantity: boolean;
+  previousBillSaleRate: boolean;
+}
+
+export interface ItemSettings {
+  cess: boolean;
+  batchNumber: boolean;
+  manufacturingDate: boolean;
+  expiryDate: boolean;
+  wholesalePrice: boolean;
+  itemCompany: boolean;
+  minimumStockAlert: boolean;
+  category: boolean;
+  billOfItem: boolean;
+}
+
+export interface PurchaseBillSettings {
+  billDiscount: boolean;
+  saleRateMrpCalculation: boolean;
+  additionalCharges: boolean;
+  itemWiseDiscount: boolean;
+  transportationDetail: boolean;
+  ecommerceDetail: boolean;
+  reverseCharge: boolean;
+}
+
+export interface PurchaseReturnSettings {
+  additionalCharges: boolean;
+  itemWiseDiscount: boolean;
+  transportationDetail: boolean;
+  ecommerceDetail: boolean;
+  reverseCharge: boolean;
+}
+
+export interface SaleReturnSettings {
+  billDiscount: boolean;
+  additionalCharges: boolean;
+  itemWiseDiscount: boolean;
+  transportationDetail: boolean;
+  ecommerceDetail: boolean;
+  reverseCharge: boolean;
+}
+
+export interface TransportationSettings {
+  grNo: boolean;
+  vehicleNo: boolean;
+  origin: boolean;
+  destination: boolean;
+  dispatchMode: boolean;
+  date: boolean;
+}
+
+export interface LedgerSettingItem {
+  id: number;
+  name: string;
+  checked: boolean;
+}
+

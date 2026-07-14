@@ -5,7 +5,9 @@ import {
   Unit, Category, TaxRate, HSNCode, CompanyProfile, 
   Worker, Attendance, VoucherSettings, AppSettings,
   TransactionType, UnifiedTransaction, ManufacturingEntry,
-  UNIFIED_CATEGORIES, SupplierItem, AccountGroup
+  UNIFIED_CATEGORIES, SupplierItem, AccountGroup,
+  SaleSettings, ItemSettings, PurchaseBillSettings, PurchaseReturnSettings,
+  SaleReturnSettings, TransportationSettings, LedgerSettingItem
 } from '../core/types/';
 import { db as firebaseDb, auth } from './firebase';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
@@ -555,6 +557,134 @@ const DEFAULT_APP_SETTINGS: AppSettings = {
     liveSearchEnabled: true
 };
 
+const DEFAULT_SALE_SETTINGS: SaleSettings = {
+  cashBilling: false,
+  billDiscount: false,
+  additionalCharges: false,
+  itemWiseDiscount: true,
+  transportationDetail: false,
+  ecommerceDetail: false,
+  reverseCharge: false,
+  showLogo: false,
+  outOfStockAlert: false,
+  discountedQuantity: false,
+  previousBillSaleRate: false
+};
+
+const DEFAULT_ITEM_SETTINGS: ItemSettings = {
+  cess: false,
+  batchNumber: false,
+  manufacturingDate: false,
+  expiryDate: false,
+  wholesalePrice: false,
+  itemCompany: false,
+  minimumStockAlert: false,
+  category: true,
+  billOfItem: false
+};
+
+const DEFAULT_PURCHASE_BILL_SETTINGS: PurchaseBillSettings = {
+  billDiscount: false,
+  saleRateMrpCalculation: true,
+  additionalCharges: false,
+  itemWiseDiscount: true,
+  transportationDetail: false,
+  ecommerceDetail: false,
+  reverseCharge: false
+};
+
+const DEFAULT_PURCHASE_RETURN_SETTINGS: PurchaseReturnSettings = {
+  additionalCharges: false,
+  itemWiseDiscount: true,
+  transportationDetail: false,
+  ecommerceDetail: false,
+  reverseCharge: false
+};
+
+const DEFAULT_SALE_RETURN_SETTINGS: SaleReturnSettings = {
+  billDiscount: false,
+  additionalCharges: false,
+  itemWiseDiscount: true,
+  transportationDetail: false,
+  ecommerceDetail: false,
+  reverseCharge: false
+};
+
+const DEFAULT_TRANSPORTATION_SETTINGS: TransportationSettings = {
+  grNo: true,
+  vehicleNo: true,
+  origin: true,
+  destination: true,
+  dispatchMode: true,
+  date: true
+};
+
+const DEFAULT_LEDGERS_LIST: LedgerSettingItem[] = [
+  { id: 1, name: "Bank Commision A/C", checked: false },
+  { id: 2, name: "Cash", checked: false },
+  { id: 3, name: "Discount A/C", checked: false },
+  { id: 4, name: "Freight Inward A/C", checked: true },
+  { id: 5, name: "Freight Outward A/C", checked: true },
+  { id: 6, name: "Stock In Hand", checked: false },
+  { id: 7, name: "Profit & Loss A/C", checked: false },
+  { id: 8, name: "Purchase A/C", checked: false },
+  { id: 9, name: "Sales A/C", checked: false },
+  { id: 10, name: "Round Off A/C", checked: false },
+  { id: 11, name: "Trading A/C", checked: false },
+  { id: 12, name: "Extra A/C", checked: false },
+  { id: 13, name: "IGST A/C", checked: false },
+  { id: 14, name: "CGST A/C", checked: false },
+  { id: 15, name: "SGST A/C", checked: false },
+  { id: 16, name: "UTGST A/C", checked: false },
+  { id: 17, name: "Packaging A/C", checked: true },
+  { id: 18, name: "Insurance A/C", checked: true },
+  { id: 19, name: "Allahabad Bank", checked: false },
+  { id: 20, name: "Andhra Bank", checked: false },
+  { id: 21, name: "Bank of Baroda", checked: false },
+  { id: 22, name: "Bank of India", checked: false },
+  { id: 23, name: "Bank of Maharashtra", checked: false },
+  { id: 24, name: "Canara Bank", checked: false },
+  { id: 25, name: "Central Bank of India", checked: false },
+  { id: 26, name: "Corporation Bank", checked: false },
+  { id: 27, name: "Dena Bank", checked: false },
+  { id: 28, name: "Indian Bank", checked: false },
+  { id: 29, name: "Indian Overseas Bank", checked: false },
+  { id: 30, name: "IDBI Bank", checked: false },
+  { id: 31, name: "Oriental Bank of Commerce", checked: false },
+  { id: 32, name: "Punjab and Sindh Bank", checked: false },
+  { id: 33, name: "Punjab National Bank", checked: false },
+  { id: 34, name: "State Bank of India", checked: false },
+  { id: 35, name: "Syndicate Bank", checked: false },
+  { id: 36, name: "UCO Bank", checked: false },
+  { id: 37, name: "Union Bank of India", checked: false },
+  { id: 38, name: "United Bank of India", checked: false },
+  { id: 39, name: "Vijaya Bank", checked: false },
+  { id: 40, name: "Bandhan Bank", checked: false },
+  { id: 41, name: "Catholic Syrian Bank", checked: false },
+  { id: 42, name: "City Union Bank", checked: false },
+  { id: 43, name: "DCB Bank", checked: false },
+  { id: 44, name: "Dhanlaxmi Bank", checked: false },
+  { id: 45, name: "Federal Bank", checked: false },
+  { id: 46, name: "HDFC Bank", checked: false },
+  { id: 47, name: "ICICI Bank", checked: false },
+  { id: 48, name: "IDFC Bank", checked: false },
+  { id: 49, name: "IndusInd Bank", checked: false },
+  { id: 50, name: "Jammu and Kashmir Bank", checked: false },
+  { id: 51, name: "Karnataka Bank", checked: false },
+  { id: 52, name: "Karur Vysya Bank", checked: false },
+  { id: 53, name: "Kotak Mahindra Bank", checked: false },
+  { id: 54, name: "Lakshmi Vilas Bank", checked: false },
+  { id: 55, name: "Nainital Bank", checked: false },
+  { id: 56, name: "RBL Bank", checked: false },
+  { id: 57, name: "Tamilnad Mercantile Bank", checked: false },
+  { id: 58, name: "YES Bank", checked: false },
+  { id: 59, name: "India Post", checked: false },
+  { id: 60, name: "Paytm", checked: false },
+  { id: 61, name: "Purchase Return A/C", checked: false },
+  { id: 62, name: "Sales Return A/C", checked: false },
+  { id: 63, name: "OPENING CAPITAL", checked: false }
+];
+
 export const billingService = {
   // App Settings (CEO Control)
   getAppSettings: async (): Promise<AppSettings> => {
@@ -574,6 +704,69 @@ export const billingService = {
       }
 
       // Trigger a custom event for components to listen to
+      window.dispatchEvent(new Event('appSettingsChanged'));
+  },
+
+  getSaleSettings: async (): Promise<SaleSettings> => {
+      const setting = await sqliteService.getSetting('saleSettings');
+      return setting ? { ...DEFAULT_SALE_SETTINGS, ...setting } : DEFAULT_SALE_SETTINGS;
+  },
+  saveSaleSettings: async (settings: SaleSettings) => {
+      await sqliteService.saveSetting('saleSettings', settings);
+      window.dispatchEvent(new Event('appSettingsChanged'));
+  },
+
+  getItemSettings: async (): Promise<ItemSettings> => {
+      const setting = await sqliteService.getSetting('itemSettings');
+      return setting ? { ...DEFAULT_ITEM_SETTINGS, ...setting } : DEFAULT_ITEM_SETTINGS;
+  },
+  saveItemSettings: async (settings: ItemSettings) => {
+      await sqliteService.saveSetting('itemSettings', settings);
+      window.dispatchEvent(new Event('appSettingsChanged'));
+  },
+
+  getPurchaseBillSettings: async (): Promise<PurchaseBillSettings> => {
+      const setting = await sqliteService.getSetting('purchaseBillSettings');
+      return setting ? { ...DEFAULT_PURCHASE_BILL_SETTINGS, ...setting } : DEFAULT_PURCHASE_BILL_SETTINGS;
+  },
+  savePurchaseBillSettings: async (settings: PurchaseBillSettings) => {
+      await sqliteService.saveSetting('purchaseBillSettings', settings);
+      window.dispatchEvent(new Event('appSettingsChanged'));
+  },
+
+  getPurchaseReturnSettings: async (): Promise<PurchaseReturnSettings> => {
+      const setting = await sqliteService.getSetting('purchaseReturnSettings');
+      return setting ? { ...DEFAULT_PURCHASE_RETURN_SETTINGS, ...setting } : DEFAULT_PURCHASE_RETURN_SETTINGS;
+  },
+  savePurchaseReturnSettings: async (settings: PurchaseReturnSettings) => {
+      await sqliteService.saveSetting('purchaseReturnSettings', settings);
+      window.dispatchEvent(new Event('appSettingsChanged'));
+  },
+
+  getSaleReturnSettings: async (): Promise<SaleReturnSettings> => {
+      const setting = await sqliteService.getSetting('saleReturnSettings');
+      return setting ? { ...DEFAULT_SALE_RETURN_SETTINGS, ...setting } : DEFAULT_SALE_RETURN_SETTINGS;
+  },
+  saveSaleReturnSettings: async (settings: SaleReturnSettings) => {
+      await sqliteService.saveSetting('saleReturnSettings', settings);
+      window.dispatchEvent(new Event('appSettingsChanged'));
+  },
+
+  getTransportationSettings: async (): Promise<TransportationSettings> => {
+      const setting = await sqliteService.getSetting('transportationSettings');
+      return setting ? { ...DEFAULT_TRANSPORTATION_SETTINGS, ...setting } : DEFAULT_TRANSPORTATION_SETTINGS;
+  },
+  saveTransportationSettings: async (settings: TransportationSettings) => {
+      await sqliteService.saveSetting('transportationSettings', settings);
+      window.dispatchEvent(new Event('appSettingsChanged'));
+  },
+
+  getLedgersList: async (): Promise<LedgerSettingItem[]> => {
+      const setting = await sqliteService.getSetting('ledgersList');
+      return setting || DEFAULT_LEDGERS_LIST;
+  },
+  saveLedgersList: async (list: LedgerSettingItem[]) => {
+      await sqliteService.saveSetting('ledgersList', list);
       window.dispatchEvent(new Event('appSettingsChanged'));
   },
 
@@ -895,6 +1088,9 @@ export const billingService = {
                   if (['Sale', 'Purchase', 'Sale Return', 'Purchase Return'].includes(oldInvoiceObj.type)) {
                       for (const item of oldInvoiceObj.items) {
                           if (item.item && item.item.id) {
+                              if (['Bill Discount', 'Additional Charges'].includes(item.item.name)) {
+                                  continue;
+                              }
                               const dbItem = await db.items.get(item.item.id);
                               if (dbItem) {
                                   let stockChange = item.qty; // Reverse of Sale is +qty
@@ -956,6 +1152,9 @@ export const billingService = {
               for (let i = 0; i < items.length; i++) {
                   const item = items[i];
                   if (item.item) {
+                      if (['Bill Discount', 'Additional Charges'].includes(item.item.name)) {
+                          continue;
+                      }
                       let dbItem = item.item.id && !item.item.id.startsWith('temp_') ? await db.items.get(item.item.id) : undefined;
                       
                       // If not found by ID, try by name

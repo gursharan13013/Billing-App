@@ -29,7 +29,8 @@ import {
   CornerDownRight,
   Sparkles,
   Layers,
-  UserCheck
+  UserCheck,
+  X
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { BillingService } from '../../../services/SecureBillingService';
@@ -371,9 +372,9 @@ export const AuditLogScreen: React.FC<AuditLogScreenProps> = ({ onBack, currentL
     const act = action.toLowerCase();
     if (act.includes('delete')) {
       return {
-        bg: 'bg-rose-50 dark:bg-rose-950/20 text-rose-600 dark:text-rose-400 border-rose-200 dark:border-rose-900/40',
+        bg: 'bg-rose-50 dark:bg-rose-950/20 text-rose-600 dark:text-rose-450 border-rose-200 dark:border-rose-900/40',
         dot: 'bg-rose-500',
-        avatarBg: 'bg-rose-100 dark:bg-rose-950 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-900',
+        avatarBg: 'bg-rose-100 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-900/50',
         icon: <Trash2 size={13} className="shrink-0" />
       };
     }
@@ -381,46 +382,46 @@ export const AuditLogScreen: React.FC<AuditLogScreenProps> = ({ onBack, currentL
       return {
         bg: 'bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-450 border-emerald-200 dark:border-emerald-900/30',
         dot: 'bg-emerald-500',
-        avatarBg: 'bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-900',
+        avatarBg: 'bg-emerald-100 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-355 border-emerald-200 dark:border-emerald-900/50',
         icon: <PlusCircle size={13} className="shrink-0" />
       };
     }
     if (act.includes('login') || act.includes('logout')) {
       return {
-        bg: 'bg-sky-50 dark:bg-sky-950/20 text-sky-600 dark:text-sky-400 border-sky-200 dark:border-sky-900/30',
-        dot: 'bg-sky-500',
-        avatarBg: 'bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-300 border-sky-200 dark:border-sky-900',
+        bg: 'bg-sky-50 dark:bg-sky-950/20 text-sky-650 dark:text-sky-455 border-sky-200/60 dark:border-sky-900/30',
+        dot: 'bg-sky-505',
+        avatarBg: 'bg-sky-100 dark:bg-sky-950/40 text-sky-700 dark:text-sky-350 border-sky-200 dark:border-sky-900/50',
         icon: <LogIn size={13} className="shrink-0" />
       };
     }
     // DEFAULT UPDATE / EDIT
     return {
-      bg: 'bg-blue-50 dark:bg-blue-950/20 text-[#3b5998] dark:text-blue-400 border-blue-200 dark:border-blue-900/30',
-      dot: 'bg-blue-500',
-      avatarBg: 'bg-blue-100 dark:bg-blue-950 text-[#3b5998] dark:text-blue-300 border-blue-200 dark:border-blue-900',
+      bg: 'bg-indigo-50 dark:bg-indigo-950/20 text-indigo-650 dark:text-indigo-400 border-indigo-200/60 dark:border-indigo-900/30',
+      dot: 'bg-indigo-555',
+      avatarBg: 'bg-indigo-100 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-350 border-indigo-200 dark:border-indigo-900/50',
       icon: <Edit2 size={13} className="shrink-0" />
     };
   };
 
   return (
-    <div className="flex flex-col h-full bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 font-sans pb-[max(env(safe-area-inset-bottom),0px)]">
+    <div className="flex flex-col h-full bg-slate-50 dark:bg-[#090D16] text-slate-800 dark:text-slate-100 font-sans pb-[max(env(safe-area-inset-bottom),0px)]">
       
       {/* 1. STICKY TOP PREMIUM HEADER */}
-      <header className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 text-slate-800 dark:text-white p-4 shrink-0 shadow-sm dark:shadow-md pt-[max(env(safe-area-inset-top),48px)] flex items-center justify-between animate-in fade-in ease-out duration-200">
+      <header className="bg-white/80 dark:bg-[#131B2E]/80 backdrop-blur-md border-b border-slate-200/60 dark:border-slate-800/80 text-slate-800 dark:text-white p-4 shrink-0 shadow-sm pt-[max(env(safe-area-inset-top),48px)] flex items-center justify-between animate-in fade-in ease-out duration-200">
         <div className="flex items-center gap-3">
           <button 
             id="audit_stream_back_btn"
             onClick={onBack} 
-            className="p-2 bg-slate-100 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800 rounded-xl transition active:scale-95 cursor-pointer touch-manipulation border border-slate-200/50 dark:border-slate-700/50"
+            className="p-2 bg-slate-100 dark:bg-[#182239] text-slate-600 dark:text-slate-300 hover:text-indigo-650 dark:hover:text-indigo-400 hover:bg-slate-200 dark:hover:bg-slate-850 rounded-xl transition active:scale-95 cursor-pointer touch-manipulation border border-slate-200/50 dark:border-slate-800"
           >
-            <ArrowLeft size={20} />
+            <ArrowLeft size={18} />
           </button>
           <div className="text-left">
-            <h1 className="text-base font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-1.5">
-              <ShieldCheck size={18} className="text-emerald-500 dark:text-emerald-400 animate-pulse" />
+            <h1 className="text-sm font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-1.5 font-sans">
+              <ShieldCheck size={16} className="text-emerald-500 dark:text-emerald-400 animate-pulse" />
               {t.title}
             </h1>
-            <p className="text-[10px] text-slate-500 dark:text-slate-400 font-semibold font-sans leading-none mt-1">
+            <p className="text-[9px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider font-mono mt-0.5 leading-none">
               {t.subtitle}
             </p>
           </div>
@@ -429,24 +430,24 @@ export const AuditLogScreen: React.FC<AuditLogScreenProps> = ({ onBack, currentL
         <button
           onClick={() => fetchLogs(true)}
           disabled={loading || refreshing}
-          className="bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 disabled:opacity-55 text-slate-700 dark:text-white p-2 md:py-2 md:px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 flex items-center gap-1.5 text-xs font-bold transition hover:shadow cursor-pointer"
+          className="bg-slate-100 hover:bg-slate-200 dark:bg-[#182239] dark:hover:bg-slate-850 disabled:opacity-55 text-slate-700 dark:text-white p-2.5 rounded-xl border border-slate-205/60 dark:border-slate-800 flex items-center gap-1.5 text-xs font-black transition cursor-pointer select-none active:scale-95 duration-150"
         >
-          <RefreshCw size={13} className={refreshing ? "animate-spin" : ""} />
-          <span className="hidden md:inline">{t.refresh}</span>
+          <RefreshCw size={12} className={refreshing ? "animate-spin" : ""} />
+          <span className="hidden sm:inline">{t.refresh}</span>
         </button>
       </header>
 
       {/* 2. STICKY ADVANCED FILTER ENGINE */}
-      <div className="sticky top-0 z-30 p-4 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 shadow-sm space-y-3 shrink-0">
+      <div className="sticky top-0 z-30 p-4 bg-white/70 dark:bg-[#131B2E]/40 backdrop-blur-md border-b border-slate-200/60 dark:border-slate-850 shadow-sm space-y-3 shrink-0">
         
         {/* Toggleable Filter Layout with Persistent Search */}
         <div className="flex items-center gap-2">
           {/* Keyword Search Input */}
           <div className="relative flex-1">
-            <Search size={16} className="absolute left-3.5 top-3.5 text-slate-400 dark:text-slate-500" />
+            <Search size={14} className="absolute left-3.5 top-3.5 text-slate-400 dark:text-slate-500" />
             <input
               type="text"
-              className="w-full text-xs font-semibold pl-10 pr-4 py-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950 focus:border-indigo-500 dark:focus:border-indigo-400 focus:bg-white dark:focus:bg-slate-950 focus:ring-2 focus:ring-indigo-100 dark:focus:ring-indigo-950/20 transition duration-150 outline-none"
+              className="w-full text-xs font-semibold pl-10 pr-10 py-2.5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/60 dark:bg-[#090D16]/60 focus:border-indigo-500 dark:focus:border-indigo-400 focus:bg-white dark:focus:bg-[#090D16] focus:ring-4 focus:ring-indigo-500/10 transition-all outline-none"
               placeholder={t.searchPlaceholder}
               value={searchQuery}
               onChange={(e) => {
@@ -454,25 +455,33 @@ export const AuditLogScreen: React.FC<AuditLogScreenProps> = ({ onBack, currentL
                 setCurrentPage(1);
               }}
             />
+            {searchQuery && (
+              <button 
+                onClick={() => setSearchQuery('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-white p-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800/50"
+              >
+                <X size={10} />
+              </button>
+            )}
           </div>
 
           {/* Toggle Button for mobile and screen real-estate optimization */}
           <button
             onClick={() => setFiltersOpen(!filtersOpen)}
-            className={`p-3 rounded-2xl border flex items-center justify-center gap-2 text-xs font-black transition cursor-pointer select-none active:scale-95 duration-150 ${
+            className={`p-2.5 rounded-2xl border flex items-center justify-center gap-2 text-xs font-black transition cursor-pointer select-none active:scale-95 duration-150 ${
               filtersOpen 
-                ? 'bg-[#1e293b] text-white border-[#1e293b] dark:bg-slate-800 dark:border-slate-700 shadow-md' 
+                ? 'bg-slate-900 border-slate-900 text-white dark:bg-[#182239] dark:border-slate-800 shadow-inner' 
                 : activeFiltersCount > 0
-                  ? 'bg-blue-50 border-blue-300 text-blue-600 dark:bg-blue-950/30 dark:border-blue-900 dark:text-blue-450'
-                  : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-200 dark:bg-slate-850 dark:text-slate-350 dark:border-slate-800'
+                  ? 'bg-indigo-50 border-indigo-200 text-indigo-650 dark:bg-indigo-950/20 dark:border-indigo-900/40 dark:text-indigo-400'
+                  : 'bg-white hover:bg-slate-50 text-slate-700 border-slate-200/80 dark:bg-[#131B2E] dark:text-slate-300 dark:border-slate-800'
             }`}
             title={isHi ? 'विवरण फ़िल्टर' : 'Toggle Filters'}
           >
-            <SlidersHorizontal size={14} className={filtersOpen ? "rotate-90 transition-transform duration-200" : "transition-transform duration-200"} />
+            <SlidersHorizontal size={13} className={filtersOpen ? "rotate-90 transition-transform duration-200" : "transition-transform duration-200"} />
             <span className="hidden sm:inline">{isHi ? 'फ़िल्टर' : 'Filters'}</span>
             {activeFiltersCount > 0 && (
               <span className={`inline-flex items-center justify-center rounded-full text-[10px] font-black h-4.5 w-4.5 leading-none ${
-                filtersOpen ? 'bg-white text-slate-900' : 'bg-indigo-600 text-white'
+                filtersOpen ? 'bg-white text-slate-900' : 'bg-indigo-650 text-white'
               }`}>
                 {activeFiltersCount}
               </span>
@@ -483,7 +492,7 @@ export const AuditLogScreen: React.FC<AuditLogScreenProps> = ({ onBack, currentL
           {activeFiltersCount > 0 && (
             <button
               onClick={handleClearFilters}
-              className="p-3 rounded-2xl bg-rose-50 hover:bg-rose-100 text-rose-700 dark:bg-rose-950/20 dark:hover:bg-rose-900/30 dark:text-rose-450 border border-rose-200 dark:border-rose-900/40 transition active:scale-95 text-xs font-black cursor-pointer select-none"
+              className="p-2.5 rounded-2xl bg-rose-50 hover:bg-rose-100 text-rose-700 dark:bg-rose-950/20 dark:hover:bg-rose-900/30 dark:text-rose-400 border border-rose-200/50 dark:border-rose-900/40 transition active:scale-95 text-xs font-black cursor-pointer select-none"
               title={isHi ? 'रीसेट फ़िल्टर' : 'Reset All Filters'}
             >
               {isHi ? 'रीसेट' : 'Reset'}
@@ -499,20 +508,20 @@ export const AuditLogScreen: React.FC<AuditLogScreenProps> = ({ onBack, currentL
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
               transition={{ duration: 0.2, ease: "easeInOut" }}
-              className="overflow-hidden space-y-3.5 pt-1 border-t border-slate-100 dark:border-slate-800"
+              className="overflow-hidden space-y-3.5 pt-1 border-t border-slate-100 dark:border-slate-850"
             >
               {/* Action Type Filter Toggle Chips */}
               <div className="space-y-1 block mt-2 text-left">
-                <label className="text-[9px] font-black tracking-wider text-slate-400 dark:text-slate-500 uppercase block mb-1">
+                <label className="text-[9px] font-black tracking-wider text-slate-400 dark:text-slate-500 uppercase block mb-1 font-mono">
                   💡 {isHi ? 'कार्रवाई प्रकार' : 'Filter Action Type'}
                 </label>
                 <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none scroll-smooth">
                   <button
                     onClick={() => { setSelectedActionChip('all'); setCurrentPage(1); }}
-                    className={`px-3 py-1.5 rounded-lg text-[10px] font-black tracking-wide whitespace-nowrap transition-all cursor-pointer ${
+                    className={`px-3 py-1.5 rounded-xl text-[10px] font-black tracking-wide whitespace-nowrap transition-all cursor-pointer ${
                       selectedActionChip === 'all' 
-                        ? 'bg-[#3b5998] text-white dark:bg-slate-100 dark:text-slate-950' 
-                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-850 dark:text-slate-400'
+                        ? 'bg-indigo-600 text-white dark:bg-indigo-500' 
+                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-[#182239] dark:text-slate-400 dark:hover:bg-slate-800'
                     }`}
                   >
                     🔥 {t.chipAll}
@@ -520,37 +529,37 @@ export const AuditLogScreen: React.FC<AuditLogScreenProps> = ({ onBack, currentL
                   
                   <button
                     onClick={() => { setSelectedActionChip('delete'); setCurrentPage(1); }}
-                    className={`px-3 py-1.5 rounded-lg text-[10px] font-black tracking-wide whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer ${
+                    className={`px-3 py-1.5 rounded-xl text-[10px] font-black tracking-wide whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer ${
                       selectedActionChip === 'delete'
-                        ? 'bg-rose-600 text-white shadow-sm shadow-rose-200 dark:shadow-none'
-                        : 'bg-rose-50 text-rose-700 hover:bg-rose-100 dark:bg-rose-950/20 dark:text-rose-400'
+                        ? 'bg-rose-600 text-white'
+                        : 'bg-rose-50 text-rose-705 hover:bg-rose-100 dark:bg-rose-950/20 dark:text-rose-400'
                     }`}
                   >
-                    <span className="h-2 w-2 rounded-full bg-rose-500" />
+                    <span className="h-1.5 w-1.5 rounded-full bg-rose-500" />
                     {t.chipDeletes}
                   </button>
 
                   <button
                     onClick={() => { setSelectedActionChip('update'); setCurrentPage(1); }}
-                    className={`px-3 py-1.5 rounded-lg text-[10px] font-black tracking-wide whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer ${
+                    className={`px-3 py-1.5 rounded-xl text-[10px] font-black tracking-wide whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer ${
                       selectedActionChip === 'update'
-                        ? 'bg-[#3b5998] text-white shadow-sm shadow-blue-200 dark:shadow-none'
-                        : 'bg-blue-50 text-[#3b5998] hover:bg-blue-100 dark:bg-blue-950/20 dark:text-blue-400'
+                        ? 'bg-indigo-600 text-white shadow-sm'
+                        : 'bg-indigo-50 text-indigo-650 hover:bg-indigo-100 dark:bg-indigo-950/20 dark:text-indigo-400'
                     }`}
                   >
-                    <span className="h-2 w-2 rounded-full bg-[#3b5998]" />
+                    <span className="h-1.5 w-1.5 rounded-full bg-indigo-500" />
                     {t.chipUpdates}
                   </button>
 
                   <button
                     onClick={() => { setSelectedActionChip('login'); setCurrentPage(1); }}
-                    className={`px-3 py-1.5 rounded-lg text-[10px] font-black tracking-wide whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer ${
+                    className={`px-3 py-1.5 rounded-xl text-[10px] font-black tracking-wide whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer ${
                       selectedActionChip === 'login'
-                        ? 'bg-sky-600 text-white shadow-sm shadow-sky-200 dark:shadow-none'
-                        : 'bg-sky-50 text-sky-700 hover:bg-sky-100 dark:bg-sky-950/20 dark:text-sky-400'
+                        ? 'bg-sky-600 text-white'
+                        : 'bg-sky-50 text-sky-750 hover:bg-sky-100 dark:bg-sky-950/20 dark:text-sky-400'
                     }`}
                   >
-                    <span className="h-2 w-2 rounded-full bg-sky-500" />
+                    <span className="h-1.5 w-1.5 rounded-full bg-sky-500" />
                     {t.chipLogins}
                   </button>
                 </div>
@@ -560,8 +569,8 @@ export const AuditLogScreen: React.FC<AuditLogScreenProps> = ({ onBack, currentL
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 {/* User selector dropdown */}
                 <div className="space-y-1 text-left">
-                  <label className="text-[9px] font-black tracking-wider text-slate-400 dark:text-slate-500 uppercase flex items-center gap-1">
-                    <UserCheck size={11} className="text-[#3b5998]" />
+                  <label className="text-[9px] font-black tracking-wider text-slate-400 dark:text-slate-500 uppercase flex items-center gap-1 font-mono">
+                    <UserCheck size={10} className="text-indigo-500" />
                     {isHi ? 'ऑपरेटर' : 'Staff / Admin'}
                   </label>
                   <div className="relative">
@@ -571,11 +580,11 @@ export const AuditLogScreen: React.FC<AuditLogScreenProps> = ({ onBack, currentL
                         setSelectedUser(e.target.value);
                         setCurrentPage(1);
                       }}
-                      className="w-full text-xs font-bold pl-2 pr-8 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-600 dark:text-slate-200 appearance-none outline-none focus:border-[#3b5998] animate-none"
+                      className="w-full text-xs font-bold pl-2.5 pr-8 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#131B2E] text-slate-700 dark:text-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 appearance-none outline-none transition"
                     >
                       <option value="all">👥 {t.allUsers}</option>
                       {operators.map(op => (
-                        <option key={op.id} value={op.id}>
+                        <option key={op.id} value={op.id} className="dark:bg-[#131B2E]">
                           {op.name}
                         </option>
                       ))}
@@ -585,8 +594,8 @@ export const AuditLogScreen: React.FC<AuditLogScreenProps> = ({ onBack, currentL
 
                 {/* Module Selector dropdown */}
                 <div className="space-y-1 text-left">
-                  <label className="text-[9px] font-black tracking-wider text-slate-400 dark:text-slate-500 uppercase flex items-center gap-1">
-                    <Layers size={11} className="text-emerald-500" />
+                  <label className="text-[9px] font-black tracking-wider text-slate-400 dark:text-slate-500 uppercase flex items-center gap-1 font-mono">
+                    <Layers size={10} className="text-emerald-500" />
                     {isHi ? 'मॉड्यूल' : 'Module'}
                   </label>
                   <div className="relative">
@@ -596,23 +605,23 @@ export const AuditLogScreen: React.FC<AuditLogScreenProps> = ({ onBack, currentL
                         setSelectedModule(e.target.value);
                         setCurrentPage(1);
                       }}
-                      className="w-full text-xs font-bold pl-2 pr-8 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-600 dark:text-slate-200 appearance-none outline-none focus:border-[#3b5998] animate-none"
+                      className="w-full text-xs font-bold pl-2.5 pr-8 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#131B2E] text-slate-700 dark:text-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 appearance-none outline-none transition"
                     >
                       <option value="all">📦 {t.allModules}</option>
-                      <option value="billing">💸 Billing System</option>
-                      <option value="inventory">📊 Inventory</option>
-                      <option value="crm">🤝 CRM Clients</option>
-                      <option value="accounting">📓 Ledger</option>
-                      <option value="staff">🛡️ Staff Security</option>
-                      <option value="system">⚙️ System Configuration</option>
+                      <option value="billing" className="dark:bg-[#131B2E]">💸 Billing System</option>
+                      <option value="inventory" className="dark:bg-[#131B2E]">📊 Inventory</option>
+                      <option value="crm" className="dark:bg-[#131B2E]">🤝 CRM Clients</option>
+                      <option value="accounting" className="dark:bg-[#131B2E]">📓 Ledger</option>
+                      <option value="staff" className="dark:bg-[#131B2E]">🛡️ Staff Security</option>
+                      <option value="system" className="dark:bg-[#131B2E]">⚙️ System Configuration</option>
                     </select>
                   </div>
                 </div>
 
                 {/* Date range picker input */}
                 <div className="space-y-1 text-left">
-                  <label className="text-[9px] font-black tracking-wider text-slate-400 dark:text-slate-500 uppercase flex items-center gap-1">
-                    <Calendar size={11} className="text-pink-500" />
+                  <label className="text-[9px] font-black tracking-wider text-slate-400 dark:text-slate-500 uppercase flex items-center gap-1 font-mono">
+                    <Calendar size={10} className="text-pink-500" />
                     {t.startDate} - {t.endDate}
                   </label>
                   <div className="flex gap-1.5 items-center">
@@ -623,7 +632,7 @@ export const AuditLogScreen: React.FC<AuditLogScreenProps> = ({ onBack, currentL
                         setStartDate(e.target.value);
                         setCurrentPage(1);
                       }}
-                      className="w-1/2 text-[10px] font-extrabold px-2 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 outline-none block"
+                      className="w-1/2 text-[10px] font-extrabold px-2 py-2 rounded-xl border border-slate-205 dark:border-slate-800 bg-white dark:bg-[#131B2E] text-slate-700 dark:text-slate-200 outline-none block focus:border-indigo-500"
                     />
                     <span className="text-[9px] font-bold text-slate-400">to</span>
                     <input
@@ -633,7 +642,7 @@ export const AuditLogScreen: React.FC<AuditLogScreenProps> = ({ onBack, currentL
                         setEndDate(e.target.value);
                         setCurrentPage(1);
                       }}
-                      className="w-1/2 text-[10px] font-extrabold px-2 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 outline-none block"
+                      className="w-1/2 text-[10px] font-extrabold px-2 py-2 rounded-xl border border-slate-205 dark:border-slate-800 bg-white dark:bg-[#131B2E] text-slate-700 dark:text-slate-200 outline-none block focus:border-indigo-500"
                     />
                   </div>
                 </div>
@@ -646,8 +655,8 @@ export const AuditLogScreen: React.FC<AuditLogScreenProps> = ({ onBack, currentL
 
       {/* ERROR FEEDBACK BANNER */}
       {errorMsg && (
-        <div className="mx-4 mt-3 bg-rose-100 dark:bg-rose-950/30 text-rose-700 dark:text-rose-450 border border-rose-200 dark:border-rose-900/40 p-3 rounded-2xl flex items-start gap-2.5 text-xs">
-          <Info size={16} className="shrink-0 mt-0.5 text-rose-500" />
+        <div className="mx-4 mt-3 bg-rose-100 dark:bg-rose-950/30 text-rose-700 dark:text-rose-400 border border-rose-200 dark:border-rose-900/40 p-3 rounded-2xl flex items-start gap-2.5 text-xs">
+          <Info size={16} className="shrink-0 mt-0.5 text-rose-505" />
           <p className="text-left font-semibold">{errorMsg}</p>
         </div>
       )}
@@ -657,29 +666,29 @@ export const AuditLogScreen: React.FC<AuditLogScreenProps> = ({ onBack, currentL
         
         {loading ? (
           <div className="flex flex-col items-center justify-center py-20 text-slate-400 space-y-3">
-            <RefreshCw size={28} className="animate-spin text-[#3b5998]" />
-            <span className="text-xs font-black tracking-wider uppercase text-slate-500">{t.loading}</span>
+            <RefreshCw size={24} className="animate-spin text-indigo-500" />
+            <span className="text-xs font-black tracking-wider uppercase text-slate-500 font-mono">{t.loading}</span>
           </div>
         ) : filteredLogsList.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 text-slate-400 text-center space-y-2.5 border border-dashed border-slate-200 dark:border-slate-850 rounded-3xl bg-white dark:bg-slate-900/40 p-6 mx-2 shadow-sm">
-            <SlidersHorizontal size={36} className="text-slate-350" />
-            <span className="text-sm font-black text-slate-600 dark:text-slate-400">{t.noLogs}</span>
-            <span className="text-[11px] max-w-xs font-medium text-slate-400">
+          <div className="flex flex-col items-center justify-center py-20 text-slate-400 text-center space-y-2.5 border border-dashed border-slate-200 dark:border-slate-850 rounded-3xl bg-white dark:bg-[#131B2E]/20 p-6 mx-2 shadow-sm select-none">
+            <SlidersHorizontal size={32} className="text-slate-350" />
+            <span className="text-xs font-black text-slate-650 dark:text-slate-400">{t.noLogs}</span>
+            <span className="text-[10px] max-w-xs font-medium text-slate-400 font-sans">
               {isHi 
                 ? 'दिए गए फ़िल्टर मानदंडों के अनुसार कोई लॉग डेटा उपलब्ध नहीं है।' 
                 : 'No audit records match the selected multi-filter combo.'}
             </span>
           </div>
         ) : (
-          <div className="relative pl-6 border-l-2 border-blue-100/60 dark:border-slate-800/85 space-y-8 text-left">
+          <div className="relative pl-6 border-l border-slate-200 dark:border-slate-800/80 space-y-8 text-left">
             {Object.entries(groupedTimelineLogs).map(([groupDateTitle, groupLogs]) => (
               <div key={groupDateTitle} className="space-y-4">
                 
                 {/* TIMELINE DATE HEADER */}
-                <div className="sticky top-[-1px] z-20 -ml-6 pl-6 py-2 bg-slate-50/95 dark:bg-slate-950/95 backdrop-blur-sm flex items-center gap-2">
-                  <div className="absolute -left-[9.5px] top-3.5 h-4 w-4 rounded-full border-4 border-[#3b5998] bg-white dark:bg-slate-950 shadow-sm z-30" />
-                  <span className="text-[11px] font-black tracking-wider uppercase text-slate-500 dark:text-slate-400 font-sans flex items-center gap-1 bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-850 px-3 py-1.5 rounded-full shadow-xs">
-                    <Sparkles size={11} className="text-yellow-500 animate-pulse" />
+                <div className="sticky top-[-1px] z-20 -ml-6 pl-6 py-2 bg-slate-50/95 dark:bg-[#090D16]/95 backdrop-blur-sm flex items-center gap-2">
+                  <div className="absolute -left-[4.5px] top-4.5 h-2 w-2 rounded-full border border-indigo-500 bg-white dark:bg-[#090D16] shadow-sm z-30" />
+                  <span className="text-[10px] font-black tracking-wider uppercase text-slate-500 dark:text-slate-400 font-mono flex items-center gap-1.5 bg-white dark:bg-[#131B2E] border border-slate-200/60 dark:border-slate-800/80 px-3.5 py-1.5 rounded-full shadow-xs">
+                    <Sparkles size={10} className="text-yellow-500 animate-pulse" />
                     {groupDateTitle}
                   </span>
                 </div>
@@ -708,12 +717,12 @@ export const AuditLogScreen: React.FC<AuditLogScreenProps> = ({ onBack, currentL
                         className="group relative flex items-start gap-3 transition-all pb-1 text-left"
                       >
                         {/* Interactive Circle on Timeline */}
-                        <div className="absolute -left-[31px] top-4.5 flex h-4.5 w-4.5 items-center justify-center rounded-full bg-white dark:bg-slate-900 z-10 border-2 border-blue-400 dark:border-slate-800 shadow-xs">
+                        <div className="absolute -left-[30px] top-4 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-white dark:bg-[#131B2E] z-10 border border-slate-300 dark:border-slate-800 shadow-xs">
                           <span className={`h-1.5 w-1.5 rounded-full ${style.dot}`} />
                         </div>
 
                         {/* User Avatar Initial */}
-                        <div className={`mt-1 h-9 w-9 shrink-0 rounded-full flex items-center justify-center font-black text-xs select-none border shadow-sm ${style.avatarBg}`}>
+                        <div className={`mt-1 h-8 w-8 shrink-0 rounded-xl flex items-center justify-center font-black text-xs select-none border shadow-sm ${style.avatarBg}`}>
                           {initial}
                         </div>
 
@@ -721,16 +730,24 @@ export const AuditLogScreen: React.FC<AuditLogScreenProps> = ({ onBack, currentL
                         <div className="flex-1 min-w-0">
                            <div 
                             onClick={() => { if(hasMetadataChanges) toggleLogExpand(log.id); }}
-                            className={`p-4 rounded-2xl border bg-white dark:bg-slate-900/90 transition-all ${
-                              hasMetadataChanges ? 'cursor-pointer hover:shadow-md hover:border-blue-200 dark:hover:border-slate-700' : 'cursor-default shadow-sm'
+                            className={`p-4 rounded-2xl border-y border-r border-l-4 bg-white dark:bg-[#131B2E] transition-all duration-200 ${
+                              normAction.includes('delete') 
+                                ? 'border-l-rose-500' 
+                                : normAction.includes('create')
+                                  ? 'border-l-emerald-500'
+                                  : normAction.includes('login') || normAction.includes('logout')
+                                    ? 'border-l-sky-500'
+                                    : 'border-l-indigo-500'
                             } ${
-                              isExpanded ? 'border-[#3b5998] dark:border-slate-700 ring-1 ring-blue-50/50 dark:ring-0 shadow-md' : 'border-slate-200/70 dark:border-slate-800/80'
+                              hasMetadataChanges ? 'cursor-pointer hover:shadow-md hover:border-r-indigo-200 dark:hover:border-r-slate-700' : 'cursor-default shadow-sm'
+                            } ${
+                              isExpanded ? 'border-y-indigo-500 border-r-indigo-500 dark:border-y-slate-700 dark:border-r-slate-700 ring-1 ring-indigo-500/10' : 'border-slate-205 dark:border-slate-800/80'
                             }`}
                           >
                             {/* Card Item Header Context Info */}
-                            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-dashed border-slate-100 dark:border-slate-800 pb-2 mb-2">
+                            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-dashed border-slate-100 dark:border-slate-850 pb-2 mb-2">
                               <div className="flex items-center gap-1.5 flex-wrap">
-                                <span className="font-extrabold text-xs text-slate-800 dark:text-slate-150 truncate max-w-[130px]">
+                                <span className="font-extrabold text-xs text-slate-850 dark:text-slate-150 truncate max-w-[130px]">
                                   {operatorName}
                                 </span>
 
@@ -754,7 +771,7 @@ export const AuditLogScreen: React.FC<AuditLogScreenProps> = ({ onBack, currentL
                                 )}
                               </div>
 
-                              <span className="text-[9px] text-slate-400 dark:text-slate-550 font-mono font-bold flex items-center gap-0.5">
+                              <span className="text-[9px] text-slate-400 dark:text-slate-500 font-mono font-bold flex items-center gap-0.5">
                                 {formattedTime}
                               </span>
                             </div>
@@ -789,7 +806,7 @@ export const AuditLogScreen: React.FC<AuditLogScreenProps> = ({ onBack, currentL
                                     e.stopPropagation();
                                     toggleLogExpand(log.id);
                                   }}
-                                  className="text-[9px] font-bold uppercase text-[#3b5998] dark:text-blue-450 hover:text-[#2d4373] flex items-center gap-1 bg-blue-50/50 dark:bg-slate-950 hover:bg-blue-50 border border-blue-100/40 dark:border-slate-850 rounded-lg px-2 py-1 cursor-pointer transition active:scale-95"
+                                  className="text-[9px] font-bold uppercase text-indigo-500 dark:text-indigo-400 hover:text-indigo-650 flex items-center gap-1 bg-indigo-50/50 dark:bg-slate-950 hover:bg-indigo-50 border border-indigo-100/40 dark:border-slate-850 rounded-lg px-2 py-1 cursor-pointer transition active:scale-95"
                                 >
                                   {isExpanded ? <EyeOff size={10} /> : <Eye size={10} />}
                                   {isExpanded ? t.hideChanges : t.viewChanges}
@@ -808,9 +825,9 @@ export const AuditLogScreen: React.FC<AuditLogScreenProps> = ({ onBack, currentL
                                   transition={{ duration: 0.2, ease: "easeInOut" }}
                                   className="overflow-hidden border-t border-slate-100 dark:border-slate-800/80 pt-3"
                                 >
-                                  <div className="rounded-xl bg-slate-50 dark:bg-slate-950 p-2.5 border border-slate-150 dark:border-slate-900/40 max-h-[250px] overflow-y-auto">
-                                    <div className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wilder mb-2 flex items-center gap-1 font-sans">
-                                      <Database size={11} className="text-emerald-500" />
+                                  <div className="rounded-xl bg-slate-50 dark:bg-[#090D16] p-2.5 border border-slate-150 dark:border-slate-850 max-h-[250px] overflow-y-auto">
+                                    <div className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wilder mb-2 flex items-center gap-1 font-mono">
+                                      <Database size={10} className="text-emerald-500" />
                                       {t.changesTitle}
                                     </div>
 
@@ -827,20 +844,20 @@ export const AuditLogScreen: React.FC<AuditLogScreenProps> = ({ onBack, currentL
                                         }
 
                                         return (
-                                          <div key={field} className="border-b border-slate-200/40 dark:border-slate-900/45 pb-2 last:border-0 text-left">
-                                            <span className="text-[9px] font-bold text-[#3b5998] dark:text-blue-400 font-mono block mb-1">
+                                          <div key={field} className="border-b border-slate-200/40 dark:border-slate-850 pb-2 last:border-0 text-left">
+                                            <span className="text-[9px] font-bold text-indigo-500 dark:text-indigo-400 font-mono block mb-1">
                                               {field}
                                             </span>
                                             
                                             <div className="grid grid-cols-2 gap-2 text-[9px] leading-tight">
                                               {sourceVal && (
                                                 <div className="bg-rose-50/50 dark:bg-rose-950/10 p-1.5 rounded border border-rose-100/30">
-                                                  <span className="text-[8px] uppercase tracking-wider font-extrabold text-rose-500 block mb-0.5">{t.from}</span>
+                                                  <span className="text-[8px] uppercase tracking-wider font-extrabold text-rose-505 block mb-0.5">{t.from}</span>
                                                   <span className="font-mono text-slate-500 dark:text-slate-400 break-all block">{sourceVal}</span>
                                                 </div>
                                               )}
-                                              <div className={`p-1.5 rounded border ${sourceVal ? 'bg-emerald-50/50 dark:bg-emerald-950/10 border-emerald-100/30' : 'col-span-2 bg-slate-100 dark:bg-slate-900 border-slate-200 dark:border-slate-800'}`}>
-                                                <span className={`text-[8px] uppercase tracking-wider font-extrabold block mb-0.5 ${sourceVal ? 'text-emerald-500' : 'text-slate-500'}`}>{sourceVal ? t.to : 'Current'}</span>
+                                              <div className={`p-1.5 rounded border ${sourceVal ? 'bg-emerald-50/50 dark:bg-emerald-950/10 border-emerald-100/30' : 'col-span-2 bg-slate-100 dark:bg-slate-900 border-slate-205 dark:border-slate-800'}`}>
+                                                <span className={`text-[8px] uppercase tracking-wider font-extrabold block mb-0.5 ${sourceVal ? 'text-emerald-500' : 'text-slate-505'}`}>{sourceVal ? t.to : 'Current'}</span>
                                                 <span className="font-mono text-slate-850 dark:text-slate-200 break-all block font-bold">{updatedVal}</span>
                                               </div>
                                             </div>
@@ -871,9 +888,9 @@ export const AuditLogScreen: React.FC<AuditLogScreenProps> = ({ onBack, currentL
             <button
               onClick={handleLoadMoreFromCloud}
               disabled={refreshing}
-              className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 text-[#3b5998] dark:text-blue-450 px-5 py-2.5 rounded-2xl text-xs font-black shadow-sm inline-flex items-center gap-1.5 cursor-pointer hover:shadow transition active:scale-95"
+              className="bg-white dark:bg-[#131B2E] border border-slate-200 dark:border-slate-800 hover:bg-slate-50 text-indigo-500 dark:text-indigo-400 px-5 py-2.5 rounded-2xl text-xs font-black shadow-sm inline-flex items-center gap-1.5 cursor-pointer hover:shadow transition active:scale-95"
             >
-              <Database size={13} className="text-emerald-500" />
+              <Database size={12} className="text-emerald-500" />
               {t.loadMore}
             </button>
           </div>
@@ -882,20 +899,20 @@ export const AuditLogScreen: React.FC<AuditLogScreenProps> = ({ onBack, currentL
       </div>
 
       {/* 4. PREMIUM COMPACT PAGINATION FOOTER */}
-      <footer className="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 p-3.5 flex items-center justify-between shrink-0 h-[60px] select-none shadow">
+      <footer className="bg-white dark:bg-[#131B2E] border-t border-slate-205 dark:border-slate-800 p-3.5 flex items-center justify-between shrink-0 h-[60px] select-none shadow animate-none">
         <button
           onClick={handlePrevPage}
           disabled={currentPage === 1 || loading}
-          className="bg-slate-100 dark:bg-slate-850 hover:bg-slate-200 disabled:opacity-40 text-slate-700 dark:text-slate-350 px-3.5 py-2 rounded-xl text-xs font-black transition flex items-center gap-1 cursor-pointer disabled:cursor-not-allowed border border-slate-200/20"
+          className="bg-slate-100 dark:bg-[#182239] hover:bg-slate-200 disabled:opacity-40 text-slate-700 dark:text-slate-350 px-3.5 py-2 rounded-xl text-xs font-black transition flex items-center gap-1 cursor-pointer disabled:cursor-not-allowed border border-slate-200/20"
         >
           <ChevronLeft size={15} />
           <span className="hidden md:inline">{isHi ? 'पिछला' : 'Prev'}</span>
         </button>
 
-        <span className="text-[11px] font-bold text-slate-550 dark:text-slate-400">
+        <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 font-sans">
           {t.page} <span className="font-black text-slate-900 dark:text-white font-mono">{currentPage}</span> / <span className="font-mono">{totalPages}</span> 
-          <span className="mx-2 text-slate-300 dark:text-slate-700">|</span> 
-          <span>Total: <b className="font-mono font-black text-[#3b5998] dark:text-blue-400">{totalRecords}</b> actions</span>
+          <span className="mx-2 text-slate-300 dark:text-slate-800">|</span> 
+          <span>Total: <b className="font-mono font-black text-indigo-500 dark:text-indigo-400">{totalRecords}</b> actions</span>
         </span>
 
         <button

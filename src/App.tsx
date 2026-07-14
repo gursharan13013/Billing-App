@@ -107,10 +107,15 @@ export const AppContent = () => {
     };
   }, [currentUser?.businessId]);
 
-  const [showSplash, setShowSplash] = useState(false);
+  const [showSplash, setShowSplash] = useState(() => {
+    return safeSessionStorage.getItem('hasShownSplash') !== 'true';
+  });
   const [showFYSelection, setShowFYSelection] = useState(false);
   const [isLocked, setIsLocked] = useState(false);
-  const [navState, setNavState] = useState<NavigationState>({ screen: 'language' });
+  const [navState, setNavState] = useState<NavigationState>(() => {
+    const isAppInitialized = safeLocalStorage.getItem('app_initialized') === 'true';
+    return isAppInitialized ? { screen: 'dashboard' } : { screen: 'language' };
+  });
   const [history, setHistory] = useState<NavigationState[]>(() => {
       try {
           const saved = safeSessionStorage.getItem('history');

@@ -3,8 +3,8 @@ import { motion, AnimatePresence } from 'motion/react';
 import { 
   ArrowLeft, Upload, Download, CloudUpload, CloudDownload, 
   Key, User, SlidersHorizontal, FileText, ArrowDownCircle,
-  Globe, Sun, Moon, Check, Hash, Database, Loader2, AlertTriangle, ShieldCheck, RefreshCcw, Bot, ScanBarcode, HelpCircle, Trash2,
-  ChevronDown, ChevronUp, HardDrive, Info, ExternalLink, Sparkles, Cloud, Laptop, Activity, Lock, Users, ShieldAlert, Crown
+  Globe, Sun, Moon, Check, X, Hash, Database, Loader2, AlertTriangle, ShieldCheck, RefreshCcw, Bot, ScanBarcode, HelpCircle, Trash2,
+  ChevronDown, ChevronUp, HardDrive, Info, ExternalLink, Sparkles, Cloud, Laptop, Activity, Lock, Users, ShieldAlert, Crown, Heart
 } from 'lucide-react';
 import { StaffManagement } from './StaffManagement';
 import { Language, VoucherSettings, APP_VERSION, BUILD_DATE, AppSettings } from '../../../core/types/';
@@ -47,6 +47,34 @@ const SettingsCard: React.FC<SettingsCardProps> = ({ title, hindiTitle, descript
         {children}
       </div>
     </div>
+  );
+};
+
+
+const ToggleSwitch: React.FC<{
+  checked: boolean;
+  onChange: () => void;
+  color?: string;
+  disabled?: boolean;
+}> = ({ checked, onChange, color = 'bg-indigo-600 dark:bg-indigo-500', disabled = false }) => {
+  return (
+    <button
+      onClick={(e) => {
+        e.stopPropagation();
+        if (!disabled) onChange();
+      }}
+      type="button"
+      disabled={disabled}
+      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 focus:outline-none ${
+        checked ? color : 'bg-slate-200 dark:bg-slate-700'
+      } ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+    >
+      <span
+        className={`${
+          checked ? 'translate-x-6' : 'translate-x-1'
+        } inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200 shadow-sm`}
+      />
+    </button>
   );
 };
 
@@ -111,7 +139,11 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
   }, []);
 
   const [activeView, setActiveView] = useState<'main' | 'preferences' | 'preferences2' | 'general_settings' | 'sale_bill_settings' | 'item_settings' | 'purchase_bill_settings' | 'purchase_return_settings' | 'sale_return_settings' | 'ledger_settings' | 'transportation_settings' | 'invoice_numbering' | 'password_settings' | 'ceo_control' | 'time_machine' | 'system_health' | 'master_health' | 'staff_members' | 'audit_logs'>('main');
-  const [selectedCategoryTab, setSelectedCategoryTab] = useState<'business_identity' | 'security_access' | 'data_cloud' | 'app_preferences' | 'admin_panel' | 'diagnostics' | 'premium_license'>('business_identity');
+  const [selectedCategoryTab, setSelectedCategoryTab] = useState<'business_identity' | 'security_access' | 'data_cloud' | 'app_preferences' | 'diagnostics' | 'premium_license'>('business_identity');
+  const [showDashboardQR, setShowDashboardQR] = useState(() => localStorage.getItem('showDashboardQR') !== 'false');
+  const [showSmartAssistant, setShowSmartAssistant] = useState(() => localStorage.getItem('showSmartAssistant') !== 'false');
+  const [showBarcodeScanner, setShowBarcodeScanner] = useState(() => localStorage.getItem('showBarcodeScanner') !== 'false');
+  const [ledgerSearchQuery, setLedgerSearchQuery] = useState('');
   const [isAdminUnlocked, setIsAdminUnlocked] = useState<boolean>(false);
   const [auditLogUserFilter, setAuditLogUserFilter] = useState<string>('all');
   const [pendingAdminView, setPendingAdminView] = useState<'staff_members' | 'audit_logs'>('staff_members');
@@ -448,6 +480,13 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
   useEffect(() => {
     billingService.getAppSettings().then(setAppSettings);
     CloudGatewayManager.checkPremiumStatus().then(setIsPremiumLicensed);
+    billingService.getSaleSettings().then(setSaleSettings);
+    billingService.getItemSettings().then(setItemSettings);
+    billingService.getPurchaseBillSettings().then(setPurchaseBillSettings);
+    billingService.getPurchaseReturnSettings().then(setPurchaseReturnSettings);
+    billingService.getSaleReturnSettings().then(setSaleReturnSettings);
+    billingService.getTransportationSettings().then(setTransportationSettings);
+    billingService.getLedgersList().then(setLedgersList);
   }, []);
 
   const handleUpgradeToPremium = async () => {
@@ -1056,51 +1095,81 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
   // INVOICE NUMBERING SUB-SCREEN
   if (activeView === 'invoice_numbering') {
       return (
-        <div className="flex flex-col h-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white pb-[max(env(safe-area-inset-bottom),0px)]">
-            <header className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-4 flex items-center justify-between shadow-sm border-b border-slate-100 dark:border-slate-800 shrink-0 pt-[max(env(safe-area-inset-top),48px)]">
-                <div className="flex items-center gap-3">
-                    <button onClick={() => setActiveView('preferences')} className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg transition">
-                        <ArrowLeft size={22} />
-                    </button>
-                    <h1 className="text-lg font-bold truncate text-[#3b5998] dark:text-indigo-400 font-sans tracking-tight leading-none">
-                        {currentLanguage === 'hi' ? 'इन्वॉइस नंबरिंग' : 'Invoice Numbering'}
-                    </h1>
-                </div>
-                <button onClick={saveVoucherSettings} className="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg text-xs font-extrabold transition">
-                    {currentLanguage === 'hi' ? 'सहेजें' : 'Save'}
-                </button>
-            </header>
-
-            <div className="p-4 space-y-4 overflow-y-auto flex-1">
-                {voucherSettings.map((setting, index) => (
-                    <div key={setting.type} className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 p-4">
-                        <h3 className="font-extrabold text-slate-800 dark:text-white mb-3 text-sm border-b border-slate-100 dark:border-slate-800 pb-2 flex items-center gap-2">
-                            <span className="w-1.5 h-3.5 bg-indigo-500 rounded-full"></span>
-                            {setting.type}
-                        </h3>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1 tracking-wider font-mono">{currentLanguage === 'hi' ? 'प्रीफिक्स' : 'Prefix'}</label>
-                                <input 
-                                    type="text" 
-                                    value={setting.prefix} 
-                                    onChange={e => handleVoucherSettingChange(index, 'prefix', e.target.value)}
-                                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-2.5 text-xs font-semibold focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/15 outline-none uppercase font-sans text-slate-900 dark:text-white"
-                                    placeholder="e.g. S"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1 tracking-wider font-mono">{currentLanguage === 'hi' ? 'प्रारंभ संख्या' : 'Start From'}</label>
-                                <input 
-                                    type="number" value={setting.currentSequence} 
-                                    onChange={e => handleVoucherSettingChange(index, 'currentSequence', parseInt(e.target.value) || 0)}
-                                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-2.5 text-xs font-semibold focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/15 outline-none font-sans text-slate-900 dark:text-white"
-                                />
-                                <p className="text-[10px] text-slate-400 mt-1 font-mono font-medium">{currentLanguage === 'hi' ? 'अगला: ' : 'Next: '}{setting.currentSequence + 1}</p>
-                            </div>
+        <div className="flex flex-col h-full bg-slate-50 dark:bg-[#090D16] text-slate-900 dark:text-white pb-[max(env(safe-area-inset-bottom),0px)]">
+            <header className="bg-white/80 dark:bg-[#131B2E]/80 backdrop-blur-md border-b border-slate-200/60 dark:border-slate-800/80 text-slate-900 dark:text-white p-4 shadow-sm shrink-0 pt-[max(env(safe-area-inset-top),48px)]">
+                <div className="max-w-md mx-auto w-full flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                        <button 
+                            onClick={() => setActiveView('preferences')} 
+                            className="p-2 bg-slate-100 dark:bg-[#182239] text-slate-600 dark:text-slate-300 hover:text-indigo-650 dark:hover:text-indigo-400 hover:bg-slate-200 dark:hover:bg-slate-850 rounded-xl transition active:scale-95 cursor-pointer touch-manipulation border border-slate-200/50 dark:border-slate-800"
+                        >
+                            <ArrowLeft size={18} />
+                        </button>
+                        <div className="text-left">
+                            <h1 className="text-sm font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-1.5 font-sans">
+                                <Hash size={16} className="text-indigo-500" />
+                                {currentLanguage === 'hi' ? 'इन्वॉइस नंबरिंग' : 'Invoice Numbering'}
+                            </h1>
+                            <p className="text-[9px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider font-mono mt-0.5 leading-none">
+                                {currentLanguage === 'hi' ? 'सीक्वेंस और प्रीफिक्स सेटअप' : 'Sequence & Prefix Setup'}
+                            </p>
                         </div>
                     </div>
-                ))}
+                    <button 
+                        onClick={saveVoucherSettings} 
+                        className="bg-indigo-600 hover:bg-indigo-500 hover:shadow-lg hover:shadow-indigo-600/10 text-white px-4 py-2 rounded-xl text-xs font-black transition active:scale-95 cursor-pointer border border-indigo-400/30"
+                    >
+                        {currentLanguage === 'hi' ? 'सहेजें' : 'Save'}
+                    </button>
+                </div>
+            </header>
+
+            <div className="p-4 overflow-y-auto flex-1 custom-scrollbar">
+                <div className="max-w-md mx-auto w-full space-y-4">
+                    {voucherSettings.map((setting, index) => (
+                        <div key={setting.type} className="bg-white dark:bg-[#131B2E] rounded-3xl border border-slate-200/60 dark:border-slate-800/80 p-5 shadow-sm space-y-4 hover:border-indigo-500/20 dark:hover:border-indigo-500/20 transition-all duration-200">
+                            <h3 className="font-extrabold text-slate-800 dark:text-white mb-3 text-xs border-b border-slate-100/80 dark:border-slate-850 pb-2.5 flex items-center justify-between uppercase tracking-wider font-mono select-none">
+                                <span className="flex items-center gap-2">
+                                    <span className="h-2 w-2 rounded-full bg-indigo-500 animate-pulse" />
+                                    {setting.type}
+                                </span>
+                                <span className="text-[9px] bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 px-2 py-0.5 rounded font-black tracking-wider uppercase">
+                                    {currentLanguage === 'hi' ? 'सीक्वेंस सेटअप' : 'SEQUENCE SETUP'}
+                                </span>
+                            </h3>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-[9px] font-black text-slate-450 dark:text-slate-500 uppercase mb-1.5 tracking-widest font-mono">{currentLanguage === 'hi' ? 'प्रीफिक्स' : 'Prefix'}</label>
+                                    <input 
+                                        type="text" 
+                                        value={setting.prefix} 
+                                        onChange={e => handleVoucherSettingChange(index, 'prefix', e.target.value)}
+                                        className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 rounded-2xl p-3 text-xs font-bold focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/10 outline-none uppercase font-sans text-slate-900 dark:text-white transition-all shadow-sm"
+                                        placeholder="e.g. S"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-[9px] font-black text-slate-450 dark:text-slate-500 uppercase mb-1.5 tracking-widest font-mono">{currentLanguage === 'hi' ? 'प्रारंभ संख्या' : 'Start From'}</label>
+                                    <input 
+                                        type="number" 
+                                        value={setting.currentSequence} 
+                                        onChange={e => handleVoucherSettingChange(index, 'currentSequence', parseInt(e.target.value) || 0)}
+                                        className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 rounded-2xl p-3 text-xs font-bold focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/10 outline-none font-sans text-slate-900 dark:text-white transition-all shadow-sm"
+                                    />
+                                </div>
+                            </div>
+                            <div className="text-[10px] text-emerald-600 dark:text-emerald-450 font-mono font-black flex items-center gap-1.5 bg-emerald-50 dark:bg-emerald-950/20 px-3 py-1.5 rounded-xl w-max border border-emerald-100/50 dark:border-emerald-900/20 select-none">
+                                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-ping" />
+                                <span>
+                                    {currentLanguage === 'hi' ? 'अगला नंबर (Next code): ' : 'Next Preview: '}
+                                    <b className="tracking-wide font-black uppercase text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-900 px-1.5 py-0.5 rounded font-mono ml-0.5">
+                                        {setting.prefix || ''}{setting.currentSequence + 1}
+                                    </b>
+                                </span>
+                            </div>
+                        </div>
+                    ))}
+                </div>
             </div>
         </div>
       );
@@ -1108,312 +1177,248 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
 
   // PREFERENCES SUB-SCREEN
   if (activeView === 'preferences') {
+    const MenuItem = ({ 
+      title, 
+      subtitle, 
+      icon: IconComponent, 
+      onClick, 
+      badge, 
+      rightElement 
+    }: { 
+      title: string; 
+      subtitle: string; 
+      icon: React.ComponentType<any>; 
+      onClick?: () => void; 
+      badge?: string; 
+      rightElement?: React.ReactNode; 
+    }) => (
+      <div 
+        onClick={onClick} 
+        className={`p-4 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl flex items-center justify-between cursor-pointer hover:shadow-md hover:border-indigo-100 dark:hover:border-slate-700 transition duration-200 gap-3 min-w-0 ${onClick ? 'active:scale-[0.99]' : ''}`}
+      >
+        <div className="flex items-center gap-3.5 flex-1 min-w-0">
+          <div className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-slate-800 flex items-center justify-center shrink-0 text-indigo-600 dark:text-indigo-400">
+            <IconComponent size={20} />
+          </div>
+          <div className="flex-1 min-w-0 text-left">
+            <div className="flex items-center gap-2">
+              <h3 className="text-sm sm:text-base font-bold text-slate-800 dark:text-white truncate">{title}</h3>
+              {badge && (
+                <span className="px-1.5 py-0.5 text-[10px] font-extrabold uppercase bg-amber-500 text-slate-950 rounded-md">
+                  {badge}
+                </span>
+              )}
+            </div>
+            <p className="text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5">{subtitle}</p>
+          </div>
+        </div>
+        {rightElement ? (
+          <div onClick={(e) => e.stopPropagation()}>{rightElement}</div>
+        ) : (
+          onClick && <ArrowLeft size={16} className="rotate-180 text-slate-400 dark:text-slate-500 shrink-0" />
+        )}
+      </div>
+    );
+
     return (
-      <div className="flex flex-col h-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white pb-[max(env(safe-area-inset-bottom),0px)] animate-fadeIn">
-        <header className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-4 flex items-center gap-3 shadow-sm border-b border-slate-100 dark:border-slate-800 shrink-0 pt-[max(env(safe-area-inset-top),48px)] sticky top-0 z-40">
-          <button onClick={() => onBack()} className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg transition">
-            <ArrowLeft size={22} />
-          </button>
-          <h1 className="text-lg font-bold truncate text-[#3b5998] dark:text-indigo-400 font-sans tracking-tight leading-none animate-fadeIn">
-            {currentLanguage === 'hi' ? 'प्राथमिकताएं' : 'Preferences'}
-          </h1>
+      <>
+        <motion.div 
+        initial={{ opacity: 0, y: 15 }} 
+        animate={{ opacity: 1, y: 0 }} 
+        transition={{ duration: 0.2 }}
+        className="flex flex-col h-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white pb-[max(env(safe-area-inset-bottom),0px)]"
+      >
+        <header className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-4 flex items-center gap-3 shadow-sm border-b border-slate-100 dark:border-slate-800 sticky top-0 z-40 pt-[max(env(safe-area-inset-top),48px)]">
+          <button onClick={() => onBack()} className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-700 dark:text-slate-300 transition"><ArrowLeft size={22} /></button>
+          <div className="flex flex-col">
+            <h1 className="text-lg font-bold text-indigo-600 dark:text-indigo-400 font-sans tracking-tight leading-none truncate">{currentLanguage === 'hi' ? 'प्राथमिकताएं' : 'Dashboard & General'}</h1>
+            <p className="text-[10px] text-slate-400 select-none uppercase font-sans tracking-wider font-extrabold mt-0.5">{currentLanguage === 'hi' ? 'प्राथमिकताएं (क्रम-1)' : 'Preferences (Set-1)'}</p>
+          </div>
         </header>
 
-        <div className="p-4 space-y-4 flex-1 overflow-y-auto">
-             {/* Unified Refactoring Design System Sandbox */}
-             <button 
-               onClick={() => onNavigate('masterLayoutShell')}
-               className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200/80 dark:border-slate-800 p-5 flex items-center justify-between w-full hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all duration-200 active:scale-98 text-left"
-             >
-                 <div className="flex items-center gap-3.5 flex-1 min-w-0">
-                     <div className="bg-amber-100 dark:bg-amber-950/45 p-2.5 rounded-xl text-amber-600 dark:text-amber-400 shrink-0">
-                         <Sparkles size={22} className="animate-pulse" />
-                     </div>
-                     <div className="flex-1 min-w-0">
-                         <h3 className="font-bold text-slate-800 dark:text-white text-sm sm:text-base">
-                             {currentLanguage === 'hi' ? 'यूनीफाइड थीम सैंडबॉक्स' : 'Unified Theme Sandbox'}
-                         </h3>
-                         <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-normal font-sans">
-                             {currentLanguage === 'hi' ? 'ऑनबोर्डिंग, लॉकस्क्रीन, पीओएस और सेटिंग्स का सैंडबॉक्स' : 'Interactive console for Onboarding, Lock Screen, POS & Settings views'}
-                         </p>
-                     </div>
-                 </div>
-                 <ExternalLink size={18} className="text-slate-400 dark:text-slate-500 shrink-0" />
-             </button>
+        <div className="flex-1 overflow-y-auto bg-slate-50 dark:bg-slate-950 p-4 space-y-6">
+          <div className="max-w-4xl mx-auto space-y-6">
 
-             {/* QR Visibility Toggle */}
-             <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200/80 dark:border-slate-800 p-4 flex items-center justify-between w-full hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors gap-3">
-                 <div className="flex items-center gap-3 flex-1 min-w-0">
-                     <div className="bg-green-50 dark:bg-green-950/40 p-2.5 rounded-xl text-green-600 dark:text-green-400 shrink-0">
-                         <SlidersHorizontal size={22} />
-                     </div>
-                     <div className="flex-1 min-w-0 text-left">
-                         <h3 className="font-bold text-slate-800 dark:text-white truncate text-sm sm:text-base">{currentLanguage === 'hi' ? 'होम QR कोड' : 'Home QR Code'}</h3>
-                         <p className="text-xs text-slate-500 dark:text-slate-400 break-words">{currentLanguage === 'hi' ? 'डैशबोर्ड पर मर्चेंट UPI QR कोड दिखाएं' : 'Show quick UPI QR on landing dashboard'}</p>
-                     </div>
-                 </div>
-                 <label className="relative inline-flex items-center cursor-pointer shrink-0">
-                    <input 
-                      type="checkbox" 
-                      className="sr-only peer" 
-                      checked={localStorage.getItem('showDashboardQR') !== 'false'}
-                      onChange={(e) => {
-                          localStorage.setItem('showDashboardQR', e.target.checked.toString());
-                          window.dispatchEvent(new Event('storage'));
-                          setActiveView('main');
-                          setTimeout(() => setActiveView('preferences'), 10);
-                      }}
-                    />
-                    <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-800 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-slate-700 peer-checked:bg-indigo-600 dark:peer-checked:bg-indigo-500"></div>
-                 </label>
-             </div>
+            {/* Category 1: General & Invoicing Tools */}
+            <div className="space-y-3">
+              <h2 className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider pl-1">
+                {currentLanguage === 'hi' ? 'सामान्य और इनवॉइस टूल्स' : 'General & Invoicing Tools'}
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <MenuItem 
+                  title={currentLanguage === 'hi' ? 'यूनीफाइड थीम सैंडबॉक्स' : 'Unified Theme Sandbox'}
+                  subtitle={currentLanguage === 'hi' ? 'ऑनबोर्डिंग, लॉकस्क्रीन, पीओएस और सेटिंग्स का सैंडबॉक्स' : 'Interactive console for Onboarding, Lock Screen, POS & Settings views'}
+                  icon={Sparkles}
+                  badge="👑 PRO"
+                  onClick={() => onNavigate('masterLayoutShell')}
+                />
+                <MenuItem 
+                  title={currentLanguage === 'hi' ? 'इन्वेंटरी नंबरिंग' : 'Invoice Numbering'}
+                  subtitle={currentLanguage === 'hi' ? 'प्रीफिक्स और वाउचर संख्या क्रम सेट करें' : 'Set prefixes and starting numbers'}
+                  icon={Hash}
+                  onClick={() => setActiveView('invoice_numbering')}
+                />
+                {authContext.currentUser?.role === 'admin' && (
+                  <MenuItem 
+                    title={currentLanguage === 'hi' ? 'डेमो डेटा लोड करें' : 'Load Demo Data'}
+                    subtitle={currentLanguage === 'hi' ? 'डेयरी मिल्क व्यावसायिक डेटाबेस लोड करें' : 'Dairy Milk Business Scenario'}
+                    icon={Database}
+                    onClick={handleSeedClick}
+                  />
+                )}
+              </div>
+            </div>
 
-             {/* Smart Assistant Visibility Toggle */}
-             <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200/80 dark:border-slate-800 p-4 flex items-center justify-between w-full hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors gap-3">
-                 <div className="flex items-center gap-3 flex-1 min-w-0">
-                     <div className="bg-indigo-50 dark:bg-indigo-950/40 p-2.5 rounded-xl text-indigo-600 dark:text-indigo-400 shrink-0">
-                         <Bot size={22} />
-                     </div>
-                     <div className="flex-1 min-w-0 text-left">
-                         <h3 className="font-bold text-slate-800 dark:text-white truncate text-sm sm:text-base">{currentLanguage === 'hi' ? 'स्मार्ट असिस्टेंट' : 'Smart Assistant'}</h3>
-                         <p className="text-xs text-slate-500 dark:text-slate-400 break-words">{currentLanguage === 'hi' ? 'फ्लोटिंग एआई असिस्टेंट विजेट दिखाएं' : 'Show floating Gemini AI assistant widget'}</p>
-                     </div>
-                 </div>
-                 <label className="relative inline-flex items-center cursor-pointer shrink-0">
-                    <input 
-                      type="checkbox" 
-                      className="sr-only peer" 
-                      checked={localStorage.getItem('showSmartAssistant') !== 'false'}
-                      onChange={(e) => {
-                          localStorage.setItem('showSmartAssistant', e.target.checked.toString());
-                          window.dispatchEvent(new Event('storage'));
-                          setActiveView('main');
-                          setTimeout(() => setActiveView('preferences'), 10);
-                      }}
-                    />
-                    <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-800 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-slate-700 peer-checked:bg-indigo-600 dark:peer-checked:bg-indigo-500"></div>
-                 </label>
-             </div>
-
-             {/* Barcode Scanner Settings */}
-             <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200/80 dark:border-slate-800 p-4 flex items-center justify-between w-full hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors gap-3">
-                 <div className="flex items-center gap-3 flex-1 min-w-0">
-                     <div className="bg-orange-50 dark:bg-orange-950/40 p-2.5 rounded-xl text-orange-600 dark:text-orange-400 shrink-0">
-                         <ScanBarcode size={22} />
-                     </div>
-                     <div className="flex-1 min-w-0 text-left">
-                         <h3 className="font-bold text-slate-800 dark:text-white truncate text-sm sm:text-base">{currentLanguage === 'hi' ? 'बारकोड स्कैनर' : 'Barcode Scanner'}</h3>
-                         <p className="text-xs text-slate-500 dark:text-slate-400 break-words">{currentLanguage === 'hi' ? 'कैमरा स्कैनर फीचर्स सक्षम करें' : 'Enable device camera for scans inputs'}</p>
-                     </div>
-                 </div>
-                 <label className="relative inline-flex items-center cursor-pointer shrink-0">
-                    <input 
-                      type="checkbox" 
-                      className="sr-only peer" 
-                      checked={localStorage.getItem('showBarcodeScanner') !== 'false'}
-                      onChange={(e) => {
-                          localStorage.setItem('showBarcodeScanner', e.target.checked.toString());
-                          window.dispatchEvent(new Event('storage'));
-                          setActiveView('main');
-                          setTimeout(() => setActiveView('preferences'), 10);
-                      }}
-                    />
-                    <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-800 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-slate-700 peer-checked:bg-indigo-600 dark:peer-checked:bg-indigo-500"></div>
-                 </label>
-             </div>
-
-             {/* Invoice Numbering Link */}
-             <button 
-                onClick={() => setActiveView('invoice_numbering')}
-                className="w-full bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200/80 dark:border-slate-800 p-4 flex items-center gap-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
-                id="pref_invoice_numbering_btn"
-             >
-                 <div className="bg-indigo-50 dark:bg-indigo-950/40 p-2.5 rounded-xl text-indigo-600 dark:text-indigo-400 shrink-0">
-                     <Hash size={22} />
-                 </div>
-                 <div className="flex-1 min-w-0 text-left">
-                     <h3 className="font-bold text-slate-800 dark:text-white truncate text-sm sm:text-base">{currentLanguage === 'hi' ? 'इन्वॉइस नंबरिंग' : 'Invoice Numbering'}</h3>
-                     <p className="text-xs text-slate-500 dark:text-slate-400 break-words">{currentLanguage === 'hi' ? 'प्रीफिक्स और वाउचर संख्या क्रम सेट करें' : 'Set prefixes and starting numbers'}</p>
-                 </div>
-                 <ArrowLeft size={18} className="rotate-180 text-slate-400 shrink-0" />
-             </button>
-
-             {/* Demo Data Link */}
-             {authContext.currentUser?.role === 'admin' && (
-                <button 
-                  onClick={handleSeedClick}
-                  className="w-full bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200/80 dark:border-slate-800 p-4 flex items-center gap-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group"
-                  id="pref_load_demo_btn"
-                >
-                    <div className="bg-purple-50 dark:bg-purple-950/40 p-2.5 rounded-xl text-purple-600 dark:text-purple-400 shrink-0 group-hover:bg-purple-100 dark:group-hover:bg-purple-900 transition-colors">
-                        <Database size={22} />
+            {/* Category 3: Language & Appearance */}
+            <div className="space-y-3 text-left">
+              <h2 className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider pl-1">
+                {currentLanguage === 'hi' ? 'भाषा और स्वरूप' : 'Language & Appearance'}
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Language Card */}
+                <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden flex flex-col">
+                  <div className="p-3.5 border-b border-slate-100 dark:border-slate-850 bg-slate-50/50 dark:bg-slate-800/40 flex items-center gap-2">
+                    <Globe size={16} className="text-indigo-600 dark:text-indigo-400" />
+                    <span className="text-xs font-extrabold uppercase text-slate-500 tracking-wider font-sans">
+                      {currentLanguage === 'hi' ? 'ऐप की भाषा' : 'App Language'}
+                    </span>
+                  </div>
+                  <button 
+                    onClick={() => onLanguageChange('en')} 
+                    className="w-full flex justify-between items-center p-3.5 hover:bg-indigo-50/30 dark:hover:bg-slate-800/30 transition border-b border-slate-100 dark:border-slate-800 cursor-pointer text-left"
+                  >
+                    <div className="flex flex-col">
+                      <span className="text-sm font-bold text-slate-800 dark:text-slate-200">English</span>
+                      <span className="text-[10px] text-slate-400">Default Locale</span>
                     </div>
-                    <div className="flex-1 text-left min-w-0">
-                        <h3 className="font-bold text-slate-800 dark:text-white text-sm sm:text-base truncate">
-                            {currentLanguage === 'hi' ? 'डेमो डेटा लोड करें' : 'Load Demo Data'}
-                        </h3>
-                        <p className="text-xs text-slate-500 dark:text-slate-400 break-words">
-                            {currentLanguage === 'hi' ? 'डेयरी मिल्क व्यावसायिक डेटाबेस लोड करें' : 'Dairy Milk Business Scenario'}
-                        </p>
+                    {currentLanguage === 'en' && <Check size={18} className="text-indigo-600 dark:text-indigo-400" />}
+                  </button>
+                  <button 
+                    onClick={() => onLanguageChange('hi')} 
+                    className="w-full flex justify-between items-center p-3.5 hover:bg-indigo-50/30 dark:hover:bg-slate-800/30 transition cursor-pointer text-left"
+                  >
+                    <div className="flex flex-col">
+                      <span className="text-sm font-bold text-slate-800 dark:text-slate-200">हिंदी</span>
+                      <span className="text-[10px] text-slate-400">Hindi Locale</span>
                     </div>
-                    <ArrowLeft size={18} className="rotate-180 text-slate-400 shrink-0" />
-                </button>
-             )}
+                    {currentLanguage === 'hi' && <Check size={18} className="text-indigo-600 dark:text-indigo-400" />}
+                  </button>
+                </div>
 
-             {/* CEO Control Section */}
-             {authContext.currentUser?.role === 'admin' && (
-               <button 
-                 onClick={() => setActiveView('ceo_control')}
-                 className="w-full bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-indigo-100 dark:border-indigo-950/35 p-4 flex items-center gap-4 hover:bg-indigo-50/20 dark:hover:bg-indigo-950/15 transition-colors group text-indigo-600 dark:text-indigo-400"
-                 id="p_ceo_control_btn"
-               >
-                   <div className="bg-indigo-50 dark:bg-indigo-950/40 p-2.5 rounded-xl text-indigo-600 dark:text-indigo-400 group-hover:bg-indigo-100 dark:group-hover:bg-indigo-900 transition-colors shrink-0">
-                       <SlidersHorizontal size={22} />
-                   </div>
-                   <div className="flex-1 text-left min-w-0">
-                       <h3 className="font-bold text-sm sm:text-base truncate text-slate-800 dark:text-white">
-                           {currentLanguage === 'hi' ? 'सीईओ नियंत्रण पैनल' : 'CEO Control'}
-                       </h3>
-                       <p className="text-xs text-slate-500 dark:text-slate-400 break-words font-sans">
-                           {currentLanguage === 'hi' ? 'ऑनलाइन फीचर्स और डेटा प्राइवेसी प्रबंधित करें' : 'Manage Online Features & Privacy'}
-                       </p>
-                   </div>
-                   <ArrowLeft size={18} className="rotate-180 text-[#3b5998] dark:text-indigo-400 shrink-0" />
-               </button>
-             )}
+                {/* Theme Card */}
+                <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden flex flex-col">
+                  <div className="p-3.5 border-b border-slate-100 dark:border-slate-850 bg-slate-50/50 dark:bg-slate-800/40 flex items-center gap-2">
+                    {currentTheme === 'light' ? <Sun size={16} className="text-orange-500"/> : currentTheme === 'dark' ? <Moon size={16} className="text-blue-500"/> : <Laptop size={16} className="text-indigo-500"/>}
+                    <span className="text-xs font-extrabold uppercase text-slate-500 tracking-wider font-sans">
+                      {currentLanguage === 'hi' ? 'ऐप थीम' : 'App Theme'}
+                    </span>
+                  </div>
+                  <div className="flex flex-col divide-y divide-slate-100 dark:divide-slate-800">
+                    {[
+                      { key: 'system', label: currentLanguage === 'hi' ? 'सिस्टम डिफ़ॉल्ट' : 'System Default', desc: currentLanguage === 'hi' ? 'डिवाइस सेटिंग्स के अनुकूल' : 'Match device dark mode setting' },
+                      { key: 'light', label: currentLanguage === 'hi' ? 'लाइट मोड' : 'Light Mode', desc: currentLanguage === 'hi' ? 'साफ और चमकीला स्वरूप' : 'Bright and high contrast layout' },
+                      { key: 'dark', label: currentLanguage === 'hi' ? 'डार्क मोड' : 'Dark Mode', desc: currentLanguage === 'hi' ? 'आंको के लिए आसान' : 'Midnight battery-saver layout' }
+                    ].map((t) => (
+                      <button 
+                        key={t.key}
+                        onClick={() => onThemeChange(t.key as any)} 
+                        className="w-full flex justify-between items-center p-3 hover:bg-indigo-50/30 dark:hover:bg-slate-800/30 transition text-left cursor-pointer"
+                      >
+                        <div className="flex flex-col">
+                          <span className="text-xs font-bold text-slate-800 dark:text-slate-200">{t.label}</span>
+                          <span className="text-[9px] text-slate-400 leading-none mt-0.5">{t.desc}</span>
+                        </div>
+                        {currentTheme === t.key && <Check size={16} className="text-indigo-600 dark:text-indigo-400" />}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
 
-             {/* Quick App Restart & Reload Action Panel */}
-             <div className="w-full bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800/80 rounded-xl p-4 space-y-3.5">
-                 <div className="flex items-center gap-3 border-b border-slate-100 dark:border-slate-800 pb-2">
-                     <RefreshCcw size={20} className="text-indigo-600 dark:text-indigo-400 animate-spin" style={{ animationDuration: '8s' }} />
-                     <div className="min-w-0 flex-1">
-                         <h3 className="font-bold text-slate-800 dark:text-white text-xs sm:text-sm truncate">
-                             {currentLanguage === 'hi' ? 'त्वरित ऐप नियंत्रण' : 'Quick App Control'}
-                         </h3>
-                         <p className="text-[11px] text-slate-500 dark:text-slate-400 break-words">
-                             {currentLanguage === 'hi' ? 'त्वरित ऐप रीलोड और नया सेटअप' : 'Easy reload and setup reset controls'}
-                         </p>
-                     </div>
-                 </div>
+            {/* Category 4: System Control & Recovery */}
+            <div className="space-y-3 text-left">
+              <h2 className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider pl-1">
+                {currentLanguage === 'hi' ? 'सिस्टम नियंत्रण और पुनर्प्राप्ति' : 'System Control & Recovery'}
+              </h2>
+              
+              <div className="bg-slate-50 dark:bg-slate-900/40 rounded-2xl border border-slate-200 dark:border-slate-800/80 p-4 space-y-4 shadow-sm">
+                <div className="flex items-center gap-3 border-b border-slate-100 dark:border-slate-800 pb-3">
+                  <RefreshCcw size={18} className="text-indigo-600 dark:text-indigo-400 animate-spin" style={{ animationDuration: '8s' }} />
+                  <div className="min-w-0 flex-1">
+                    <h3 className="font-extrabold text-slate-800 dark:text-white text-xs uppercase tracking-wider">
+                      {currentLanguage === 'hi' ? 'त्वरित ऐप नियंत्रण' : 'Quick App Control'}
+                    </h3>
+                    <p className="text-[10px] text-slate-400 dark:text-slate-500 leading-normal font-sans">
+                      {currentLanguage === 'hi' ? 'त्वरित ऐप रीलोड और नया सेटअप' : 'Easy reload and setup reset controls'}
+                    </p>
+                  </div>
+                </div>
 
-                 <div className="grid grid-cols-2 gap-2.5">
-                     <button
-                         onClick={() => {
-                             window.location.reload();
-                         }}
-                         className="p-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800/75 rounded-xl flex flex-col items-center justify-center text-center gap-1 hover:border-indigo-400 dark:hover:border-indigo-505 transition-all active:scale-[0.98] group"
-                         id="quick_soft_reload_btn"
-                     >
-                         <RefreshCcw size={18} className="text-indigo-500 group-hover:rotate-180 transition-transform duration-500" />
-                         <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
-                             {currentLanguage === 'hi' ? 'सॉफ्ट रीलोड' : 'Soft Reload'}
-                         </span>
-                         <span className="text-[9px] text-slate-500 select-none">
-                             {currentLanguage === 'hi' ? 'तुरंत रीलोड करें  🔄' : 'Quick Reload 🔄'}
-                         </span>
-                     </button>
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    onClick={() => window.location.reload()}
+                    className="p-3 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-xl flex flex-col items-center justify-center text-center gap-1 hover:border-indigo-400 transition-all duration-200 active:scale-95 group cursor-pointer shadow-sm"
+                  >
+                    <RefreshCcw size={18} className="text-indigo-500 group-hover:rotate-180 transition-transform duration-500" />
+                    <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
+                      {currentLanguage === 'hi' ? 'सॉफ्ट रीलोड' : 'Soft Reload'}
+                    </span>
+                    <span className="text-[9px] text-slate-400">
+                      {currentLanguage === 'hi' ? 'त्वरित रीफ्रेश 🔄' : 'Quick Refresh 🔄'}
+                    </span>
+                  </button>
 
-                     <button
-                         onClick={() => {
-                             const confirmMsg = currentLanguage === 'hi' 
-                                 ? "Kya aap onboarding setup shuru se dubara chalana chahte hain? Aapka historic ledger safe rahega." 
-                                 : "Do you want to re-run the onboarding? Your existing accounts ledger will remain safe.";
-                             if (confirm(confirmMsg)) {
-                                 localStorage.removeItem('onboardingCompleted');
-                                 localStorage.removeItem('companyProfileSetup');
-                                 sessionStorage.removeItem('hasShownSplash');
-                                 window.location.reload();
-                             }
-                         }}
-                         className="p-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800/75 rounded-xl flex flex-col items-center justify-center text-center gap-1 hover:border-amber-500 dark:hover:border-amber-500 transition-all active:scale-[0.98] group"
-                         id="quick_redo_setup_btn"
-                     >
-                         <ShieldCheck size={18} className="text-amber-500 group-hover:scale-110 transition-transform" />
-                         <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
-                             {currentLanguage === 'hi' ? 'सेट अप दोहराएं' : 'Redo Setup'}
-                         </span>
-                         <span className="text-[9px] text-slate-500 select-none">
-                             {currentLanguage === 'hi' ? 'नया सेटअप करें 🛡️' : 'Fresh Setup 🛡️'}
-                         </span>
-                     </button>
-                 </div>
-             </div>
+                  <button
+                    onClick={() => {
+                      const confirmMsg = currentLanguage === 'hi' 
+                        ? "Kya aap onboarding setup shuru se dubara chalana chahte hain? Aapka historic ledger safe rahega." 
+                        : "Do you want to re-run the onboarding? Your existing accounts ledger will remain safe.";
+                      if (confirm(confirmMsg)) {
+                        localStorage.removeItem('onboardingCompleted');
+                        localStorage.removeItem('companyProfileSetup');
+                        sessionStorage.removeItem('hasShownSplash');
+                        window.location.reload();
+                      }
+                    }}
+                    className="p-3 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-xl flex flex-col items-center justify-center text-center gap-1 hover:border-amber-500 transition-all duration-200 active:scale-95 group cursor-pointer shadow-sm"
+                  >
+                    <ShieldCheck size={18} className="text-amber-500 group-hover:scale-110 transition-transform" />
+                    <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
+                      {currentLanguage === 'hi' ? 'सेट अप दोहराएं' : 'Redo Setup'}
+                    </span>
+                    <span className="text-[9px] text-slate-400">
+                      {currentLanguage === 'hi' ? 'नया सेटअप 🛡️' : 'Fresh Onboarding 🛡️'}
+                    </span>
+                  </button>
+                </div>
+              </div>
 
-             {/* Reset App Data Link */}
-             <button 
+              {/* Reset App Data */}
+              <button 
                 onClick={handleResetClick}
-                className="w-full bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-rose-200 dark:border-rose-950/20 p-4 flex items-center gap-4 hover:bg-rose-50/50 dark:hover:bg-rose-950/10 transition-colors group"
-                id="pref_reset_data_btn"
-             >
-                 <div className="bg-rose-50 dark:bg-rose-950/40 p-2.5 rounded-xl text-rose-600 dark:text-rose-400 group-hover:bg-rose-200 dark:group-hover:bg-rose-900 transition-colors shrink-0">
-                     <Trash2 size={22} />
-                 </div>
-                 <div className="flex-1 text-left min-w-0">
-                     <h3 className="font-bold text-rose-600 dark:text-rose-400 text-sm sm:text-base">
-                         {currentLanguage === 'hi' ? 'डेटा रीसेट (सावधानी)' : 'Reset App Data'}
-                     </h3>
-                     <p className="text-xs text-rose-500/80 dark:text-rose-400/80 break-words">
-                         {currentLanguage === 'hi' ? 'सभी डेटा डिलीट करके शुरू से शुरू करें' : 'Clear all local data and start fresh'}
-                     </p>
-                 </div>
-                 <ArrowLeft size={18} className="rotate-180 text-rose-400 shrink-0" />
-             </button>
-
-             {/* Language Section */}
-            <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-800 overflow-hidden">
-                <div className="p-4 border-b border-gray-100 dark:border-slate-800 bg-gray-50 dark:bg-slate-800/50">
-                    <h2 className="font-bold text-gray-700 dark:text-slate-300 flex items-center gap-2">
-                        <Globe size={18} className="text-blue-600"/> 
-                        App Language
-                    </h2>
+                className="w-full bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-rose-100 dark:border-rose-950/20 p-4 flex items-center justify-between hover:shadow-md hover:border-rose-300 transition duration-200 gap-3 text-left cursor-pointer group"
+              >
+                <div className="flex items-center gap-3.5 flex-1 min-w-0">
+                  <div className="w-10 h-10 rounded-xl bg-rose-50 dark:bg-rose-950/40 flex items-center justify-center shrink-0 text-rose-600 dark:text-rose-400 group-hover:bg-rose-100 dark:group-hover:bg-rose-900 transition-colors">
+                    <Trash2 size={20} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-sm sm:text-base font-bold text-rose-600 dark:text-rose-455 truncate">
+                      {currentLanguage === 'hi' ? 'डेटा रीसेट (सावधानी)' : 'Reset App Data'}
+                    </h3>
+                    <p className="text-xs text-rose-455 dark:text-rose-500/80 truncate mt-0.5 font-sans">
+                      {currentLanguage === 'hi' ? 'सभी डेटा डिलीट करके शुरू से शुरू करें' : 'Clear all local data and start fresh'}
+                    </p>
+                  </div>
                 </div>
-                <button onClick={() => onLanguageChange('en')} className="w-full flex justify-between items-center p-4 hover:bg-blue-50 dark:hover:bg-slate-800 transition-colors border-b border-gray-100 dark:border-slate-800">
-                    <div className="flex flex-col items-start">
-                        <span className="font-semibold text-gray-800 dark:text-white">English</span>
-                        <span className="text-xs text-gray-500">Default</span>
-                    </div>
-                    {currentLanguage === 'en' && <Check size={20} className="text-blue-600" />}
-                </button>
-                <button onClick={() => onLanguageChange('hi')} className="w-full flex justify-between items-center p-4 hover:bg-blue-50 dark:hover:bg-slate-800 transition-colors">
-                    <div className="flex flex-col items-start">
-                        <span className="font-semibold text-gray-800 dark:text-white">हिंदी</span>
-                        <span className="text-xs text-gray-500">Hindi</span>
-                    </div>
-                    {currentLanguage === 'hi' && <Check size={20} className="text-blue-600" />}
-                </button>
+                <ArrowLeft size={16} className="rotate-180 text-rose-400 shrink-0" />
+              </button>
             </div>
 
-            {/* Theme Section */}
-            <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-800 overflow-hidden">
-                <div className="p-4 border-b border-gray-100 dark:border-slate-800 bg-gray-50 dark:bg-slate-800/50">
-                    <h2 className="font-bold text-gray-700 dark:text-slate-300 flex items-center gap-2">
-                        {currentTheme === 'light' ? <Sun size={18} className="text-orange-500"/> : currentTheme === 'dark' ? <Moon size={18} className="text-blue-500"/> : <Laptop size={18} className="text-indigo-500"/>}
-                        App Theme
-                    </h2>
-                </div>
-                <button onClick={() => onThemeChange('system')} className="w-full flex justify-between items-center p-4 hover:bg-indigo-50/50 dark:hover:bg-slate-800 transition-colors border-b border-gray-100 dark:border-slate-800">
-                    <div className="flex flex-col items-start text-left">
-                        <span className="font-semibold text-gray-800 dark:text-white">System Default</span>
-                        <span className="text-xs text-gray-500">Auto adapt to device theme settings</span>
-                    </div>
-                    {currentTheme === 'system' && <Check size={20} className="text-blue-600" />}
-                </button>
-                <button onClick={() => onThemeChange('light')} className="w-full flex justify-between items-center p-4 hover:bg-orange-50/50 dark:hover:bg-slate-800 transition-colors border-b border-gray-100 dark:border-slate-800">
-                    <div className="flex flex-col items-start text-left">
-                        <span className="font-semibold text-gray-800 dark:text-white">Light Mode</span>
-                        <span className="text-xs text-gray-500">Bright & Clean layout look</span>
-                    </div>
-                    {currentTheme === 'light' && <Check size={20} className="text-blue-600" />}
-                </button>
-                <button onClick={() => onThemeChange('dark')} className="w-full flex justify-between items-center p-4 hover:bg-blue-50/50 dark:hover:bg-slate-800 transition-colors">
-                     <div className="flex flex-col items-start text-left">
-                        <span className="font-semibold text-gray-800 dark:text-white">Dark Mode</span>
-                        <span className="text-xs text-gray-500">Easy on the eyes</span>
-                    </div>
-                    {currentTheme === 'dark' && <Check size={20} className="text-blue-600" />}
-                </button>
-            </div>
+          </div>
         </div>
+      </motion.div>
 
         {/* Confirmation Modal */}
         {showSeedConfirmation && (
@@ -1498,11 +1503,11 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                 </div>
             </div>
         )}
-      </div>
+      </>
     );
   }
 
-  if (activeView === 'ceo_control') {
+  if (false) {
     return (
       <div className="flex flex-col h-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white pb-[max(env(safe-area-inset-bottom),0px)] animate-fadeIn">
         <header className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-4 flex items-center gap-3 shadow-sm border-b border-slate-100 dark:border-slate-800 shrink-0 pt-[max(env(safe-area-inset-top),48px)] sticky top-0 z-40">
@@ -2490,461 +2495,749 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
 
   // PREFERENCES 2 SUB-SCREEN
   if (activeView === 'preferences2') {
+    const MenuItem = ({ 
+      title, 
+      subtitle, 
+      icon: IconComponent, 
+      onClick, 
+      badge, 
+      rightElement 
+    }: { 
+      title: string; 
+      subtitle: string; 
+      icon: React.ComponentType<any>; 
+      onClick?: () => void; 
+      badge?: string; 
+      rightElement?: React.ReactNode; 
+    }) => (
+      <div 
+        onClick={onClick} 
+        className={`p-4 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl flex items-center justify-between cursor-pointer hover:shadow-md hover:border-indigo-100 dark:hover:border-slate-700 transition duration-200 gap-3 min-w-0 ${onClick ? 'active:scale-[0.99]' : ''}`}
+      >
+        <div className="flex items-center gap-3.5 flex-1 min-w-0">
+          <div className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-slate-800 flex items-center justify-center shrink-0 text-indigo-600 dark:text-indigo-400">
+            <IconComponent size={20} />
+          </div>
+          <div className="flex-1 min-w-0 text-left">
+            <div className="flex items-center gap-2">
+              <h3 className="text-sm sm:text-base font-bold text-slate-800 dark:text-white truncate">{title}</h3>
+              {badge && (
+                <span className="px-1.5 py-0.5 text-[10px] font-extrabold uppercase bg-amber-500 text-slate-950 rounded-md">
+                  {badge}
+                </span>
+              )}
+            </div>
+            <p className="text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5">{subtitle}</p>
+          </div>
+        </div>
+        {rightElement ? (
+          <div onClick={(e) => e.stopPropagation()}>{rightElement}</div>
+        ) : (
+          <div className="text-slate-400 dark:text-slate-600 shrink-0">
+            <Check className="opacity-0 group-hover:opacity-100" size={16} />
+          </div>
+        )}
+      </div>
+    );
+
     return (
-      <div className="flex flex-col h-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white pb-[max(env(safe-area-inset-bottom),0px)]">
-        <header className="bg-[#3b5998] text-white p-4 flex items-center gap-3 shadow-md shrink-0 pt-[max(env(safe-area-inset-top),48px)]">
-          <button onClick={() => setActiveView('main')} className="p-1 hover:bg-white/10 rounded-lg transition"><ArrowLeft size={24} /></button>
-          <h1 className="text-xl font-bold truncate">{currentLanguage === 'hi' ? 'प्राथमिकताएं (क्रम-2)' : 'Preferences (Set-2)'}</h1>
+      <motion.div 
+        initial={{ opacity: 0, y: 15 }} 
+        animate={{ opacity: 1, y: 0 }} 
+        transition={{ duration: 0.2 }}
+        className="flex flex-col h-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white pb-[max(env(safe-area-inset-bottom),0px)]"
+      >
+        <header className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-4 flex items-center gap-3 shadow-sm border-b border-slate-100 dark:border-slate-800 sticky top-0 z-40 pt-[max(env(safe-area-inset-top),48px)]">
+          <button onClick={() => setActiveView('main')} className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-700 dark:text-slate-300 transition"><ArrowLeft size={22} /></button>
+          <div className="flex flex-col">
+            <h1 className="text-lg font-bold text-indigo-600 dark:text-indigo-400 font-sans tracking-tight leading-none truncate">{currentLanguage === 'hi' ? 'बिक्री और खरीद सेटिंग्स' : 'Sale & Purchase Settings'}</h1>
+            <p className="text-[10px] text-slate-400 select-none uppercase font-sans tracking-wider font-extrabold mt-0.5">{currentLanguage === 'hi' ? 'प्राथमिकताएं (क्रम-2)' : 'Preferences (Set-2)'}</p>
+          </div>
         </header>
 
-        <div className="flex-1 overflow-y-auto bg-white dark:bg-slate-900">
-            <div className="flex flex-col">
-                
-                {/* General Settings */}
-                <div onClick={() => setActiveView('general_settings')} className="p-[18px] border-b border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer min-w-0">
-                    <h2 className="text-[16px] sm:text-[17px] font-semibold text-slate-900 dark:text-slate-100 truncate">{currentLanguage === 'hi' ? 'सामान्य सेटिंग्स' : 'General Settings'}</h2>
-                    <p className="text-xs sm:text-[15px] mt-1 text-slate-600 dark:text-slate-400 break-words">{currentLanguage === 'hi' ? 'व्यवसाय का लोगो, बैंक विवरण, नियम व शर्तें आदि' : 'Company logo, bank details, terms, conditions and print templates'}</p>
-                </div>
+        <div className="flex-1 overflow-y-auto bg-slate-50 dark:bg-slate-950 p-4 space-y-6">
+          <div className="max-w-4xl mx-auto space-y-6">
+            
 
-                {/* Auto upload */}
-                <div className="p-[18px] border-b border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-between cursor-pointer gap-3 min-w-0">
-                    <div className="pr-2 flex-1 min-w-0">
-                        <h2 className="text-[16px] sm:text-[17px] font-semibold text-slate-900 dark:text-slate-100 truncate">{currentLanguage === 'hi' ? 'ऑटो बैकअप अपलोड' : 'Auto upload'}</h2>
-                        <p className="text-xs sm:text-[15px] mt-1 text-slate-600 dark:text-slate-400 leading-snug break-words">{currentLanguage === 'hi' ? 'इंटरनेट उपलब्ध होने पर बैकअप को स्वचालित रूप से क्लाउड पर सुरक्षित करें' : 'Upload the Backup automatically when Internet is available'}</p>
-                    </div>
-                    <div className="shrink-0 flex items-center justify-center">
-                        <input type="checkbox" defaultChecked className="w-5 h-5 accent-[#d32f2f] rounded-[2px]" />
-                    </div>
-                </div>
-
-                {/* Member's Permissions */}
-                <div className="p-[18px] border-b border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer min-w-0">
-                    <h2 className="text-[16px] sm:text-[17px] font-semibold text-slate-900 dark:text-slate-100 truncate">{currentLanguage === 'hi' ? 'सदस्य अनुमतियाँ' : "Member's Permissions"}</h2>
-                    <p className="text-xs sm:text-[15px] mt-1 text-slate-600 dark:text-slate-400 leading-snug break-words">{currentLanguage === 'hi' ? 'पार्टियों और ग्राहकों से बिल और भुगतान साझा करने की पहुंच अधिकार' : 'Send/Receive Bills and Payments to/from your Parties and Customer'}</p>
-                </div>
-
-                {/* Send Item(s) */}
-                <div className="p-[18px] border-b border-slate-200 dark:border-slate-800 bg-[#ebebeb] dark:bg-slate-800 hover:bg-[#e0e0e0] dark:hover:bg-slate-700 cursor-pointer min-w-0">
-                    <h2 className="text-[16px] sm:text-[17px] font-semibold text-slate-900 dark:text-slate-100 truncate">{currentLanguage === 'hi' ? 'आइटम सूची भेजें' : 'Send Item(s)'}</h2>
-                    <p className="text-xs sm:text-[15px] mt-1 text-slate-600 dark:text-slate-400 break-words">{currentLanguage === 'hi' ? 'अपने सभी आइटम्स सहयोगियों या ग्राहकों को साझा करें' : 'Send Your Item(s) directly to Parties or Customers'}</p>
-                </div>
-
-                {/* Billing Header */}
-                <div className="px-[18px] pt-5 pb-3 font-semibold shrink-0">
-                    <h2 className="text-[#d32f2f] dark:text-[#ef5350] text-[15px] uppercase tracking-wider">{currentLanguage === 'hi' ? 'बिलिंग व अकाउंट्स' : 'Billing'}</h2>
-                </div>
-
-                {/* Items */}
-                <div onClick={() => setActiveView('item_settings')} className="p-[18px] border-b border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer min-w-0">
-                    <h2 className="text-[16px] sm:text-[17px] font-semibold text-slate-900 dark:text-slate-100 truncate">{currentLanguage === 'hi' ? 'आइटम्स' : 'Items'}</h2>
-                    <p className="text-xs sm:text-[15px] mt-1 text-slate-600 dark:text-slate-400 break-words">{currentLanguage === 'hi' ? 'आइटम सेटिंग्स बदलें (जैसे उप-श्रेणियाँ, बारकोड फ़ील्ड)' : 'Change your Item(s) active field configurations'}</p>
-                </div>
-
-                {/* Purchase Bill Settings */}
-                <div onClick={() => setActiveView('purchase_bill_settings')} className="p-[18px] border-b border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer min-w-0">
-                    <h2 className="text-[16px] sm:text-[17px] font-semibold text-slate-900 dark:text-slate-100 truncate">{currentLanguage === 'hi' ? 'खरीद बिल सेटिंग्स' : 'Purchase Bill Settings'}</h2>
-                    <p className="text-xs sm:text-[15px] mt-1 text-slate-600 dark:text-slate-400 break-words">{currentLanguage === 'hi' ? 'खरीद बिल प्रविष्टि फ़ील्ड्स और सेटिंग्स को व्यवस्थित करें' : 'Change Purchase Bill validation fields settings'}</p>
-                </div>
-
-                {/* Purchase Return Settings */}
-                <div onClick={() => setActiveView('purchase_return_settings')} className="p-[18px] border-b border-slate-200 dark:border-slate-800 bg-[#ebebeb] dark:bg-slate-800 hover:bg-[#e0e0e0] dark:hover:bg-slate-700 cursor-pointer min-w-0">
-                    <h2 className="text-[16px] sm:text-[17px] font-semibold text-slate-900 dark:text-slate-100 truncate">{currentLanguage === 'hi' ? 'खरीद वापस सेटिंग्स' : 'Purchase Return Settings'}</h2>
-                    <p className="text-xs sm:text-[15px] mt-1 text-slate-600 dark:text-slate-400 break-words">{currentLanguage === 'hi' ? 'डेबिट नोट/वापसी सेटिंग्स में संशोधन करें' : 'Change Purchase Return layout fields'}</p>
-                </div>
-
-                {/* Sale Bill Settings */}
-                <div onClick={() => setActiveView('sale_bill_settings')} className="p-[18px] border-b border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer min-w-0">
-                    <h2 className="text-[16px] sm:text-[17px] font-semibold text-slate-900 dark:text-slate-100 truncate">{currentLanguage === 'hi' ? 'बिक्री बिल सेटिंग्स' : 'Sale Bill Settings'}</h2>
-                    <p className="text-xs sm:text-[15px] mt-1 text-slate-600 dark:text-slate-400 break-words">{currentLanguage === 'hi' ? 'बिक्री बिल प्रेषण फ़ील्ड और जीएसटी विकल्पों को बदलें' : 'Change Sale Bill settings and format terms'}</p>
-                </div>
-
-                {/* Sale Return Settings */}
-                <div onClick={() => setActiveView('sale_return_settings')} className="p-[18px] border-b border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer min-w-0">
-                    <h2 className="text-[16px] sm:text-[17px] font-semibold text-slate-900 dark:text-slate-100 truncate">{currentLanguage === 'hi' ? 'बिक्री वापस सेटिंग्स' : 'Sale Return Settings'}</h2>
-                    <p className="text-xs sm:text-[15px] mt-1 text-slate-600 dark:text-slate-400 break-words">{currentLanguage === 'hi' ? 'बिक्री वापसी (क्रेडिट नोट) इनपुट बदलें' : 'Change Sale Return screen parameters'}</p>
-                </div>
-
-                {/* Enable/Disable Ledger(s) Tax settings */}
-                <div onClick={() => setActiveView('ledger_settings')} className="p-[18px] border-b border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer min-w-0">
-                    <h2 className="text-[16px] sm:text-[17px] font-semibold text-slate-900 dark:text-slate-100 truncate">{currentLanguage === 'hi' ? 'खाता बही टैक्स सेटिंग्स' : 'Enable/Disable Ledger(s) Tax settings'}</h2>
-                    <p className="text-xs sm:text-[15px] mt-1 text-slate-600 dark:text-slate-400 break-words">{currentLanguage === 'hi' ? 'सभी लेजर के लिए टैक्स नियम और लिमिट सेटिंग्स लागू करें' : 'Configure taxes on a per-ledger or party basis'}</p>
-                </div>
-
-                {/* Transportation Detail Settings */}
-                <div onClick={() => setActiveView('transportation_settings')} className="p-[18px] border-b border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer min-w-0">
-                    <h2 className="text-[16px] sm:text-[17px] font-semibold text-slate-900 dark:text-slate-100 truncate">{currentLanguage === 'hi' ? 'परिवहन विवरण सेटिंग्स' : 'Transportation Detail Settings'}</h2>
-                    <p className="text-xs sm:text-[15px] mt-1 text-slate-600 dark:text-slate-400 break-words">{currentLanguage === 'hi' ? 'वाहनों और चालान फ़ील्ड्स को सक्षम या अक्षम करें' : 'Enable/Disable Transportation fields and vehicle invoice details'}</p>
-                </div>
-
+            {/* Category 2 */}
+            <div className="space-y-3">
+              <h2 className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider pl-1">
+                {currentLanguage === 'hi' ? 'इन्वेंटरी और आइटम्स' : 'Inventory & Items'}
+              </h2>
+              <MenuItem 
+                title={currentLanguage === 'hi' ? 'आइटम्स' : 'Items Settings'}
+                subtitle={currentLanguage === 'hi' ? 'आइटम सेटिंग्स बदलें (जैसे उप-श्रेणियाँ, बारकोड फ़ील्ड)' : 'Change your Item(s) active field configurations'}
+                icon={Hash}
+                onClick={() => setActiveView('item_settings')}
+              />
             </div>
+
+            {/* Category 3 */}
+            <div className="space-y-3">
+              <h2 className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider pl-1">
+                {currentLanguage === 'hi' ? 'बिलिंग व अकाउंट्स' : 'Billing & Transaction Settings'}
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <MenuItem 
+                  title={currentLanguage === 'hi' ? 'बिक्री बिल सेटिंग्स' : 'Sale Bill Settings'}
+                  subtitle={currentLanguage === 'hi' ? 'बिक्री बिल प्रेषण फ़ील्ड और जीएसटी विकल्पों को बदलें' : 'Change Sale Bill settings and format terms'}
+                  icon={Download}
+                  onClick={() => setActiveView('sale_bill_settings')}
+                />
+                <MenuItem 
+                  title={currentLanguage === 'hi' ? 'खरीद बिल सेटिंग्स' : 'Purchase Bill Settings'}
+                  subtitle={currentLanguage === 'hi' ? 'खरीद बिल प्रविष्टि फ़ील्ड्स और सेटिंग्स को व्यवस्थित करें' : 'Change Purchase Bill validation fields settings'}
+                  icon={ArrowDownCircle}
+                  onClick={() => setActiveView('purchase_bill_settings')}
+                />
+                <MenuItem 
+                  title={currentLanguage === 'hi' ? 'बिक्री वापस सेटिंग्स' : 'Sale Return Settings'}
+                  subtitle={currentLanguage === 'hi' ? 'बिक्री वापसी (क्रेडिट नोट) इनपुट बदलें' : 'Change Sale Return screen parameters'}
+                  icon={RefreshCcw}
+                  onClick={() => setActiveView('sale_return_settings')}
+                />
+                <MenuItem 
+                  title={currentLanguage === 'hi' ? 'खरीद वापस सेटिंग्स' : 'Purchase Return Settings'}
+                  subtitle={currentLanguage === 'hi' ? 'डेबिट नोट/वापसी सेटिंग्स में संशोधन करें' : 'Change Purchase Return layout fields'}
+                  icon={RefreshCcw}
+                  onClick={() => setActiveView('purchase_return_settings')}
+                />
+              </div>
+            </div>
+
+            {/* Category 4 */}
+            <div className="space-y-3">
+              <h2 className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider pl-1">
+                {currentLanguage === 'hi' ? 'परिवहन और टैक्स' : 'Logistics & Taxes'}
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <MenuItem 
+                  title={currentLanguage === 'hi' ? 'परिवहन विवरण सेटिंग्स' : 'Transportation Detail Settings'}
+                  subtitle={currentLanguage === 'hi' ? 'वाहनों और चालान फ़ील्ड्स को सक्षम या अक्षम करें' : 'Enable/Disable Transportation fields and vehicle invoice details'}
+                  icon={ExternalLink}
+                  onClick={() => setActiveView('transportation_settings')}
+                />
+                <MenuItem 
+                  title={currentLanguage === 'hi' ? 'खाता बही टैक्स सेटिंग्स' : 'Ledger Tax Settings'}
+                  subtitle={currentLanguage === 'hi' ? 'सभी लेजर के लिए टैक्स नियम और लिमिट सेटिंग्स लागू करें' : 'Configure taxes on a per-ledger or party basis'}
+                  icon={SlidersHorizontal}
+                  onClick={() => setActiveView('ledger_settings')}
+                />
+              </div>
+            </div>
+
+          </div>
         </div>
-      </div>
+      </motion.div>
     );
   }
 
   // GENERAL SETTINGS SUB-SCREEN
   if (activeView === 'general_settings') {
     return (
-      <div className="flex flex-col h-full bg-[#fcfcfc] dark:bg-slate-950 text-slate-900 dark:text-white pb-[max(env(safe-area-inset-bottom),0px)]">
-        <header className="bg-[#3b5998] text-white p-4 flex items-center gap-3 shadow-md shrink-0 pt-[max(env(safe-area-inset-top),48px)]">
-          <button onClick={() => setActiveView('preferences2')} className="p-1 hover:bg-white/10 rounded-lg transition"><ArrowLeft size={24} /></button>
-          <h1 className="text-xl font-bold truncate">{currentLanguage === 'hi' ? 'सामान्य सेटिंग्स' : 'General Settings'}</h1>
+      <motion.div 
+        initial={{ opacity: 0, y: 15 }} 
+        animate={{ opacity: 1, y: 0 }} 
+        transition={{ duration: 0.2 }}
+        className="flex flex-col h-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white pb-[max(env(safe-area-inset-bottom),0px)]"
+      >
+        <header className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-4 flex items-center gap-3 shadow-sm border-b border-slate-100 dark:border-slate-800 sticky top-0 z-40 pt-[max(env(safe-area-inset-top),48px)]">
+          <button onClick={() => setActiveView('preferences2')} className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-700 dark:text-slate-300 transition"><ArrowLeft size={22} /></button>
+          <div className="flex flex-col">
+            <h1 className="text-lg font-bold text-indigo-600 dark:text-indigo-400 font-sans tracking-tight leading-none truncate">{currentLanguage === 'hi' ? 'सामान्य सेटिंग्स' : 'General Settings'}</h1>
+            <p className="text-[10px] text-slate-400 select-none uppercase font-sans tracking-wider font-extrabold mt-0.5">{currentLanguage === 'hi' ? 'लोगो, बैंक और मुद्रण सेटिंग्स' : 'Logo, bank and printing profiles'}</p>
+          </div>
         </header>
 
-        <div className="flex-1 flex flex-col pt-10 px-4 overflow-y-auto items-center">
+        <div className="flex-1 overflow-y-auto bg-slate-50 dark:bg-slate-950 p-6 flex flex-col items-center">
             {/* Logo area */}
-            <div className="w-24 h-24 bg-[#3ddc84] rounded-[24px] flex items-center justify-center mb-8 shadow-sm shrink-0">
-                <Bot size={56} className="text-white animate-bounce" style={{ animationDuration: '3s' }} />
+            <div className="relative group mb-8">
+              <div className="absolute -inset-0.5 bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-[26px] blur opacity-40 group-hover:opacity-75 transition duration-500"></div>
+              <div className="relative w-24 h-24 bg-white dark:bg-slate-900 rounded-[24px] border border-slate-100 dark:border-slate-800 flex items-center justify-center shadow-md shrink-0">
+                  <Bot size={52} className="text-indigo-600 dark:text-indigo-400 animate-pulse" />
+              </div>
             </div>
             
-            <div className="flex-1 w-full" />
-            
-            <div className="grid grid-cols-2 gap-2 w-full pb-3 max-w-sm">
-                <button className="bg-[#3b5998] hover:bg-[#2d4373] text-white py-4 px-2 text-center text-xs sm:text-sm font-bold min-h-[56px] rounded-lg shadow-sm flex items-center justify-center transition-all duration-200 active:scale-95 leading-tight">
-                    {currentLanguage === 'hi' ? 'बैंक विवरण' : 'Bank Details'}
-                </button>
-                <button className="bg-[#3b5998] hover:bg-[#2d4373] text-white py-4 px-2 text-center text-xs sm:text-sm font-bold min-h-[56px] rounded-lg shadow-sm flex items-center justify-center transition-all duration-200 active:scale-95 leading-tight">
-                    {currentLanguage === 'hi' ? 'नियम व शर्तें' : 'Terms & Condition'}
-                </button>
-                <button className="bg-[#3b5998] hover:bg-[#2d4373] text-white py-4 px-2 text-center text-xs sm:text-sm font-bold min-h-[56px] rounded-lg shadow-sm flex items-center justify-center transition-all duration-200 active:scale-95 leading-tight">
-                    {currentLanguage === 'hi' ? 'व्यवसाय लोगो' : 'Company Logo'}
-                </button>
-                <button className="bg-[#3b5998] hover:bg-[#2d4373] text-white py-4 px-2 text-center text-xs sm:text-sm font-bold min-h-[56px] rounded-lg shadow-sm flex items-center justify-center transition-all duration-200 active:scale-95 leading-tight">
-                    {currentLanguage === 'hi' ? 'प्रिंट सेटिंग्स' : 'Print Settings'}
-                </button>
-                <button className="col-span-2 bg-[#3b5998] hover:bg-[#2d4373] text-white py-4 px-2 text-center text-xs sm:text-sm font-bold min-h-[56px] rounded-lg shadow-sm flex items-center justify-center transition-all duration-200 active:scale-95 leading-tight">
-                    {currentLanguage === 'hi' ? 'अन्य सेटिंग्स व्यवस्थित करें' : 'Configure Other Settings'}
-                </button>
-            </div>
+             <div className="w-full max-w-sm grid grid-cols-2 gap-3 mt-4">
+                 <button 
+                   onClick={() => onNavigate('companyProfile')}
+                   className="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 hover:border-indigo-500 dark:hover:border-indigo-500 text-slate-800 dark:text-white py-4 px-2 text-center text-xs sm:text-sm font-bold min-h-[64px] rounded-2xl shadow-sm flex flex-col items-center justify-center gap-1.5 transition-all duration-200 active:scale-95 leading-tight hover:shadow-md"
+                 >
+                     <Database size={18} className="text-indigo-600 dark:text-indigo-400" />
+                     {currentLanguage === 'hi' ? 'बैंक विवरण' : 'Bank Details'}
+                 </button>
+                 <button 
+                   onClick={() => onNavigate('companyProfile')}
+                   className="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 hover:border-indigo-500 dark:hover:border-indigo-500 text-slate-800 dark:text-white py-4 px-2 text-center text-xs sm:text-sm font-bold min-h-[64px] rounded-2xl shadow-sm flex flex-col items-center justify-center gap-1.5 transition-all duration-200 active:scale-95 leading-tight hover:shadow-md"
+                 >
+                     <FileText size={18} className="text-emerald-600 dark:text-emerald-400" />
+                     {currentLanguage === 'hi' ? 'नियम व शर्तें' : 'Terms & Condition'}
+                 </button>
+                 <button 
+                   onClick={() => onNavigate('companyProfile')}
+                   className="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 hover:border-indigo-500 dark:hover:border-indigo-500 text-slate-800 dark:text-white py-4 px-2 text-center text-xs sm:text-sm font-bold min-h-[64px] rounded-2xl shadow-sm flex flex-col items-center justify-center gap-1.5 transition-all duration-200 active:scale-95 leading-tight hover:shadow-md"
+                 >
+                     <Bot size={18} className="text-amber-600 dark:text-amber-400" />
+                     {currentLanguage === 'hi' ? 'व्यवसाय लोगो' : 'Company Logo'}
+                 </button>
+                 <button 
+                   onClick={() => onNavigate('companyProfile')}
+                   className="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 hover:border-indigo-500 dark:hover:border-indigo-500 text-slate-800 dark:text-white py-4 px-2 text-center text-xs sm:text-sm font-bold min-h-[64px] rounded-2xl shadow-sm flex flex-col items-center justify-center gap-1.5 transition-all duration-200 active:scale-95 leading-tight hover:shadow-md"
+                 >
+                     <Laptop size={18} className="text-sky-600 dark:text-sky-400" />
+                     {currentLanguage === 'hi' ? 'प्रिंट सेटिंग्स' : 'Print Settings'}
+                 </button>
+                 <button 
+                   onClick={() => setActiveView('preferences2')}
+                   className="col-span-2 bg-indigo-600 hover:bg-indigo-700 text-white py-3.5 px-2 text-center text-sm font-bold rounded-2xl shadow-sm flex items-center justify-center gap-2 transition-all duration-200 active:scale-95 leading-tight"
+                 >
+                     <SlidersHorizontal size={18} />
+                     {currentLanguage === 'hi' ? 'अन्य सेटिंग्स व्यवस्थित करें' : 'Configure Other Settings'}
+                 </button>
+             </div>
         </div>
-      </div>
+      </motion.div>
     );
   }
 
   // ITEM SETTINGS SUB-SCREEN
   if (activeView === 'item_settings') {
-    const handleToggle = (key: keyof typeof itemSettings) => {
-        setItemSettings(prev => ({...prev, [key]: !prev[key]}));
+    const handleToggle = async (key: keyof typeof itemSettings) => {
+        const updated = {...itemSettings, [key]: !itemSettings[key]};
+        setItemSettings(updated);
+        await billingService.saveItemSettings(updated);
     };
 
-    const CheckboxRow = ({ label, labelHi, checkedKey, isGray = false }: { label: string, labelHi: string, checkedKey: keyof typeof itemSettings, isGray?: boolean }) => {
+    const CheckboxRow = ({ 
+      label, 
+      labelHi, 
+      checkedKey, 
+      icon: IconComponent 
+    }: { 
+      label: string; 
+      labelHi: string; 
+      checkedKey: keyof typeof itemSettings; 
+      icon: React.ComponentType<any>; 
+    }) => {
         const textLabel = currentLanguage === 'hi' ? labelHi : label;
         return (
-            <div onClick={() => handleToggle(checkedKey)} className={`p-4 sm:p-[18px] border-b border-slate-200 dark:border-slate-800 flex items-center justify-between cursor-pointer gap-4 min-w-0 transition-colors ${isGray ? 'bg-[#ebebeb] dark:bg-slate-800/60' : 'hover:bg-slate-100 dark:hover:bg-slate-800 bg-white dark:bg-slate-900'}`}>
-                <h2 className="text-[15px] sm:text-[17px] font-semibold text-slate-900 dark:text-slate-100 flex-1 min-w-0 break-words pr-2 leading-snug">{textLabel}</h2>
-                <div className="shrink-0 flex items-center justify-center">
-                    <input 
-                        type="checkbox" 
-                        checked={itemSettings[checkedKey]} 
-                        onChange={() => {}}
-                        className="w-5 h-5 sm:w-[22px] sm:h-[22px] accent-[#ef5350] rounded-[2px] border-gray-400 cursor-pointer pointer-events-none" 
-                    />
+            <div 
+              onClick={() => handleToggle(checkedKey)} 
+              className="p-4 border-b border-slate-100 dark:border-slate-800/60 flex items-center justify-between cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/40 gap-4 min-w-0 transition-colors bg-white dark:bg-slate-900"
+            >
+              <div className="flex items-center gap-3.5 flex-1 min-w-0 pr-2">
+                <div className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-slate-800 flex items-center justify-center shrink-0 text-indigo-600 dark:text-indigo-400">
+                  <IconComponent size={16} />
                 </div>
+                <h2 className="text-sm sm:text-base font-semibold text-slate-800 dark:text-slate-100 truncate">{textLabel}</h2>
+              </div>
+              <div className="shrink-0">
+                <ToggleSwitch 
+                  checked={itemSettings[checkedKey]} 
+                  onChange={() => handleToggle(checkedKey)} 
+                />
+              </div>
             </div>
         );
     };
 
     return (
-      <div className="flex flex-col h-full bg-[#fcfcfc] dark:bg-slate-950 text-slate-900 dark:text-white pb-[max(env(safe-area-inset-bottom),0px)]">
-        <header className="bg-[#3b5998] text-white p-4 flex items-center gap-3 shadow-md shrink-0 pt-[max(env(safe-area-inset-top),48px)]">
-          <button onClick={() => setActiveView('preferences2')} className="p-1 hover:bg-white/10 rounded-lg transition"><ArrowLeft size={24} /></button>
-          <h1 className="text-xl font-bold truncate">{currentLanguage === 'hi' ? 'आइटम सेटिंग्स' : 'Item Settings'}</h1>
+      <motion.div 
+        initial={{ opacity: 0, y: 15 }} 
+        animate={{ opacity: 1, y: 0 }} 
+        transition={{ duration: 0.2 }}
+        className="flex flex-col h-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white pb-[max(env(safe-area-inset-bottom),0px)]"
+      >
+        <header className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-4 flex items-center gap-3 shadow-sm border-b border-slate-100 dark:border-slate-800 sticky top-0 z-40 pt-[max(env(safe-area-inset-top),48px)]">
+          <button onClick={() => setActiveView('preferences2')} className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-700 dark:text-slate-300 transition"><ArrowLeft size={22} /></button>
+          <div className="flex flex-col">
+            <h1 className="text-lg font-bold text-indigo-600 dark:text-indigo-400 font-sans tracking-tight leading-none truncate">{currentLanguage === 'hi' ? 'आइटम सेटिंग्स' : 'Item Settings'}</h1>
+            <p className="text-[10px] text-slate-400 select-none uppercase font-sans tracking-wider font-extrabold mt-0.5">{currentLanguage === 'hi' ? 'उत्पाद और सूची प्रविष्टि विवरण' : 'Product & inventory configuration fields'}</p>
+          </div>
         </header>
 
-        <div className="flex-1 flex flex-col overflow-y-auto bg-white dark:bg-slate-950">
-            <CheckboxRow label="Enable Cess" labelHi="सेस कर सक्षम करें (Cess)" checkedKey="cess" />
-            <CheckboxRow label="Enable Batch Number" labelHi="बैच संख्या सक्षम करें (Batch Number)" checkedKey="batchNumber" />
-            <CheckboxRow label="Enable Manufacturing Date" labelHi="उत्पादन तिथि सक्षम करें (Mfg Date)" checkedKey="manufacturingDate" />
-            <CheckboxRow label="Enable Expiry Date" labelHi="समाप्ति तिथि सक्षम करें (Expiry Date)" checkedKey="expiryDate" />
-            <CheckboxRow label="Enable Wholesale Price" labelHi="थोक मूल्य सक्षम करें (Wholesale Price)" checkedKey="wholesalePrice" />
-            <CheckboxRow label="Enable Item Company" labelHi="आइटम ब्रांड/कंपनी सक्षम करें (Item Brand)" checkedKey="itemCompany" />
-            <CheckboxRow label="Enable Minimum Stock Alert" labelHi="न्यूनतम स्टॉक अलर्ट सक्षम करें (Min Stock Alert)" checkedKey="minimumStockAlert" isGray />
-            <CheckboxRow label="Enable Category" labelHi="श्रेणी फ़ील्ड सक्षम करें (Category)" checkedKey="category" />
-            <CheckboxRow label="Enable Bill Of Item" labelHi="आइटम संबंधित सामग्री विवरण सक्षम करें (Bill Of Item)" checkedKey="billOfItem" />
+        <div className="flex-1 overflow-y-auto bg-slate-50 dark:bg-slate-950 p-4">
+          <div className="max-w-xl mx-auto bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden divide-y divide-slate-100 dark:divide-slate-800">
+            <CheckboxRow label="Enable Cess" labelHi="सेस कर सक्षम करें (Cess)" checkedKey="cess" icon={SlidersHorizontal} />
+            <CheckboxRow label="Enable Batch Number" labelHi="बैच संख्या सक्षम करें (Batch Number)" checkedKey="batchNumber" icon={Hash} />
+            <CheckboxRow label="Enable Manufacturing Date" labelHi="उत्पादन तिथि सक्षम करें (Mfg Date)" checkedKey="manufacturingDate" icon={Info} />
+            <CheckboxRow label="Enable Expiry Date" labelHi="समाप्ति तिथि सक्षम करें (Expiry Date)" checkedKey="expiryDate" icon={Info} />
+            <CheckboxRow label="Enable Wholesale Price" labelHi="थोक मूल्य सक्षम करें (Wholesale Price)" checkedKey="wholesalePrice" icon={SlidersHorizontal} />
+            <CheckboxRow label="Enable Item Brand/Company" labelHi="आइटम ब्रांड/कंपनी सक्षम करें (Item Brand)" checkedKey="itemCompany" icon={Bot} />
+            <CheckboxRow label="Enable Minimum Stock Alert" labelHi="न्यूनतम स्टॉक अलर्ट सक्षम करें (Min Stock Alert)" checkedKey="minimumStockAlert" icon={AlertTriangle} />
+            <CheckboxRow label="Enable Category" labelHi="श्रेणी फ़ील्ड सक्षम करें (Category)" checkedKey="category" icon={SlidersHorizontal} />
+            <CheckboxRow label="Enable Bill Of Item" labelHi="आइटम संबंधित सामग्री विवरण सक्षम करें (Bill Of Item)" checkedKey="billOfItem" icon={FileText} />
+          </div>
         </div>
-      </div>
+      </motion.div>
     );
   }
 
   // PURCHASE BILL SETTINGS SUB-SCREEN
   if (activeView === 'purchase_bill_settings') {
-    const handleToggle = (key: keyof typeof purchaseBillSettings) => {
-        setPurchaseBillSettings(prev => ({...prev, [key]: !prev[key]}));
+    const handleToggle = async (key: keyof typeof purchaseBillSettings) => {
+        const updated = {...purchaseBillSettings, [key]: !purchaseBillSettings[key]};
+        setPurchaseBillSettings(updated);
+        await billingService.savePurchaseBillSettings(updated);
     };
 
-    const CheckboxRow = ({ label, labelHi, checkedKey, isGray = false }: { label: string, labelHi: string, checkedKey: keyof typeof purchaseBillSettings, isGray?: boolean }) => {
+    const CheckboxRow = ({ 
+      label, 
+      labelHi, 
+      checkedKey, 
+      icon: IconComponent 
+    }: { 
+      label: string; 
+      labelHi: string; 
+      checkedKey: keyof typeof purchaseBillSettings; 
+      icon: React.ComponentType<any>; 
+    }) => {
         const textLabel = currentLanguage === 'hi' ? labelHi : label;
         return (
-            <div onClick={() => handleToggle(checkedKey)} className={`p-4 sm:p-[18px] border-b border-slate-200 dark:border-slate-800 flex items-center justify-between cursor-pointer gap-4 min-w-0 transition-colors ${isGray ? 'bg-[#ebebeb] dark:bg-slate-800/60' : 'hover:bg-slate-100 dark:hover:bg-slate-800 bg-white dark:bg-slate-900'}`}>
-                <h2 className="text-[15px] sm:text-[17px] font-semibold text-slate-900 dark:text-slate-100 flex-1 min-w-0 break-words pr-2 leading-snug">{textLabel}</h2>
-                <div className="shrink-0 flex items-center justify-center">
-                    <input 
-                        type="checkbox" 
-                        checked={purchaseBillSettings[checkedKey]} 
-                        onChange={() => {}}
-                        className="w-5 h-5 sm:w-[22px] sm:h-[22px] accent-[#ef5350] rounded-[2px] border-gray-400 cursor-pointer pointer-events-none" 
-                    />
+            <div 
+              onClick={() => handleToggle(checkedKey)} 
+              className="p-4 border-b border-slate-100 dark:border-slate-800/60 flex items-center justify-between cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/40 gap-4 min-w-0 transition-colors bg-white dark:bg-slate-900"
+            >
+              <div className="flex items-center gap-3.5 flex-1 min-w-0 pr-2">
+                <div className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-slate-800 flex items-center justify-center shrink-0 text-indigo-600 dark:text-indigo-400">
+                  <IconComponent size={16} />
                 </div>
+                <h2 className="text-sm sm:text-base font-semibold text-slate-800 dark:text-slate-100 truncate">{textLabel}</h2>
+              </div>
+              <div className="shrink-0">
+                <ToggleSwitch 
+                  checked={purchaseBillSettings[checkedKey]} 
+                  onChange={() => handleToggle(checkedKey)} 
+                />
+              </div>
             </div>
         );
     };
 
     return (
-      <div className="flex flex-col h-full bg-[#fcfcfc] dark:bg-slate-950 text-slate-900 dark:text-white pb-[max(env(safe-area-inset-bottom),0px)]">
-        <header className="bg-[#3b5998] text-white p-4 flex items-center gap-3 shadow-md shrink-0 pt-[max(env(safe-area-inset-top),48px)]">
-          <button onClick={() => setActiveView('preferences2')} className="p-1 hover:bg-white/10 rounded-lg transition"><ArrowLeft size={24} /></button>
-          <h1 className="text-xl font-bold truncate">{currentLanguage === 'hi' ? 'खरीद बिल सेटिंग्स' : 'Purchase Bill Settings'}</h1>
+      <motion.div 
+        initial={{ opacity: 0, y: 15 }} 
+        animate={{ opacity: 1, y: 0 }} 
+        transition={{ duration: 0.2 }}
+        className="flex flex-col h-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white pb-[max(env(safe-area-inset-bottom),0px)]"
+      >
+        <header className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-4 flex items-center gap-3 shadow-sm border-b border-slate-100 dark:border-slate-800 sticky top-0 z-40 pt-[max(env(safe-area-inset-top),48px)]">
+          <button onClick={() => setActiveView('preferences2')} className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-700 dark:text-slate-300 transition"><ArrowLeft size={22} /></button>
+          <div className="flex flex-col">
+            <h1 className="text-lg font-bold text-indigo-600 dark:text-indigo-400 font-sans tracking-tight leading-none truncate">{currentLanguage === 'hi' ? 'खरीद बिल सेटिंग्स' : 'Purchase Bill Settings'}</h1>
+            <p className="text-[10px] text-slate-400 select-none uppercase font-sans tracking-wider font-extrabold mt-0.5">{currentLanguage === 'hi' ? 'आवक सामग्री और खरीद वाउचर प्राथमिकताएं' : 'Inward stock & purchase voucher settings'}</p>
+          </div>
         </header>
 
-        <div className="flex-1 flex flex-col overflow-y-auto bg-white dark:bg-slate-950">
-            <CheckboxRow label="Enable Bill Discount" labelHi="समग्र बिल छूट सक्षम करें (Bill Discount)" checkedKey="billDiscount" />
-            <CheckboxRow label="Enable Sale Rate & MRP Calculation" labelHi="बिक्री दर और अधिकतम खुदरा मूल्य गणना सक्षम करें" checkedKey="saleRateMrpCalculation" />
-            <CheckboxRow label="Enable Additional Charges" labelHi="अतिरिक्त प्रभार सक्षम करें (Additional Charges)" checkedKey="additionalCharges" />
-            <CheckboxRow label="Enable Item Wise Discount" labelHi="आइटम अनुसार छूट सक्षम करें (Item-Wise Discount)" checkedKey="itemWiseDiscount" />
-            <CheckboxRow label="Enable Transportation Detail" labelHi="परिवहन विवरण फ़ील्ड सक्षम करें (Transportation)" checkedKey="transportationDetail" isGray />
-            <CheckboxRow label="Enable Ecommerce Detail" labelHi="ई-कॉमर्स विवरण सक्षम करें (Ecommerce Details)" checkedKey="ecommerceDetail" />
-            <CheckboxRow label="Enable Reverse Charge" labelHi="विपरीत प्रभार सक्षम करें (Reverse Charge - RCM)" checkedKey="reverseCharge" />
+        <div className="flex-1 overflow-y-auto bg-slate-50 dark:bg-slate-950 p-4">
+          <div className="max-w-xl mx-auto bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden divide-y divide-slate-100 dark:divide-slate-800">
+            <CheckboxRow label="Enable Bill Discount" labelHi="समग्र बिल छूट सक्षम करें (Bill Discount)" checkedKey="billDiscount" icon={SlidersHorizontal} />
+            <CheckboxRow label="Enable Sale Rate & MRP Calculation" labelHi="बिक्री दर और अधिकतम खुदरा मूल्य गणना सक्षम करें" checkedKey="saleRateMrpCalculation" icon={SlidersHorizontal} />
+            <CheckboxRow label="Enable Additional Charges" labelHi="अतिरिक्त प्रभार सक्षम करें (Additional Charges)" checkedKey="additionalCharges" icon={SlidersHorizontal} />
+            <CheckboxRow label="Enable Item Wise Discount" labelHi="आइटम अनुसार छूट सक्षम करें (Item-Wise Discount)" checkedKey="itemWiseDiscount" icon={SlidersHorizontal} />
+            <CheckboxRow label="Enable Transportation Detail" labelHi="परिवहन विवरण फ़ील्ड सक्षम करें (Transportation)" checkedKey="transportationDetail" icon={ExternalLink} />
+            <CheckboxRow label="Enable Ecommerce Detail" labelHi="ई-कॉमर्स विवरण सक्षम करें (Ecommerce Details)" checkedKey="ecommerceDetail" icon={Globe} />
+            <CheckboxRow label="Enable Reverse Charge" labelHi="विपरीत प्रभार सक्षम करें (Reverse Charge - RCM)" checkedKey="reverseCharge" icon={SlidersHorizontal} />
+          </div>
         </div>
-      </div>
+      </motion.div>
     );
   }
 
   // PURCHASE RETURN SETTINGS SUB-SCREEN
   if (activeView === 'purchase_return_settings') {
-    const handleToggle = (key: keyof typeof purchaseReturnSettings) => {
-        setPurchaseReturnSettings(prev => ({...prev, [key]: !prev[key]}));
+    const handleToggle = async (key: keyof typeof purchaseReturnSettings) => {
+        const updated = {...purchaseReturnSettings, [key]: !purchaseReturnSettings[key]};
+        setPurchaseReturnSettings(updated);
+        await billingService.savePurchaseReturnSettings(updated);
     };
 
-    const CheckboxRow = ({ label, labelHi, checkedKey, isGray = false }: { label: string, labelHi: string, checkedKey: keyof typeof purchaseReturnSettings, isGray?: boolean }) => {
+    const CheckboxRow = ({ 
+      label, 
+      labelHi, 
+      checkedKey, 
+      icon: IconComponent 
+    }: { 
+      label: string; 
+      labelHi: string; 
+      checkedKey: keyof typeof purchaseReturnSettings; 
+      icon: React.ComponentType<any>; 
+    }) => {
         const textLabel = currentLanguage === 'hi' ? labelHi : label;
         return (
-            <div onClick={() => handleToggle(checkedKey)} className={`p-4 sm:p-[18px] border-b border-slate-200 dark:border-slate-800 flex items-center justify-between cursor-pointer gap-4 min-w-0 transition-colors ${isGray ? 'bg-[#ebebeb] dark:bg-slate-800/60' : 'hover:bg-slate-100 dark:hover:bg-slate-800 bg-white dark:bg-slate-900'}`}>
-                <h2 className="text-[15px] sm:text-[17px] font-semibold text-slate-900 dark:text-slate-100 flex-1 min-w-0 break-words pr-2 leading-snug">{textLabel}</h2>
-                <div className="shrink-0 flex items-center justify-center">
-                    <input 
-                        type="checkbox" 
-                        checked={purchaseReturnSettings[checkedKey]} 
-                        onChange={() => {}}
-                        className="w-5 h-5 sm:w-[22px] sm:h-[22px] accent-[#ef5350] rounded-[2px] border-gray-400 cursor-pointer pointer-events-none" 
-                    />
+            <div 
+              onClick={() => handleToggle(checkedKey)} 
+              className="p-4 border-b border-slate-100 dark:border-slate-800/60 flex items-center justify-between cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/40 gap-4 min-w-0 transition-colors bg-white dark:bg-slate-900"
+            >
+              <div className="flex items-center gap-3.5 flex-1 min-w-0 pr-2">
+                <div className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-slate-800 flex items-center justify-center shrink-0 text-indigo-600 dark:text-indigo-400">
+                  <IconComponent size={16} />
                 </div>
+                <h2 className="text-sm sm:text-base font-semibold text-slate-800 dark:text-slate-100 truncate">{textLabel}</h2>
+              </div>
+              <div className="shrink-0">
+                <ToggleSwitch 
+                  checked={purchaseReturnSettings[checkedKey]} 
+                  onChange={() => handleToggle(checkedKey)} 
+                />
+              </div>
             </div>
         );
     };
 
     return (
-      <div className="flex flex-col h-full bg-[#fcfcfc] dark:bg-slate-950 text-slate-900 dark:text-white pb-[max(env(safe-area-inset-bottom),0px)]">
-        <header className="bg-[#3b5998] text-white p-4 flex items-center gap-3 shadow-md shrink-0 pt-[max(env(safe-area-inset-top),48px)]">
-          <button onClick={() => setActiveView('preferences2')} className="p-1 hover:bg-white/10 rounded-lg transition"><ArrowLeft size={24} /></button>
-          <h1 className="text-xl font-bold truncate">{currentLanguage === 'hi' ? 'खरीद वापसी सेटिंग्स' : 'Purchase Return Settings'}</h1>
+      <motion.div 
+        initial={{ opacity: 0, y: 15 }} 
+        animate={{ opacity: 1, y: 0 }} 
+        transition={{ duration: 0.2 }}
+        className="flex flex-col h-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white pb-[max(env(safe-area-inset-bottom),0px)]"
+      >
+        <header className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-4 flex items-center gap-3 shadow-sm border-b border-slate-100 dark:border-slate-800 sticky top-0 z-40 pt-[max(env(safe-area-inset-top),48px)]">
+          <button onClick={() => setActiveView('preferences2')} className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-700 dark:text-slate-300 transition"><ArrowLeft size={22} /></button>
+          <div className="flex flex-col">
+            <h1 className="text-lg font-bold text-indigo-600 dark:text-indigo-400 font-sans tracking-tight leading-none truncate">{currentLanguage === 'hi' ? 'खरीद वापसी सेटिंग्स' : 'Purchase Return Settings'}</h1>
+            <p className="text-[10px] text-slate-400 select-none uppercase font-sans tracking-wider font-extrabold mt-0.5">{currentLanguage === 'hi' ? 'डेबिट नोट एवं स्टॉक वापसी विकल्प' : 'Debit note & purchase return options'}</p>
+          </div>
         </header>
 
-        <div className="flex-1 flex flex-col overflow-y-auto bg-white dark:bg-slate-950">
-            <CheckboxRow label="Enable Additional Charges" labelHi="अतिरिक्त प्रभार सक्षम करें (Additional Charges)" checkedKey="additionalCharges" />
-            <CheckboxRow label="Enable Item Wise Discount" labelHi="आइटम अनुसार छूट सक्षम करें (Item-Wise Discount)" checkedKey="itemWiseDiscount" />
-            <CheckboxRow label="Enable Transportation Detail" labelHi="परिवहन विवरण सक्षम करें (Transportation)" checkedKey="transportationDetail" />
-            <CheckboxRow label="Enable Ecommerce Detail" labelHi="ई-कॉमर्स विवरण सक्षम करें (Ecommerce Details)" checkedKey="ecommerceDetail" />
-            <CheckboxRow label="Enable Reverse Charge" labelHi="विपरीत प्रभार सक्षम करें (Reverse Charge - RCM)" checkedKey="reverseCharge" />
+        <div className="flex-1 overflow-y-auto bg-slate-50 dark:bg-slate-950 p-4">
+          <div className="max-w-xl mx-auto bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden divide-y divide-slate-100 dark:divide-slate-800">
+            <CheckboxRow label="Enable Additional Charges" labelHi="अतिरिक्त प्रभार सक्षम करें (Additional Charges)" checkedKey="additionalCharges" icon={SlidersHorizontal} />
+            <CheckboxRow label="Enable Item Wise Discount" labelHi="आइटम अनुसार छूट सक्षम करें (Item-Wise Discount)" checkedKey="itemWiseDiscount" icon={SlidersHorizontal} />
+            <CheckboxRow label="Enable Transportation Detail" labelHi="परिवहन विवरण सक्षम करें (Transportation)" checkedKey="transportationDetail" icon={ExternalLink} />
+            <CheckboxRow label="Enable Ecommerce Detail" labelHi="ई-कॉमर्स विवरण सक्षम करें (Ecommerce Details)" checkedKey="ecommerceDetail" icon={Globe} />
+            <CheckboxRow label="Enable Reverse Charge" labelHi="विपरीत प्रभार सक्षम करें (Reverse Charge - RCM)" checkedKey="reverseCharge" icon={SlidersHorizontal} />
+          </div>
         </div>
-      </div>
+      </motion.div>
     );
   }
 
   // LEDGER SETTINGS SUB-SCREEN
   if (activeView === 'ledger_settings') {
-    const handleToggle = (id: number) => {
-        setLedgersList(prev => prev.map(ledger => 
+    const handleToggle = async (id: number) => {
+        const updated = ledgersList.map(ledger => 
             ledger.id === id ? { ...ledger, checked: !ledger.checked } : ledger
-        ));
+        );
+        setLedgersList(updated);
+        await billingService.saveLedgersList(updated);
     };
 
+    const filteredLedgers = ledgersList.filter(ledger =>
+        ledger.name.toLowerCase().includes(ledgerSearchQuery.toLowerCase())
+    );
+
     return (
-      <div className="flex flex-col h-full bg-[#fcfcfc] dark:bg-slate-950 text-slate-900 dark:text-white pb-[max(env(safe-area-inset-bottom),0px)]">
-        <header className="bg-[#3b5998] text-white p-4 flex items-center justify-between shadow-md shrink-0 pt-[max(env(safe-area-inset-top),48px)]">
+      <motion.div 
+        initial={{ opacity: 0, y: 15 }} 
+        animate={{ opacity: 1, y: 0 }} 
+        transition={{ duration: 0.2 }}
+        className="flex flex-col h-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white pb-[max(env(safe-area-inset-bottom),0px)]"
+      >
+        <header className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-4 flex items-center justify-between shadow-sm border-b border-slate-100 dark:border-slate-800 sticky top-0 z-40 pt-[max(env(safe-area-inset-top),48px)]">
           <div className="flex items-center gap-3 min-w-0">
-              <button onClick={() => setActiveView('preferences2')} className="p-1 hover:bg-white/10 rounded-lg transition shrink-0"><ArrowLeft size={24} /></button>
-              <h1 className="text-xl font-bold truncate">{currentLanguage === 'hi' ? 'लेजर सूची' : 'Ledger List'}</h1>
+              <button onClick={() => { setActiveView('preferences2'); setLedgerSearchQuery(''); }} className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-700 dark:text-slate-300 transition shrink-0"><ArrowLeft size={22} /></button>
+              <div className="flex flex-col min-w-0">
+                <h1 className="text-lg font-bold text-indigo-600 dark:text-indigo-400 font-sans tracking-tight leading-none truncate">{currentLanguage === 'hi' ? 'लेजर सूची' : 'Ledger List'}</h1>
+                <p className="text-[10px] text-slate-400 select-none uppercase font-sans tracking-wider font-extrabold mt-0.5">{currentLanguage === 'hi' ? '63 पूर्व-निर्धारित खाता बही कर नियम' : '63 predefined accounting ledger tax rules'}</p>
+              </div>
           </div>
-          <button onClick={() => setActiveView('preferences2')} className="p-1 hover:bg-white/10 rounded-lg transition shrink-0"><Check size={24} /></button>
+          <button onClick={() => { setActiveView('preferences2'); setLedgerSearchQuery(''); }} className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-700 dark:text-slate-300 transition shrink-0"><Check size={22} /></button>
         </header>
 
-        <div className="flex bg-slate-50 dark:bg-slate-800/50 px-4 py-3 font-semibold border-b border-gray-200 dark:border-slate-800 text-sm sm:text-base gap-3 select-none">
-            <div className="w-16 shrink-0">{currentLanguage === 'hi' ? 'क्रमांक' : 'No.'}</div>
-            <div className="flex-1 min-w-0 text-left">{currentLanguage === 'hi' ? 'खाता का नाम' : 'Name'}</div>
+        <div className="p-3 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800/80">
+          <div className="relative max-w-md mx-auto">
+            <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400 dark:text-slate-500">
+              <SlidersHorizontal size={16} />
+            </span>
+            <input
+              type="text"
+              value={ledgerSearchQuery}
+              onChange={(e) => setLedgerSearchQuery(e.target.value)}
+              placeholder={currentLanguage === 'hi' ? 'खाता खोजें...' : 'Search ledger...'}
+              className="w-full pl-9 pr-4 py-2 text-sm bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/60 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition"
+            />
+          </div>
         </div>
 
-        <div className="flex-1 flex flex-col overflow-y-auto bg-white dark:bg-slate-950 relative">
-            {ledgersList.map((ledger) => (
+        <div className="flex bg-slate-50 dark:bg-slate-800/30 px-4 py-3 font-bold border-b border-slate-100 dark:border-slate-800/80 text-xs sm:text-sm gap-3 select-none text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+            <div className="w-16 shrink-0">{currentLanguage === 'hi' ? 'क्रमांक' : 'No.'}</div>
+            <div className="flex-1 min-w-0 text-left">{currentLanguage === 'hi' ? 'खाता का नाम' : 'Ledger Name'}</div>
+            <div className="shrink-0 pr-4">{currentLanguage === 'hi' ? 'स्थिति' : 'Status'}</div>
+        </div>
+
+        <div className="flex-1 flex flex-col overflow-y-auto bg-white dark:bg-slate-900 divide-y divide-slate-100 dark:divide-slate-800/50">
+            {filteredLedgers.length > 0 ? (
+              filteredLedgers.map((ledger) => (
                 <div 
                     key={ledger.id} 
                     onClick={() => handleToggle(ledger.id)} 
-                    className="px-4 py-3.5 border-b border-slate-100 dark:border-slate-800/60 flex items-center justify-between cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/40 gap-3 min-w-0"
+                    className="px-4 py-3.5 flex items-center justify-between cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/40 gap-3 min-w-0"
                 >
                     <div className="flex items-center gap-3 flex-1 min-w-0 pr-2">
-                        <div className="w-12 text-sm sm:text-[17px] font-medium text-slate-500 shrink-0">{ledger.id}</div>
-                        <div className="text-[15px] sm:text-[17px] font-semibold text-slate-800 dark:text-slate-200 truncate flex-1 min-w-0 text-left">{ledger.name}</div>
+                        <div className="w-12 text-sm sm:text-base font-bold text-slate-400 dark:text-slate-500 shrink-0">{ledger.id}</div>
+                        <div className="text-sm sm:text-base font-bold text-slate-800 dark:text-slate-200 truncate flex-1 min-w-0 text-left">{ledger.name}</div>
                     </div>
                     <div className="shrink-0 flex items-center justify-center pl-2">
-                        <input 
-                            type="checkbox" 
+                        <ToggleSwitch 
                             checked={ledger.checked} 
-                            onChange={() => {}}
-                            className="w-5 h-5 sm:w-[22px] sm:h-[22px] accent-[#ef5350] rounded border-gray-300 dark:border-slate-700 cursor-pointer pointer-events-none" 
+                            onChange={() => handleToggle(ledger.id)} 
                         />
                     </div>
                 </div>
-            ))}
+              ))
+            ) : (
+              <div className="p-8 text-center text-slate-400 dark:text-slate-500 text-sm">
+                {currentLanguage === 'hi' ? 'कोई खाता बही नहीं मिली।' : 'No ledgers found matching search query.'}
+              </div>
+            )}
         </div>
-      </div>
+      </motion.div>
     );
   }
 
   // TRANSPORTATION SETTINGS SUB-SCREEN
   if (activeView === 'transportation_settings') {
-    const handleToggle = (key: keyof typeof transportationSettings) => {
-        setTransportationSettings(prev => ({...prev, [key]: !prev[key]}));
+    const handleToggle = async (key: keyof typeof transportationSettings) => {
+        const updated = {...transportationSettings, [key]: !transportationSettings[key]};
+        setTransportationSettings(updated);
+        await billingService.saveTransportationSettings(updated);
     };
 
-    const CheckboxRow = ({ label, labelHi, checkedKey, isGray = false }: { label: string, labelHi: string, checkedKey: keyof typeof transportationSettings, isGray?: boolean }) => {
+    const CheckboxRow = ({ 
+      label, 
+      labelHi, 
+      checkedKey, 
+      icon: IconComponent 
+    }: { 
+      label: string; 
+      labelHi: string; 
+      checkedKey: keyof typeof transportationSettings; 
+      icon: React.ComponentType<any>; 
+    }) => {
         const textLabel = currentLanguage === 'hi' ? labelHi : label;
         return (
-            <div onClick={() => handleToggle(checkedKey)} className={`p-4 sm:p-[18px] border-b border-slate-200 dark:border-slate-800 flex items-center justify-between cursor-pointer gap-4 min-w-0 transition-colors ${isGray ? 'bg-[#ebebeb] dark:bg-slate-800/60' : 'hover:bg-slate-100 dark:hover:bg-slate-800 bg-white dark:bg-slate-900'}`}>
-                <h2 className="text-[15px] sm:text-[17px] font-semibold text-slate-900 dark:text-slate-100 flex-1 min-w-0 break-words pr-2 leading-snug">{textLabel}</h2>
-                <div className="shrink-0 flex items-center justify-center">
-                    <input 
-                        type="checkbox" 
-                        checked={transportationSettings[checkedKey]} 
-                        onChange={() => {}}
-                        className="w-5 h-5 sm:w-[22px] sm:h-[22px] accent-[#ef5350] rounded-[2px] border-gray-400 cursor-pointer pointer-events-none" 
-                    />
+            <div 
+              onClick={() => handleToggle(checkedKey)} 
+              className="p-4 border-b border-slate-100 dark:border-slate-800/60 flex items-center justify-between cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/40 gap-4 min-w-0 transition-colors bg-white dark:bg-slate-900"
+            >
+              <div className="flex items-center gap-3.5 flex-1 min-w-0 pr-2">
+                <div className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-slate-800 flex items-center justify-center shrink-0 text-indigo-600 dark:text-indigo-400">
+                  <IconComponent size={16} />
                 </div>
+                <h2 className="text-sm sm:text-base font-semibold text-slate-800 dark:text-slate-100 truncate">{textLabel}</h2>
+              </div>
+              <div className="shrink-0">
+                <ToggleSwitch 
+                  checked={transportationSettings[checkedKey]} 
+                  onChange={() => handleToggle(checkedKey)} 
+                />
+              </div>
             </div>
         );
     };
 
     return (
-      <div className="flex flex-col h-full bg-[#fcfcfc] dark:bg-slate-950 text-slate-900 dark:text-white pb-[max(env(safe-area-inset-bottom),0px)]">
-        <header className="bg-[#3b5998] text-white p-4 flex items-center gap-3 shadow-md shrink-0 pt-[max(env(safe-area-inset-top),48px)]">
-          <button onClick={() => setActiveView('preferences2')} className="p-1 hover:bg-white/10 rounded-lg transition"><ArrowLeft size={24} /></button>
-          <h1 className="text-xl font-bold truncate">{currentLanguage === 'hi' ? 'परिवहन विवरण सेटिंग्स' : 'Transportation Settings'}</h1>
+      <motion.div 
+        initial={{ opacity: 0, y: 15 }} 
+        animate={{ opacity: 1, y: 0 }} 
+        transition={{ duration: 0.2 }}
+        className="flex flex-col h-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white pb-[max(env(safe-area-inset-bottom),0px)]"
+      >
+        <header className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-4 flex items-center gap-3 shadow-sm border-b border-slate-100 dark:border-slate-800 sticky top-0 z-40 pt-[max(env(safe-area-inset-top),48px)]">
+          <button onClick={() => setActiveView('preferences2')} className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-700 dark:text-slate-300 transition"><ArrowLeft size={22} /></button>
+          <div className="flex flex-col">
+            <h1 className="text-lg font-bold text-indigo-600 dark:text-indigo-400 font-sans tracking-tight leading-none truncate">{currentLanguage === 'hi' ? 'परिवहन विवरण सेटिंग्स' : 'Transportation Settings'}</h1>
+            <p className="text-[10px] text-slate-400 select-none uppercase font-sans tracking-wider font-extrabold mt-0.5">{currentLanguage === 'hi' ? 'वाहनों and चालान फ़ील्ड्स का विवरण' : 'Logistics, GR number and vehicle layout rules'}</p>
+          </div>
         </header>
 
-        <div className="flex-1 flex flex-col overflow-y-auto bg-white dark:bg-slate-950">
-            <CheckboxRow label="Enable GR No." labelHi="जीआर क्रमांक सक्षम करें (GR/LR No.)" checkedKey="grNo" />
-            <CheckboxRow label="Enable Vehicle No." labelHi="वाहन क्रमांक सक्षम करें (Vehicle No.)" checkedKey="vehicleNo" />
-            <CheckboxRow label="Enable Origin" labelHi="उद्गम स्थल सक्षम करें (Origin)" checkedKey="origin" />
-            <CheckboxRow label="Enable Destination" labelHi="गंतव्य स्थल सक्षम करें (Destination)" checkedKey="destination" />
-            <CheckboxRow label="Enable Dispatch Mode" labelHi="परिवहन माध्यम विवरण सक्षम करें (Dispatch Mode)" checkedKey="dispatchMode" isGray />
-            <CheckboxRow label="Enable Date" labelHi="परिवहन प्रस्थान तिथि सक्षम करें (Date Field)" checkedKey="date" />
+        <div className="flex-1 overflow-y-auto bg-slate-50 dark:bg-slate-950 p-4">
+          <div className="max-w-xl mx-auto bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden divide-y divide-slate-100 dark:divide-slate-800">
+            <CheckboxRow label="Enable GR No." labelHi="जीआर क्रमांक सक्षम करें (GR/LR No.)" checkedKey="grNo" icon={SlidersHorizontal} />
+            <CheckboxRow label="Enable Vehicle No." labelHi="वाहन क्रमांक सक्षम करें (Vehicle No.)" checkedKey="vehicleNo" icon={SlidersHorizontal} />
+            <CheckboxRow label="Enable Origin" labelHi="उद्गम स्थल सक्षम करें (Origin)" checkedKey="origin" icon={SlidersHorizontal} />
+            <CheckboxRow label="Enable Destination" labelHi="गंतव्य स्थल सक्षम करें (Destination)" checkedKey="destination" icon={SlidersHorizontal} />
+            <CheckboxRow label="Enable Dispatch Mode" labelHi="परिवहन माध्यम विवरण सक्षम करें (Dispatch Mode)" checkedKey="dispatchMode" icon={SlidersHorizontal} />
+            <CheckboxRow label="Enable Date" labelHi="परिवहन प्रस्थान तिथि सक्षम करें (Date Field)" checkedKey="date" icon={SlidersHorizontal} />
+          </div>
         </div>
-      </div>
+      </motion.div>
     );
   }
 
   // SALE RETURN SETTINGS SUB-SCREEN
   if (activeView === 'sale_return_settings') {
-    const handleToggle = (key: keyof typeof saleReturnSettings) => {
-        setSaleReturnSettings(prev => ({...prev, [key]: !prev[key]}));
+    const handleToggle = async (key: keyof typeof saleReturnSettings) => {
+        const updated = {...saleReturnSettings, [key]: !saleReturnSettings[key]};
+        setSaleReturnSettings(updated);
+        await billingService.saveSaleReturnSettings(updated);
     };
 
-    const CheckboxRow = ({ label, labelHi, checkedKey, isGray = false }: { label: string, labelHi: string, checkedKey: keyof typeof saleReturnSettings, isGray?: boolean }) => {
+    const CheckboxRow = ({ 
+      label, 
+      labelHi, 
+      checkedKey, 
+      icon: IconComponent 
+    }: { 
+      label: string; 
+      labelHi: string; 
+      checkedKey: keyof typeof saleReturnSettings; 
+      icon: React.ComponentType<any>; 
+    }) => {
         const textLabel = currentLanguage === 'hi' ? labelHi : label;
         return (
-            <div onClick={() => handleToggle(checkedKey)} className={`p-4 sm:p-[18px] border-b border-slate-200 dark:border-slate-800 flex items-center justify-between cursor-pointer gap-4 min-w-0 transition-colors ${isGray ? 'bg-[#ebebeb] dark:bg-slate-800/60' : 'hover:bg-slate-100 dark:hover:bg-slate-800 bg-white dark:bg-slate-900'}`}>
-                <h2 className="text-[15px] sm:text-[17px] font-semibold text-slate-900 dark:text-slate-100 flex-1 min-w-0 break-words pr-2 leading-snug">{textLabel}</h2>
-                <div className="shrink-0 flex items-center justify-center">
-                    <input 
-                        type="checkbox" 
-                        checked={saleReturnSettings[checkedKey]} 
-                        onChange={() => {}}
-                        className="w-5 h-5 sm:w-[22px] sm:h-[22px] accent-[#ef5350] rounded-[2px] border-gray-400 cursor-pointer pointer-events-none" 
-                    />
+            <div 
+              onClick={() => handleToggle(checkedKey)} 
+              className="p-4 border-b border-slate-100 dark:border-slate-800/60 flex items-center justify-between cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/40 gap-4 min-w-0 transition-colors bg-white dark:bg-slate-900"
+            >
+              <div className="flex items-center gap-3.5 flex-1 min-w-0 pr-2">
+                <div className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-slate-800 flex items-center justify-center shrink-0 text-indigo-600 dark:text-indigo-400">
+                  <IconComponent size={16} />
                 </div>
+                <h2 className="text-sm sm:text-base font-semibold text-slate-800 dark:text-slate-100 truncate">{textLabel}</h2>
+              </div>
+              <div className="shrink-0">
+                <ToggleSwitch 
+                  checked={saleReturnSettings[checkedKey]} 
+                  onChange={() => handleToggle(checkedKey)} 
+                />
+              </div>
             </div>
         );
     };
 
     return (
-      <div className="flex flex-col h-full bg-[#fcfcfc] dark:bg-slate-950 text-slate-900 dark:text-white pb-[max(env(safe-area-inset-bottom),0px)]">
-        <header className="bg-[#3b5998] text-white p-4 flex items-center gap-3 shadow-md shrink-0 pt-[max(env(safe-area-inset-top),48px)]">
-          <button onClick={() => setActiveView('preferences2')} className="p-1 hover:bg-white/10 rounded-lg transition"><ArrowLeft size={24} /></button>
-          <h1 className="text-xl font-bold truncate">{currentLanguage === 'hi' ? 'बिक्री वापसी सेटिंग्स' : 'Sale Return Settings'}</h1>
+      <motion.div 
+        initial={{ opacity: 0, y: 15 }} 
+        animate={{ opacity: 1, y: 0 }} 
+        transition={{ duration: 0.2 }}
+        className="flex flex-col h-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white pb-[max(env(safe-area-inset-bottom),0px)]"
+      >
+        <header className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-4 flex items-center gap-3 shadow-sm border-b border-slate-100 dark:border-slate-800 sticky top-0 z-40 pt-[max(env(safe-area-inset-top),48px)]">
+          <button onClick={() => setActiveView('preferences2')} className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-700 dark:text-slate-300 transition"><ArrowLeft size={22} /></button>
+          <div className="flex flex-col">
+            <h1 className="text-lg font-bold text-indigo-600 dark:text-indigo-400 font-sans tracking-tight leading-none truncate">{currentLanguage === 'hi' ? 'बिक्री वापसी सेटिंग्स' : 'Sale Return Settings'}</h1>
+            <p className="text-[10px] text-slate-400 select-none uppercase font-sans tracking-wider font-extrabold mt-0.5">{currentLanguage === 'hi' ? 'क्रेडिट नोट एवं ग्राहक माल वापसी प्राथमिकताएं' : 'Credit note & sales return configurations'}</p>
+          </div>
         </header>
 
-        <div className="flex-1 flex flex-col overflow-y-auto bg-white dark:bg-slate-950">
-            <CheckboxRow label="Enable Bill Discount" labelHi="बिल छूट सक्षम करें (Bill Discount)" checkedKey="billDiscount" />
-            <CheckboxRow label="Enable Additional Charges" labelHi="अतिरिक्त प्रभार सक्षम करें (Additional Charges)" checkedKey="additionalCharges" />
-            <CheckboxRow label="Enable Item Wise Discount" labelHi="आइटम अनुसार छूट सक्षम करें (Item-Wise Discount)" checkedKey="itemWiseDiscount" />
-            <CheckboxRow label="Enable Transportation Detail" labelHi="परिवहन विवरण सक्षम करें (Transportation)" checkedKey="transportationDetail" />
-            <CheckboxRow label="Enable Ecommerce Detail" labelHi="ई-कॉमर्स विवरण सक्षम करें (Ecommerce Details)" checkedKey="ecommerceDetail" />
-            <CheckboxRow label="Enable Reverse Charge" labelHi="विपरीत प्रभार सक्षम करें (Reverse Charge - RCM)" checkedKey="reverseCharge" isGray />
-            
-            <div className="p-4 sm:p-[18px] border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex flex-col justify-start text-left min-w-0 gap-1 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50">
-                <h2 className="text-[15px] sm:text-[17px] font-semibold text-slate-900 dark:text-slate-100 leading-snug">
-                    {currentLanguage === 'hi' ? 'बिक्री वापसी बिल संख्या उपसर्ग (Prefix)' : 'Sale Bill Number Prefix'}
-                </h2>
-                <p className="text-xs sm:text-[15px] text-slate-500 dark:text-slate-400 break-words leading-relaxed">
-                    {currentLanguage === 'hi' ? 'वापसी बिल नंबर से पहले विशेष उपसर्ग वर्ण सेट करें' : 'Add prefix before Bill Number'}
-                </p>
+        <div className="flex-1 overflow-y-auto bg-slate-50 dark:bg-slate-950 p-4 space-y-4">
+          <div className="max-w-xl mx-auto bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden divide-y divide-slate-100 dark:divide-slate-800">
+            <CheckboxRow label="Enable Bill Discount" labelHi="बिल छूट सक्षम करें (Bill Discount)" checkedKey="billDiscount" icon={SlidersHorizontal} />
+            <CheckboxRow label="Enable Additional Charges" labelHi="अतिरिक्त प्रभार सक्षम करें (Additional Charges)" checkedKey="additionalCharges" icon={SlidersHorizontal} />
+            <CheckboxRow label="Enable Item Wise Discount" labelHi="आइटम अनुसार छूट सक्षम करें (Item-Wise Discount)" checkedKey="itemWiseDiscount" icon={SlidersHorizontal} />
+            <CheckboxRow label="Enable Transportation Detail" labelHi="परिवहन विवरण सक्षम करें (Transportation)" checkedKey="transportationDetail" icon={ExternalLink} />
+            <CheckboxRow label="Enable Ecommerce Detail" labelHi="ई-कॉमर्स विवरण सक्षम करें (Ecommerce Details)" checkedKey="ecommerceDetail" icon={Globe} />
+            <CheckboxRow label="Enable Reverse Charge" labelHi="विपरीत प्रभार सक्षम करें (Reverse Charge - RCM)" checkedKey="reverseCharge" icon={SlidersHorizontal} />
+          </div>
+
+          <div 
+            onClick={() => setSelectedCategoryTab('business_identity')}
+            className="max-w-xl mx-auto p-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm flex items-center justify-between cursor-pointer hover:shadow-md transition-shadow"
+          >
+            <div className="text-left">
+              <h2 className="text-sm sm:text-base font-semibold text-slate-800 dark:text-slate-100">
+                  {currentLanguage === 'hi' ? 'बिक्री वापसी बिल संख्या उपसर्ग (Prefix)' : 'Sale Return Number Prefix'}
+              </h2>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">
+                  {currentLanguage === 'hi' ? 'वापसी बिल नंबर से पहले विशेष उपसर्ग वर्ण सेट करें' : 'Configure prefixes under Business Identity'}
+              </p>
             </div>
+            <ExternalLink size={16} className="text-slate-400 dark:text-slate-500" />
+          </div>
         </div>
-      </div>
+      </motion.div>
     );
   }
 
   // SALE BILL SETTINGS SUB-SCREEN
   if (activeView === 'sale_bill_settings') {
-    const handleToggle = (key: keyof typeof saleSettings) => {
-        setSaleSettings(prev => ({...prev, [key]: !prev[key]}));
+    const handleToggle = async (key: keyof typeof saleSettings) => {
+        const updated = {...saleSettings, [key]: !saleSettings[key]};
+        setSaleSettings(updated);
+        await billingService.saveSaleSettings(updated);
     };
 
-    const CheckboxRow = ({ label, labelHi, checkedKey, isGray = false }: { label: string, labelHi: string, checkedKey: keyof typeof saleSettings, isGray?: boolean }) => {
+    const CheckboxRow = ({ 
+      label, 
+      labelHi, 
+      checkedKey, 
+      icon: IconComponent 
+    }: { 
+      label: string; 
+      labelHi: string; 
+      checkedKey: keyof typeof saleSettings; 
+      icon: React.ComponentType<any>; 
+    }) => {
         const textLabel = currentLanguage === 'hi' ? labelHi : label;
         return (
-            <div onClick={() => handleToggle(checkedKey)} className={`p-4 sm:p-[18px] border-b border-slate-200 dark:border-slate-800 flex items-center justify-between cursor-pointer gap-4 min-w-0 transition-colors ${isGray ? 'bg-[#ebebeb] dark:bg-slate-800/60' : 'hover:bg-slate-100 dark:hover:bg-slate-800 bg-white dark:bg-slate-900'}`}>
-                <h2 className="text-[15px] sm:text-[17px] font-semibold text-slate-900 dark:text-slate-100 flex-1 min-w-0 break-words pr-2 leading-snug">{textLabel}</h2>
-                <div className="shrink-0 flex items-center justify-center">
-                    <input 
-                        type="checkbox" 
-                        checked={saleSettings[checkedKey]} 
-                        onChange={() => {}}
-                        className="w-5 h-5 sm:w-[22px] sm:h-[22px] accent-[#ef5350] rounded-[2px] border-gray-400 cursor-pointer pointer-events-none" 
-                    />
+            <div 
+              onClick={() => handleToggle(checkedKey)} 
+              className="p-4 border-b border-slate-100 dark:border-slate-800/60 flex items-center justify-between cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/40 gap-4 min-w-0 transition-colors bg-white dark:bg-slate-900"
+            >
+              <div className="flex items-center gap-3.5 flex-1 min-w-0 pr-2">
+                <div className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-slate-800 flex items-center justify-center shrink-0 text-indigo-600 dark:text-indigo-400">
+                  <IconComponent size={16} />
                 </div>
+                <h2 className="text-sm sm:text-base font-semibold text-slate-800 dark:text-slate-100 truncate">{textLabel}</h2>
+              </div>
+              <div className="shrink-0">
+                <ToggleSwitch 
+                  checked={saleSettings[checkedKey]} 
+                  onChange={() => handleToggle(checkedKey)} 
+                />
+              </div>
             </div>
         );
     };
 
     return (
-      <div className="flex flex-col h-full bg-[#fcfcfc] dark:bg-slate-950 text-slate-900 dark:text-white pb-[max(env(safe-area-inset-bottom),0px)]">
-        <header className="bg-[#3b5998] text-white p-4 flex items-center gap-3 shadow-md shrink-0 pt-[max(env(safe-area-inset-top),48px)]">
-          <button onClick={() => setActiveView('preferences2')} className="p-1 hover:bg-white/10 rounded-lg transition"><ArrowLeft size={24} /></button>
-          <h1 className="text-xl font-bold truncate">{currentLanguage === 'hi' ? 'बिक्री बिल सेटिंग्स' : 'Sale Bill Settings'}</h1>
+      <motion.div 
+        initial={{ opacity: 0, y: 15 }} 
+        animate={{ opacity: 1, y: 0 }} 
+        transition={{ duration: 0.2 }}
+        className="flex flex-col h-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white pb-[max(env(safe-area-inset-bottom),0px)]"
+      >
+        <header className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-4 flex items-center gap-3 shadow-sm border-b border-slate-100 dark:border-slate-800 sticky top-0 z-40 pt-[max(env(safe-area-inset-top),48px)]">
+          <button onClick={() => setActiveView('preferences2')} className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-700 dark:text-slate-300 transition"><ArrowLeft size={22} /></button>
+          <div className="flex flex-col">
+            <h1 className="text-lg font-bold text-indigo-600 dark:text-indigo-400 font-sans tracking-tight leading-none truncate">{currentLanguage === 'hi' ? 'बिक्री बिल सेटिंग्स' : 'Sale Bill Settings'}</h1>
+            <p className="text-[10px] text-slate-400 select-none uppercase font-sans tracking-wider font-extrabold mt-0.5">{currentLanguage === 'hi' ? 'बिलिंग प्रारूप, जीएसटी और छूट प्राथमिकताएं' : 'POS billing templates, GST and discount options'}</p>
+          </div>
         </header>
 
-        <div className="flex-1 flex flex-col overflow-y-auto bg-white dark:bg-slate-950">
-            <CheckboxRow label="Enable Cash Billing" labelHi="नकद बिलिंग सक्षम करें (Cash Billing)" checkedKey="cashBilling" />
-            <CheckboxRow label="Enable Bill Discount" labelHi="समग्र बिल छूट सक्षम करें (Bill Discount)" checkedKey="billDiscount" />
-            <CheckboxRow label="Enable Additional Charges" labelHi="अतिरिक्त प्रभार सक्षम करें (Additional Charges)" checkedKey="additionalCharges" />
-            <CheckboxRow label="Enable Item Wise Discount" labelHi="आइटम अनुसार छूट सक्षम करें (Item-Wise Discount)" checkedKey="itemWiseDiscount" />
-            <CheckboxRow label="Enable Transportation Detail" labelHi="परिवहन विवरण सक्षम करें (Transportation)" checkedKey="transportationDetail" />
-            <CheckboxRow label="Enable Ecommerce Detail" labelHi="ई-कॉमर्स विवरण सक्षम करें (Ecommerce Details)" checkedKey="ecommerceDetail" />
-            <CheckboxRow label="Enable Reverse Charge" labelHi="विपरीत प्रभार सक्षम करें (Reverse Charge - RCM)" checkedKey="reverseCharge" />
-            <CheckboxRow label="Show logo on bill" labelHi="बिल प्रारूप पर ब्रांड लोगो दिखाएं (Show Logo)" checkedKey="showLogo" />
-            <CheckboxRow label="Enable Item Out Of Stock Alert" labelHi="स्टॉक समाप्ति अलर्ट सक्षम करें (Stock Warnings)" checkedKey="outOfStockAlert" isGray />
-            <CheckboxRow label="Enable Discounted Quantity" labelHi="छूट वाली मात्रा सक्षम करें (Discounted Qty)" checkedKey="discountedQuantity" />
-            <CheckboxRow label="Get Previous Bill Sale Rate" labelHi="बिल निर्माण में पिछला बिक्री मूल्य लागू करें (Last Price)" checkedKey="previousBillSaleRate" />
-            
-            <div className="p-4 sm:p-[18px] border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex flex-col justify-start text-left min-w-0 gap-1 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50">
-                <h2 className="text-[15px] sm:text-[17px] font-semibold text-slate-900 dark:text-slate-100 leading-snug">
-                    {currentLanguage === 'hi' ? 'बिक्री बिल संख्या उपसर्ग (Prefix)' : 'Sale Bill Number Prefix'}
-                </h2>
-                <p className="text-xs sm:text-[15px] text-slate-500 dark:text-slate-400 break-words leading-relaxed">
-                    {currentLanguage === 'hi' ? 'बिल नंबर से पहले विशेष उपसर्ग अक्षर जोड़ें' : 'Add prefix before Bill Number'}
-                </p>
+        <div className="flex-1 overflow-y-auto bg-slate-50 dark:bg-slate-950 p-4 space-y-4">
+          <div className="max-w-xl mx-auto bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden divide-y divide-slate-100 dark:divide-slate-800">
+            <CheckboxRow label="Enable Cash Billing" labelHi="नकद बिलिंग सक्षम करें (Cash Billing)" checkedKey="cashBilling" icon={SlidersHorizontal} />
+            <CheckboxRow label="Enable Bill Discount" labelHi="समग्र बिल छूट सक्षम करें (Bill Discount)" checkedKey="billDiscount" icon={SlidersHorizontal} />
+            <CheckboxRow label="Enable Additional Charges" labelHi="अतिरिक्त प्रभार सक्षम करें (Additional Charges)" checkedKey="additionalCharges" icon={SlidersHorizontal} />
+            <CheckboxRow label="Enable Item Wise Discount" labelHi="आइटम अनुसार छूट सक्षम करें (Item-Wise Discount)" checkedKey="itemWiseDiscount" icon={SlidersHorizontal} />
+            <CheckboxRow label="Enable Transportation Detail" labelHi="परिवहन विवरण सक्षम करें (Transportation)" checkedKey="transportationDetail" icon={ExternalLink} />
+            <CheckboxRow label="Enable Ecommerce Detail" labelHi="ई-कॉमर्स विवरण सक्षम करें (Ecommerce Details)" checkedKey="ecommerceDetail" icon={Globe} />
+            <CheckboxRow label="Enable Reverse Charge" labelHi="विपरीत प्रभार सक्षम करें (Reverse Charge - RCM)" checkedKey="reverseCharge" icon={SlidersHorizontal} />
+            <CheckboxRow label="Show logo on bill" labelHi="बिल प्रारूप पर ब्रांड लोगो दिखाएं (Show Logo)" checkedKey="showLogo" icon={Bot} />
+            <CheckboxRow label="Enable Item Out Of Stock Alert" labelHi="स्टॉक समाप्ति अलर्ट सक्षम करें (Stock Warnings)" checkedKey="outOfStockAlert" icon={AlertTriangle} />
+            <CheckboxRow label="Enable Discounted Quantity" labelHi="छूट वाली मात्रा सक्षम करें (Discounted Qty)" checkedKey="discountedQuantity" icon={SlidersHorizontal} />
+            <CheckboxRow label="Get Previous Bill Sale Rate" labelHi="बिल निर्माण में पिछला बिक्री मूल्य लागू करें (Last Price)" checkedKey="previousBillSaleRate" icon={SlidersHorizontal} />
+          </div>
+
+          <div 
+            onClick={() => setSelectedCategoryTab('business_identity')}
+            className="max-w-xl mx-auto p-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm flex items-center justify-between cursor-pointer hover:shadow-md transition-shadow"
+          >
+            <div className="text-left">
+              <h2 className="text-sm sm:text-base font-semibold text-slate-800 dark:text-slate-100">
+                  {currentLanguage === 'hi' ? 'बिक्री बिल संख्या उपसर्ग (Prefix)' : 'Sale Bill Number Prefix'}
+              </h2>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">
+                  {currentLanguage === 'hi' ? 'बिल नंबर से पहले विशेष उपसर्ग अक्षर जोड़ें' : 'Configure prefixes under Business Identity'}
+              </p>
             </div>
+            <ExternalLink size={16} className="text-slate-400 dark:text-slate-500" />
+          </div>
         </div>
-      </div>
+      </motion.div>
     );
   }
 
@@ -3016,255 +3309,58 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
 
         {/* Hierarchical Accordion Settings (Cat & Sub-Cat) */}
         <div className="flex flex-col gap-4 max-w-4xl mx-auto w-full md:hidden">
-          {/* Category 1: Business Identity */}
+                    {/* Category 1: Business Settings */}
           <SettingsAccordion
-            title="Business Identity"
+            title={currentLanguage === 'hi' ? 'व्यवसाय सेटअप' : 'Business Settings'}
             icon={User}
-            description="Manage store identification, business address, contact numbers, and voucher printing headers."
+            description={currentLanguage === 'hi' ? 'कंपनी प्रोफ़ाइल, नंबरिंग सेटअप, और ऐप भाषा प्रबंधित करें।' : 'Manage store identification, business address, contact numbers, and voucher printing headers.'}
             isLocked={isStaff}
             disabled={isStaff}
           >
-            {/* Store Code details */}
-            <div className="w-full flex items-center justify-between p-3.5 rounded-xl border border-slate-100 dark:border-slate-800/80 bg-white dark:bg-slate-900 shadow-sm gap-3">
-              <div className="flex items-center gap-3 flex-1 min-w-0 pr-1">
-                <div className="bg-indigo-50 dark:bg-indigo-900/30 p-2 rounded-lg text-indigo-600 dark:text-indigo-400 shrink-0">
-                  <Hash size={18} />
-                </div>
-                <div className="text-left flex-1 min-w-0">
-                  <span className="font-bold text-slate-800 dark:text-slate-200 block text-xs">
-                    {currentLanguage === 'hi' ? 'स्टोर कोड (6-अंकीय)' : 'Store Code (6-Digit)'}
-                  </span>
-                  <span className="text-[10px] text-slate-500 dark:text-slate-400 leading-normal block font-sans mt-0.5">
-                    {currentLanguage === 'hi' ? 'स्टाफ से शेयर करके सिंक लिंक करें' : 'Share with staff to link business and sync'}
-                  </span>
-                </div>
-              </div>
-              {authContext.currentUser?.storeCode ? (
-                <span className="text-sm font-mono font-extrabold text-indigo-700 dark:text-indigo-400 bg-indigo-50/50 dark:bg-indigo-950/40 border border-indigo-100/80 dark:border-indigo-800/60 px-3 py-1.5 rounded-lg shadow-sm">
-                  {authContext.currentUser?.storeCode}
-                </span>
-              ) : (
-                <span className="text-xs text-slate-400 font-medium font-sans">Auto generating...</span>
-              )}
-            </div>
-
-            {/* Company Profile link */}
-            <button
-              disabled={authContext.currentUser?.role === 'staff'}
-              onClick={() => onNavigate('companyProfile')}
-              className={`w-full flex items-center justify-between p-3 rounded-xl border border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 transition text-left min-w-0 gap-3 ${
-                authContext.currentUser?.role === 'staff' ? 'opacity-[0.45] cursor-not-allowed' : 'cursor-pointer bg-white dark:bg-slate-900'
-              }`}
-            >
-              <div className="flex items-center gap-3 flex-1 min-w-0 pr-2">
-                <div className="bg-indigo-50 dark:bg-indigo-900/30 p-2 rounded-lg text-indigo-600 dark:text-indigo-400 shrink-0">
-                  <User size={18} />
-                </div>
-                <div className="text-left flex-1 min-w-0">
-                  <span className="font-bold text-slate-800 dark:text-slate-200 block text-sm flex items-center gap-1">
-                    {currentLanguage === 'hi' ? 'कंपनी प्रोफ़ाइल संपादित करें' : 'Edit Company Profile'}
-                    {authContext.currentUser?.role === 'staff' && <Lock size={12} className="text-amber-500 inline shrink-0" />}
-                  </span>
-                  <span className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed block truncate font-sans">
-                    {currentLanguage === 'hi' ? 'फोन नंबर, पता, और छपाई सेटिंग्स प्रबंधित करें' : 'Phone, address, tax configuration and print headers'}
-                  </span>
-                </div>
-              </div>
-              {authContext.currentUser?.role === 'staff' ? (
-                <span className="text-xs text-amber-500 font-extrabold flex items-center gap-1 bg-amber-50 dark:bg-amber-900/10 px-2 py-1 rounded-md border border-amber-100 dark:border-amber-900/30 font-sans shrink-0">
-                  <Lock size={10} /> Lock
-                </span>
-              ) : (
-                <span className="text-slate-400 shrink-0">&#10145;</span>
-              )}
-            </button>
-
-            {/* Invoice Numbering Options */}
-            <button
-              disabled={authContext.currentUser?.role === 'staff'}
-              onClick={() => setActiveView('invoice_numbering')}
-              className={`w-full flex items-center justify-between p-3 rounded-xl border border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 transition text-left min-w-0 gap-3 ${
-                authContext.currentUser?.role === 'staff' ? 'opacity-[0.45] cursor-not-allowed' : 'cursor-pointer bg-white dark:bg-slate-900'
-              }`}
-            >
-              <div className="flex items-center gap-3 flex-1 min-w-0 pr-2">
-                <div className="bg-indigo-50 dark:bg-indigo-900/30 p-2 rounded-lg text-indigo-600 dark:text-indigo-400 shrink-0">
-                  <Hash size={18} />
-                </div>
-                <div className="text-left flex-1 min-w-0">
-                  <span className="font-bold text-slate-800 dark:text-slate-200 block text-sm flex items-center gap-1">
-                    {currentLanguage === 'hi' ? 'नंबरिंग सेटअप' : 'Invoice Numbering'}
-                    {authContext.currentUser?.role === 'staff' && <Lock size={12} className="text-amber-500 inline shrink-0" />}
-                  </span>
-                  <span className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed block truncate font-sans">
-                    {currentLanguage === 'hi' ? 'विभिन्न वाउचर नंबर प्रीफिक्स' : 'Set prefix, sequence start and numbering sequences'}
-                  </span>
-                </div>
-              </div>
-              {authContext.currentUser?.role === 'staff' ? (
-                <span className="text-xs text-amber-500 font-extrabold flex items-center gap-1 bg-amber-50 dark:bg-amber-900/10 px-2 py-1 rounded-md border border-amber-100 dark:border-amber-900/30 font-sans shrink-0">
-                  <Lock size={10} /> Lock
-                </span>
-              ) : (
-                <span className="text-slate-400 shrink-0">&#10145;</span>
-              )}
-            </button>
-          </SettingsAccordion>
-
-          {/* Category 2: Security & Access */}
-          <SettingsAccordion
-            title="Security & Access"
-            icon={ShieldCheck}
-            description="Simulate roles to verify enterprise RBAC permissions limits, change secure login details."
-          >
-            {/* Simulated Role Switcher */}
-            <div className="bg-white dark:bg-slate-900 p-3.5 rounded-xl border border-slate-100 dark:border-slate-800/80 shadow-sm font-sans">
-              <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest block mb-2 font-sans overflow-hidden">Simulated Permissions Mode</span>
-              <div className="grid grid-cols-2 gap-2">
-                <button 
-                  onClick={() => authContext.switchRole('admin')}
-                  className={`flex items-center justify-center gap-1.5 py-2 px-3 text-xs font-bold rounded-lg border transition ${
-                    authContext.currentUser?.role === 'admin' 
-                      ? 'bg-indigo-600 border-indigo-600 text-white shadow-sm font-extrabold' 
-                      : 'bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300'
-                  }`}
-                >
-                  <span>Admin Mode</span>
-                </button>
-                <button 
-                  onClick={() => authContext.switchRole('staff')}
-                  className={`flex items-center justify-center gap-1.5 py-2 px-3 text-xs font-bold rounded-lg border transition ${
-                    authContext.currentUser?.role === 'staff' 
-                      ? 'bg-amber-600 border-amber-600 text-white shadow-sm font-extrabold' 
-                      : 'bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300'
-                  }`}
-                >
-                  <Lock size={12} />
-                  <span>Staff Mode</span>
-                </button>
-              </div>
-              <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-2 leading-relaxed font-sans">
-                {authContext.currentUser?.role === 'staff' 
-                  ? "🔒 Simulated Staff Role active: Business edits, resetting db, rollback databases and some actions are locked."
-                  : "🔓 Simulated Admin Role active: full control, access authorized for all backup uploads/downloads & db management."}
-              </p>
-            </div>
-
-            {/* Cloud Firebase Session Account */}
-            <div className="p-3.5 bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800 flex flex-col gap-2 shadow-sm">
-              <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider font-sans">Cloud Account Detail</span>
-              {auth.currentUser && !auth.currentUser.isAnonymous ? (
-                <div className="flex items-center justify-between gap-3">
-                  <div className="truncate flex-1">
-                    <p className="text-xs font-bold text-slate-800 dark:text-white truncate font-sans">{auth.currentUser.email}</p>
-                    <p className="text-[10px] text-emerald-500 font-semibold font-sans">Active Secure Session connected</p>
-                  </div>
-                  <button 
-                    onClick={async () => {
-                      await auth.signOut();
-                      window.location.reload();
-                    }} 
-                    className="text-[10.5px] font-bold text-rose-500 hover:text-rose-600 border border-slate-200 dark:border-slate-700 px-2 py-1 rounded-md bg-white dark:bg-slate-900 shadow-sm shrink-0 font-sans"
-                  >
-                    Sign Out
-                  </button>
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  <p className="text-[11px] text-slate-500 font-sans">Enable cloud sync & secure multi-device authorization.</p>
-                  <div className="flex gap-2">
-                    <button 
-                      onClick={() => setShowEmailAuthModal(true)} 
-                      className="flex-1 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-[11px] font-bold rounded-lg shadow-sm text-center font-sans"
-                    >
-                      Email Auth
-                    </button>
-                    <button 
-                      onClick={async () => {
-                        try {
-                          await signInWithGoogle();
-                          setDialogMessage({ title: 'Success', message: 'Signed in successfully!' });
-                        } catch(e: any) {
-                          setDialogMessage({ title: 'Error', message: e.message || 'Failed to sign in', isError: true });
-                        }
-                      }} 
-                      className="flex-1 py-1.5 bg-white dark:bg-slate-800 text-slate-800 dark:text-white text-[11px] font-bold rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm text-center font-sans"
-                    >
-                      Google
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Set Pin / Password Settings */}
-            <button
-              onClick={() => setActiveView('password_settings')}
-              className="w-full flex items-center justify-between p-3 rounded-xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/85 transition cursor-pointer text-left min-w-0 gap-3"
-            >
-              <div className="flex items-center gap-3 flex-1 min-w-0 pr-2">
-                <div className="bg-amber-50 dark:bg-amber-900/30 p-2 rounded-lg text-amber-600 dark:text-amber-400 shrink-0">
-                  <Key size={18} />
-                </div>
-                <div className="text-left flex-1 min-w-0">
-                  <span className="font-bold text-slate-800 dark:text-slate-200 block text-sm truncate">
-                    {currentLanguage === 'hi' ? 'ऐप पिन और पासवर्ड' : 'App Pin & Password'}
-                  </span>
-                  <span className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed block truncate font-sans">
-                    {currentLanguage === 'hi' ? 'मास्टर पिन रीसेट करें या नया एडमिन पासवर्ड सेट करें' : 'Change Master Pin security, update administrator credentials'}
-                  </span>
-                </div>
-              </div>
-              <span className="text-slate-400 shrink-0">&#10145;</span>
-            </button>
-          </SettingsAccordion>
-
-          {/* Category 3: Data & Cloud */}
-          <SettingsAccordion
-            title="Data & Cloud"
-            icon={HardDrive}
-            description="Manage databases snapshot point-in-time recovery saves, financial rollbacks, backups and demo data inputs."
-          >
-            {/* Time Machine & Financial Year controls */}
-            <div className="space-y-2.5">
-              <button
-                onClick={() => setActiveView('time_machine')}
-                className="w-full flex items-center justify-between p-3 rounded-xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/85 transition cursor-pointer text-left min-w-0 gap-3"
-              >
-                <div className="flex items-center gap-3 flex-1 min-w-0 pr-2">
-                  <div className="bg-emerald-50 dark:bg-emerald-900/30 p-2 rounded-lg text-emerald-600 dark:text-emerald-400 shrink-0">
-                    <Database size={18} />
+            <div className="space-y-3.5">
+              {/* Store Code details */}
+              <div className="w-full flex items-center justify-between p-3.5 rounded-xl border border-slate-100 dark:border-slate-800/80 bg-white dark:bg-slate-900 shadow-sm gap-3">
+                <div className="flex items-center gap-3 flex-1 min-w-0 pr-1">
+                  <div className="bg-indigo-50 dark:bg-indigo-900/30 p-2 rounded-lg text-indigo-600 dark:text-indigo-400 shrink-0">
+                    <Hash size={18} />
                   </div>
                   <div className="text-left flex-1 min-w-0">
-                    <span className="font-bold text-slate-800 dark:text-slate-200 block text-sm truncate">Time Machine Bookmarks</span>
-                    <span className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed block truncate font-sans">Local snapshots database point-in-time recovery saves</span>
+                    <span className="font-bold text-slate-800 dark:text-slate-200 block text-xs">
+                      {currentLanguage === 'hi' ? 'स्टोर कोड (6-अंकीय)' : 'Store Code (6-Digit)'}
+                    </span>
+                    <span className="text-[10px] text-slate-500 dark:text-slate-400 leading-normal block font-sans mt-0.5">
+                      {currentLanguage === 'hi' ? 'स्टाफ से शेयर करके सिंक लिंक करें' : 'Share with staff to link business and sync'}
+                    </span>
                   </div>
                 </div>
-                <span className="text-slate-400 shrink-0">&#10145;</span>
-              </button>
+                {authContext.currentUser?.storeCode ? (
+                  <span className="text-sm font-mono font-extrabold text-indigo-700 dark:text-indigo-400 bg-indigo-50/50 dark:bg-indigo-950/40 border border-indigo-100/80 dark:border-indigo-800/60 px-3 py-1.5 rounded-lg shadow-sm">
+                    {authContext.currentUser?.storeCode}
+                  </span>
+                ) : (
+                  <span className="text-xs text-slate-400 font-medium font-sans">Auto generating...</span>
+                )}
+              </div>
 
-              {/* Transfer Financial Year limit */}
+              {/* Company Profile link */}
               <button
                 disabled={authContext.currentUser?.role === 'staff'}
-                onClick={() => {
-                  console.log("[SETTINGS] Initiate transfer financial year dialog modal triggers from button settings screen props");
-                  setShowTransferDialog(true);
-                }}
-                className={`w-full flex items-center justify-between p-3 rounded-xl border border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/85 transition text-left min-w-0 gap-3 ${
+                onClick={() => onNavigate('companyProfile')}
+                className={`w-full flex items-center justify-between p-3 rounded-xl border border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 transition text-left min-w-0 gap-3 ${
                   authContext.currentUser?.role === 'staff' ? 'opacity-[0.45] cursor-not-allowed' : 'cursor-pointer bg-white dark:bg-slate-900'
                 }`}
               >
                 <div className="flex items-center gap-3 flex-1 min-w-0 pr-2">
                   <div className="bg-indigo-50 dark:bg-indigo-900/30 p-2 rounded-lg text-indigo-600 dark:text-indigo-400 shrink-0">
-                    <FileText size={18} />
+                    <User size={18} />
                   </div>
                   <div className="text-left flex-1 min-w-0">
-                    <span className="font-bold text-slate-800 dark:text-slate-200 block text-sm flex items-center gap-1 font-sans">
-                      <span className="truncate">{currentLanguage === 'hi' ? 'वित्तीय वर्ष ट्रांसफर करें' : 'Transfer Financial Year'}</span>
-                      {authContext.currentUser?.role === 'staff' && <Lock size={12} className="text-amber-500 inline shrink-0 font-sans" />}
+                    <span className="font-bold text-slate-800 dark:text-slate-200 block text-sm flex items-center gap-1">
+                      {currentLanguage === 'hi' ? 'कंपनी प्रोफ़ाइल संपादित करें' : 'Edit Company Profile'}
+                      {authContext.currentUser?.role === 'staff' && <Lock size={12} className="text-amber-500 inline shrink-0" />}
                     </span>
                     <span className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed block truncate font-sans">
-                      {currentLanguage === 'hi' ? '🔒 स्टाफ रोल के लिए प्रतिबंधित क्रिया' : 'Carry balances to new fiscal period database'}
+                      {currentLanguage === 'hi' ? 'फोन नंबर, पता, और छपाई सेटिंग्स प्रबंधित करें' : 'Phone, address, tax configuration and print headers'}
                     </span>
                   </div>
                 </div>
@@ -3276,18 +3372,40 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                   <span className="text-slate-400 shrink-0">&#10145;</span>
                 )}
               </button>
-            </div>
-          </SettingsAccordion>
 
-          {/* Category 4: App Preferences */}
-          <SettingsAccordion
-            title="App Preferences"
-            icon={SlidersHorizontal}
-            description="Fully customize features, invoice structures, floating assistants, ledger settings, and display indicators."
-          >
-            <div className="space-y-3.5">
+              {/* Invoice Numbering Options */}
+              <button
+                disabled={authContext.currentUser?.role === 'staff'}
+                onClick={() => setActiveView('invoice_numbering')}
+                className={`w-full flex items-center justify-between p-3 rounded-xl border border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 transition text-left min-w-0 gap-3 ${
+                  authContext.currentUser?.role === 'staff' ? 'opacity-[0.45] cursor-not-allowed' : 'cursor-pointer bg-white dark:bg-slate-900'
+                }`}
+              >
+                <div className="flex items-center gap-3 flex-1 min-w-0 pr-2">
+                  <div className="bg-indigo-50 dark:bg-indigo-900/30 p-2 rounded-lg text-indigo-600 dark:text-indigo-400 shrink-0">
+                    <Hash size={18} />
+                  </div>
+                  <div className="text-left flex-1 min-w-0">
+                    <span className="font-bold text-slate-800 dark:text-slate-200 block text-sm flex items-center gap-1">
+                      {currentLanguage === 'hi' ? 'नंबरिंग सेटअप' : 'Invoice Numbering'}
+                      {authContext.currentUser?.role === 'staff' && <Lock size={12} className="text-amber-500 inline shrink-0" />}
+                    </span>
+                    <span className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed block truncate font-sans">
+                      {currentLanguage === 'hi' ? 'विभिन्न वाउचर नंबर प्रीफिक्स' : 'Set prefix, sequence start and numbering sequences'}
+                    </span>
+                  </div>
+                </div>
+                {authContext.currentUser?.role === 'staff' ? (
+                  <span className="text-xs text-amber-500 font-extrabold flex items-center gap-1 bg-amber-50 dark:bg-amber-900/10 px-2 py-1 rounded-md border border-amber-100 dark:border-amber-900/30 font-sans shrink-0">
+                    <Lock size={10} /> Lock
+                  </span>
+                ) : (
+                  <span className="text-slate-400 shrink-0">&#10145;</span>
+                )}
+              </button>
+
               {/* Bilingual App Language Row */}
-              <div className="bg-white dark:bg-slate-900 p-3 rounded-xl border border-slate-100 dark:border-slate-800/60 shadow-sm flex items-center justify-between gap-3 min-w-0">
+              <div className="bg-white dark:bg-slate-900 p-3.5 rounded-xl border border-slate-100 dark:border-slate-800/80 shadow-sm flex items-center justify-between gap-3 min-w-0">
                 <div className="text-left flex-1 min-w-0 pr-1 select-auto font-sans">
                   <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest block font-sans truncate">App Language (भाषा)</span>
                   <span className="text-xs text-slate-400 leading-relaxed block truncate">
@@ -3297,7 +3415,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                 <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-full shadow-inner border border-slate-200/50 dark:border-slate-700/60 pointer-events-auto items-center shrink-0">
                   <button 
                     onClick={() => onLanguageChange('en')}
-                    className={`px-3.5 py-1 rounded-full text-xs font-extrabold tracking-wide transition-all duration-200 ${
+                    className={`px-3 py-1 rounded-full text-xs font-extrabold tracking-wide transition-all duration-200 ${
                       currentLanguage === 'en' 
                         ? 'bg-indigo-600 dark:bg-indigo-500 text-white shadow-sm font-black scale-102' 
                         : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/50 dark:hover:bg-slate-700/50'
@@ -3307,7 +3425,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                   </button>
                   <button 
                     onClick={() => onLanguageChange('hi')}
-                    className={`px-3.5 py-1 rounded-full text-xs font-extrabold tracking-wide transition-all duration-200 ${
+                    className={`px-3 py-1 rounded-full text-xs font-extrabold tracking-wide transition-all duration-200 ${
                       currentLanguage === 'hi' 
                         ? 'bg-indigo-600 dark:bg-indigo-500 text-white shadow-sm font-black scale-102' 
                         : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/50 dark:hover:bg-slate-700/50'
@@ -3317,12 +3435,63 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                   </button>
                 </div>
               </div>
+            </div>
+          </SettingsAccordion>
 
-              {/* Home QR Code inline Switcher */}
+          {/* Category 2: Billing Preferences */}
+          <SettingsAccordion
+            title={currentLanguage === 'hi' ? 'बिलिंग और उत्पाद' : 'Billing Preferences'}
+            icon={SlidersHorizontal}
+            description={currentLanguage === 'hi' ? 'बिलिंग प्राथमिकताओं, QR कोड, बारकोड, और स्मार्ट सहायक प्रबंधित करें।' : 'Configure invoice structures, QR codes, scan inputs, general dashboard layouts, and floating tools.'}
+          >
+            <div className="space-y-3.5">
+              {/* Sale & Purchase Settings */}
+              <button
+                onClick={() => setActiveView('preferences2')}
+                className="w-full flex items-center justify-between p-3 rounded-xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition cursor-pointer text-left"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="bg-indigo-50 dark:bg-indigo-900/30 p-2 rounded-lg text-indigo-600 dark:text-indigo-400 shrink-0">
+                    <SlidersHorizontal size={17} />
+                  </div>
+                  <div className="text-left flex-1 font-sans">
+                    <span className="font-bold text-slate-800 dark:text-slate-200 block text-sm">
+                      {currentLanguage === 'hi' ? 'बिक्री और खरीद प्राथमिकताएं' : 'Sale & Purchase Settings'}
+                    </span>
+                    <span className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed block">
+                      {currentLanguage === 'hi' ? 'टैक्स नियम, बैच और छूट सेटिंग्स बदलें' : 'Tax rules, batch codes, discount tables, and billing parameters'}
+                    </span>
+                  </div>
+                </div>
+                <span className="text-slate-400">&#10145;</span>
+              </button>
+
+              {/* Dashboard & General Preferences */}
+              <button
+                onClick={() => setActiveView('preferences')}
+                className="w-full flex items-center justify-between p-3 rounded-xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition cursor-pointer text-left"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="bg-indigo-50 dark:bg-indigo-900/30 p-2 rounded-lg text-indigo-600 dark:text-indigo-400 shrink-0">
+                    <SlidersHorizontal size={17} />
+                  </div>
+                  <div className="text-left flex-1 font-sans">
+                    <span className="font-bold text-slate-800 dark:text-slate-200 block text-sm">
+                      {currentLanguage === 'hi' ? 'डैशबोर्ड और सामान्य प्राथमिकताएं' : 'Dashboard & General Preferences'}
+                    </span>
+                    <span className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed block">
+                      {currentLanguage === 'hi' ? 'होम स्क्रीन पैनल और त्वरित लिंक कस्टमाइज़ करें' : 'Configure quick links, landing dashboard summaries, and instruction cards'}
+                    </span>
+                  </div>
+                </div>
+                <span className="text-slate-400">&#10145;</span>
+              </button>
+
+              {/* Home UPI QR Code Toggler */}
               <div className="flex items-center justify-between py-2.5 border-b border-slate-200/60 dark:border-slate-800/80 gap-3 min-w-0">
                 <div className="text-left flex-1 min-w-0 font-sans">
-                  <span className="font-bold text-slate-800 dark:text-slate-200 text-sm block truncate border-b-0">Home QR Code</span>
-                  <span className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed block truncate border-b-0">Render merchant quick scan UPI QR onto the landing dashboard</span>
+                  <span className="font-bold text-slate-800 dark:text-slate-200 text-sm block truncate">Home QR Code</span>
+                  <span className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed block truncate">Render merchant quick scan UPI QR onto the landing dashboard</span>
                 </div>
                 <label className="relative inline-flex items-center cursor-pointer shrink-0">
                   <input 
@@ -3340,11 +3509,11 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                 </label>
               </div>
 
-              {/* Barcode Scanner inline Switcher */}
+              {/* Barcode Scanner Toggler */}
               <div className="flex items-center justify-between py-2.5 border-b border-slate-200/60 dark:border-slate-800/80 gap-3 min-w-0">
                 <div className="text-left flex-1 min-w-0 font-sans">
-                  <span className="font-bold text-slate-800 dark:text-slate-200 text-sm block truncate border-b-0">Barcode Scanner</span>
-                  <span className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed block truncate border-b-0">Leverage native device frame cameras for items scan inputs</span>
+                  <span className="font-bold text-slate-800 dark:text-slate-200 text-sm block truncate">Barcode Scanner</span>
+                  <span className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed block truncate">Leverage native device frame cameras for items scan inputs</span>
                 </div>
                 <label className="relative inline-flex items-center cursor-pointer shrink-0">
                   <input 
@@ -3362,130 +3531,426 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                 </label>
               </div>
 
-              {/* Smart assistant inline switcher */}
-              <div className="flex items-center justify-between py-2.5 border-b border-slate-200/60 dark:border-slate-800/80 gap-3 min-w-0">
-                <div className="text-left flex-1 min-w-0 font-sans">
-                  <span className="font-bold text-slate-800 dark:text-slate-200 text-sm block truncate border-b-0">Smart Floating AI Assistant</span>
-                  <span className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed block truncate border-b-0">
-                    {currentLanguage === 'hi' ? 'यूनिवर्सल चैटबॉट और हिंदी कमांड असिस्टेंट सक्षम करें' : 'Enable floating Gemini-backed command dialog widgets'}
-                  </span>
+              {/* Smart Floating AI Assistant [Premium 👑] */}
+              {isPremiumLicensed && (
+                <div className="flex items-center justify-between py-2.5 border-b border-slate-200/60 dark:border-slate-800/80 gap-3 min-w-0">
+                  <div className="text-left flex-1 min-w-0 font-sans">
+                    <span className="font-bold text-slate-800 dark:text-slate-200 text-sm block truncate">Smart Floating AI Assistant <span className="text-amber-500 font-extrabold text-xs">👑 Premium</span></span>
+                    <span className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed block truncate">
+                      {currentLanguage === 'hi' ? 'यूनिवर्सल चैटबॉट और हिंदी कमांड असिस्टेंट सक्षम करें' : 'Enable floating Gemini-backed command dialog widgets'}
+                    </span>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer shrink-0">
+                    <input 
+                      type="checkbox" 
+                      className="sr-only peer" 
+                      checked={localStorage.getItem('showSmartAssistant') !== 'false'}
+                      onChange={(e) => {
+                        localStorage.setItem('showSmartAssistant', e.target.checked.toString());
+                        window.dispatchEvent(new Event('storage'));
+                        setAppSettings(prev => ({...prev, offlineMode: !prev.offlineMode}));
+                        setTimeout(() => setAppSettings(prev => ({...prev, offlineMode: !prev.offlineMode})), 5);
+                      }}
+                    />
+                    <div className="w-11 h-6 bg-slate-200 dark:bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 dark:after:border-slate-600 after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                  </label>
                 </div>
-                <label className="relative inline-flex items-center cursor-pointer shrink-0">
-                  <input 
-                    type="checkbox" 
-                    className="sr-only peer" 
-                    checked={localStorage.getItem('showSmartAssistant') !== 'false'}
-                    onChange={(e) => {
-                      localStorage.setItem('showSmartAssistant', e.target.checked.toString());
-                      window.dispatchEvent(new Event('storage'));
-                      setAppSettings(prev => ({...prev, offlineMode: !prev.offlineMode}));
-                      setTimeout(() => setAppSettings(prev => ({...prev, offlineMode: !prev.offlineMode})), 5);
-                    }}
-                  />
-                  <div className="w-11 h-6 bg-slate-200 dark:bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 dark:after:border-slate-600 after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
-                </label>
+              )}
+            </div>
+          </SettingsAccordion>
+
+          {/* Category 3: Security & Permissions */}
+          <SettingsAccordion
+            title={currentLanguage === 'hi' ? 'सुरक्षा और पहुंच' : 'Security & Permissions'}
+            icon={ShieldCheck}
+            description={currentLanguage === 'hi' ? 'सुरक्षा पिन, कर्मचारी पहुंच और भूमिकाओं को कॉन्फ़िगर करें।' : 'Change administrator PIN, simulate staff mode, or configure custom staff roles.'}
+          >
+            <div className="space-y-3.5">
+              {/* App PIN & Password */}
+              <button
+                onClick={() => setActiveView('password_settings')}
+                className="w-full flex items-center justify-between p-3 rounded-xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/85 transition cursor-pointer text-left min-w-0 gap-3"
+              >
+                <div className="flex items-center gap-3 flex-1 min-w-0 pr-2">
+                  <div className="bg-amber-50 dark:bg-amber-900/30 p-2 rounded-lg text-amber-600 dark:text-amber-400 shrink-0">
+                    <Key size={18} />
+                  </div>
+                  <div className="text-left flex-1 min-w-0 font-sans">
+                    <span className="font-bold text-slate-800 dark:text-slate-200 block text-sm">
+                      {currentLanguage === 'hi' ? 'ऐप पिन और पासवर्ड' : 'App PIN & Password'}
+                    </span>
+                    <span className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed block truncate font-sans">
+                      {currentLanguage === 'hi' ? 'मास्टर पिन बदलें या नया एडमिन पासवर्ड सेट करें' : 'Change Master PIN security, update administrator credentials'}
+                    </span>
+                  </div>
+                </div>
+                <span className="text-slate-400 shrink-0">&#10145;</span>
+              </button>
+
+              {/* Simulated Permissions Switcher */}
+              <div className="bg-white dark:bg-slate-900 p-3.5 rounded-xl border border-slate-100 dark:border-slate-800/80 shadow-sm font-sans">
+                <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest block mb-2 font-sans overflow-hidden">Simulated Permissions Mode</span>
+                <div className="grid grid-cols-2 gap-2">
+                  <button 
+                    onClick={() => authContext.switchRole('admin')}
+                    className={`flex items-center justify-center gap-1.5 py-2 px-3 text-xs font-bold rounded-lg border transition ${
+                      authContext.currentUser?.role === 'admin' 
+                        ? 'bg-indigo-600 border-indigo-600 text-white shadow-sm font-extrabold' 
+                        : 'bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300'
+                    }`}
+                  >
+                    <span>Admin Mode</span>
+                  </button>
+                  <button 
+                    onClick={() => authContext.switchRole('staff')}
+                    className={`flex items-center justify-center gap-1.5 py-2 px-3 text-xs font-bold rounded-lg border transition ${
+                      authContext.currentUser?.role === 'staff' 
+                        ? 'bg-amber-600 border-amber-600 text-white shadow-sm font-extrabold' 
+                        : 'bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300'
+                    }`}
+                  >
+                    <Lock size={12} />
+                    <span>Staff Mode</span>
+                  </button>
+                </div>
+                <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-2 leading-relaxed font-sans">
+                  {authContext.currentUser?.role === 'staff' 
+                    ? "🔒 Simulated Staff Role active: Business edits, resetting db, rollback databases and some actions are locked."
+                    : "🔓 Simulated Admin Role active: full control, access authorized for all backup uploads/downloads & db management."}
+                </p>
               </div>
 
-              {/* Configuration screen triggers */}
-              <div className="space-y-2 mt-4 font-sans max-w-4xl">
-                <button
-                  onClick={() => setActiveView('preferences2')}
-                  className="w-full flex items-center justify-between p-3 rounded-xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition cursor-pointer text-left"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="bg-indigo-50 dark:bg-indigo-900/30 p-2 rounded-lg text-indigo-600 dark:text-indigo-400 shrink-0">
-                      <SlidersHorizontal size={17} />
-                    </div>
-                    <div className="text-left flex-1 font-sans">
-                      <span className="font-bold text-slate-800 dark:text-slate-200 block text-sm">Sale & Purchase Settings</span>
-                      <span className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed block">Item, tax rates, batch numbers, discount tables and parameters</span>
-                    </div>
+              {/* Manage Staff & Permissions */}
+              <button
+                onClick={() => {
+                  if (isAdminUnlocked) {
+                    setActiveView('staff_members');
+                  } else {
+                    setPendingAdminView('staff_members');
+                    setAdminPinInput('');
+                    setAdminPinError('');
+                    setShowAdminPinModal(true);
+                  }
+                }}
+                className="w-full flex items-center justify-between p-3 rounded-xl border border-slate-100 dark:border-slate-800/80 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/85 transition cursor-pointer text-left shadow-sm min-w-0 gap-3"
+              >
+                <div className="flex items-center gap-3 flex-1 min-w-0 pr-2">
+                  <div className="bg-indigo-50 dark:bg-indigo-900/30 p-2 rounded-lg text-indigo-600 dark:text-indigo-400 shrink-0">
+                    <Users size={18} />
                   </div>
-                  <span className="text-slate-400">&#10145;</span>
-                </button>
+                  <div className="text-left flex-1 min-w-0 font-sans">
+                    <span className="font-bold text-slate-800 dark:text-slate-200 block text-sm flex items-center gap-1.5">
+                      {currentLanguage === 'hi' ? 'कर्मचारी और अनुमतियाँ' : 'Manage Staff & Permissions'}
+                    </span>
+                    <span className="text-[11px] text-slate-500 dark:text-slate-400 leading-normal block truncate mt-0.5">
+                      {currentLanguage === 'hi' ? 'स्टाफ सदस्य जोड़ें और अनुमतियों को नियंत्रित करें' : 'Add new registers, configure print privileges and action locks'}
+                    </span>
+                  </div>
+                </div>
+                <span className="text-slate-400 shrink-0">&#10145;</span>
+              </button>
+            </div>
+          </SettingsAccordion>
 
-                <button
-                  onClick={() => setActiveView('preferences')}
-                  className="w-full flex items-center justify-between p-3 rounded-xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition cursor-pointer text-left"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="bg-indigo-50 dark:bg-indigo-900/30 p-2 rounded-lg text-indigo-600 dark:text-indigo-400 shrink-0">
-                      <SlidersHorizontal size={17} />
+          {/* Category 4: Cloud & Licensing */}
+          <SettingsAccordion
+            title={currentLanguage === 'hi' ? 'क्लाउड और प्रीमियम' : 'Cloud & Licensing'}
+            icon={Crown}
+            description={currentLanguage === 'hi' ? 'क्लाउड सिंक विकल्प, प्रमाणीकरण, और लाइसेंस मोड कॉन्फ़िगर करें।' : 'Manage online databases, real-time sync nodes, and license verification parameters.'}
+          >
+            <div className="space-y-3.5">
+              {/* Cloud Sync & Backup Toggle [Premium 👑] */}
+              {isPremiumLicensed && (
+                <div className="flex items-center justify-between py-2.5 border-b border-slate-200/60 dark:border-slate-800/80 gap-3 min-w-0">
+                  <div className="text-left flex-1 min-w-0 font-sans">
+                    <span className="font-bold text-slate-800 dark:text-slate-200 text-sm block truncate">Cloud Sync & Backup <span className="text-amber-500 font-extrabold text-xs">👑 Premium</span></span>
+                    <span className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed block truncate">
+                      {currentLanguage === 'hi' ? 'डेटा और इन्वॉइस को सुरक्षित क्लाउड सर्वर पर सिंक करें' : 'Online real-time sync of sales ledger to safe cloud'}
+                    </span>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer shrink-0">
+                    <input 
+                      type="checkbox" 
+                      className="sr-only peer" 
+                      checked={appSettings.cloudSyncEnabled}
+                      onChange={(e) => handleAppSettingsChange('cloudSyncEnabled', e.target.checked)}
+                    />
+                    <div className="w-11 h-6 bg-slate-200 dark:bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 dark:after:border-slate-600 after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                  </label>
+                </div>
+              )}
+
+              {/* Cloud Account Detail (Google Sign-In, Email Auth) */}
+              <div className="p-3.5 bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800 flex flex-col gap-2 shadow-sm">
+                <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider font-sans">Cloud Account Detail</span>
+                {auth.currentUser && !auth.currentUser.isAnonymous ? (
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="truncate flex-1">
+                      <p className="text-xs font-bold text-slate-800 dark:text-white truncate font-sans">{auth.currentUser.email}</p>
+                      <p className="text-[10px] text-emerald-500 font-semibold font-sans">Active Secure Session connected</p>
                     </div>
-                    <div className="text-left flex-1 font-sans">
-                      <span className="font-bold text-slate-800 dark:text-slate-200 block text-sm">Dashboard & General Preferences</span>
-                      <span className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed block">Configure quick links, home panels and help instructions</span>
+                    <button 
+                      onClick={async () => {
+                        await auth.signOut();
+                        window.location.reload();
+                      }} 
+                      className="text-[10.5px] font-bold text-rose-500 hover:text-rose-600 border border-slate-200 dark:border-slate-700 px-2 py-1 rounded-md bg-white dark:bg-slate-900 shadow-sm shrink-0 font-sans cursor-pointer transition-colors"
+                    >
+                      Sign Out
+                    </button>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <p className="text-[11px] text-slate-500 font-sans">Enable cloud sync & secure multi-device authorization.</p>
+                    <div className="flex gap-2">
+                      <button 
+                        onClick={() => setShowEmailAuthModal(true)} 
+                        className="flex-1 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-[11px] font-bold rounded-lg shadow-sm text-center font-sans cursor-pointer transition-colors"
+                      >
+                        Email Auth
+                      </button>
+                      <button 
+                        onClick={async () => {
+                          try {
+                            await signInWithGoogle();
+                            setDialogMessage({ title: 'Success', message: 'Signed in successfully!' });
+                          } catch(e: any) {
+                            setDialogMessage({ title: 'Error', message: e.message || 'Failed to sign in', isError: true });
+                          }
+                        }} 
+                        className="flex-1 py-1.5 bg-white dark:bg-slate-800 text-slate-800 dark:text-white text-[11px] font-bold rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm text-center font-sans cursor-pointer transition-colors"
+                      >
+                        Google
+                      </button>
                     </div>
                   </div>
-                  <span className="text-slate-400">&#10145;</span>
-                </button>
+                )}
+              </div>
+
+              {/* Premium License Mode & Validation */}
+              <div className="bg-white dark:bg-slate-900 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 space-y-3.5 text-left font-sans shadow-sm">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-left w-full">
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <div className={`w-2.5 h-2.5 rounded-full ${isPremiumLicensed ? 'bg-amber-500 animate-pulse' : 'bg-slate-300'}`}></div>
+                    <p className="text-[11px] font-mono tracking-tight uppercase text-slate-500 dark:text-slate-400">
+                      License Mode: <span className={isPremiumLicensed ? 'text-amber-500 font-extrabold' : 'text-slate-600 dark:text-slate-500 font-bold'}>{isPremiumLicensed ? 'PREMIUM TIED (V2.0)' : 'FREE BASIC (OFFLINE ONLY)'}</span>
+                    </p>
+                  </div>
+                  {authContext.currentUser?.role === 'admin' && (
+                    <button
+                      type="button"
+                      onClick={handleUpgradeToPremium}
+                      className={`px-3 py-1 text-xs rounded-full font-bold transition shadow-sm shrink-0 cursor-pointer ${isPremiumLicensed ? 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200' : 'bg-amber-500 hover:bg-amber-600 text-slate-900 border border-amber-600/20'}`}
+                      id="premium_toggle_trigger_button_mobile"
+                    >
+                      {isPremiumLicensed 
+                        ? (currentLanguage === 'hi' ? 'मुफ़्त लाइसेंस बंद करें' : 'Demo Downgrade to Basic') 
+                        : (currentLanguage === 'hi' ? 'मुफ़्त प्रीमियम सक्रिय करें' : 'Activate Sandbox Premium License')}
+                    </button>
+                  )}
+                </div>
+
+                {!isPremiumLicensed && authContext.currentUser?.role === 'admin' && (
+                  <div className="border-t border-slate-100 dark:border-slate-800/80 pt-3 mt-2 flex flex-col gap-2 w-full">
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                      {currentLanguage === 'hi' ? 'प्रीमियम सक्रिय करने के लिए लाइसेंस कुंजी दर्ज करें' : 'Enter License Key to Activate Premium'}
+                    </label>
+                    <div className="flex gap-2 w-full">
+                      <input 
+                        type="text" 
+                        value={licenseCode}
+                        onChange={e => {
+                          setLicenseCode(e.target.value);
+                          setLicenseError('');
+                        }}
+                        placeholder="e.g. EAZY-PREMIUM-2026"
+                        className="flex-1 bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/60 rounded-xl px-3.5 py-2.5 text-xs font-mono font-bold tracking-widest text-slate-800 dark:text-white outline-none focus:border-amber-500 dark:focus:border-amber-400 transition-colors uppercase min-w-0"
+                      />
+                      <button 
+                        onClick={handleValidateLicenseCode}
+                        className="bg-amber-500 hover:bg-amber-600 text-slate-900 font-extrabold px-4 py-2.5 rounded-xl transition-all active:scale-98 text-xs cursor-pointer shadow-sm flex items-center justify-center gap-1 shrink-0"
+                      >
+                        <Crown size={12} className="fill-slate-900" />
+                        {currentLanguage === 'hi' ? 'सक्रिय' : 'Activate'}
+                      </button>
+                    </div>
+                    {licenseError && (
+                      <p className="text-[10px] font-bold text-rose-500 mt-1">
+                        ⚠️ {licenseError}
+                      </p>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           </SettingsAccordion>
 
-          {/* Category 5: Premium License */}
-          {authContext.currentUser?.role === 'admin' && (
-            <SettingsAccordion
-              title={currentLanguage === 'hi' ? 'प्रीमियम लाइसेंस' : 'Premium License'}
-              icon={Crown}
-              description={currentLanguage === 'hi' ? 'लाइसेंस कुंजी सक्रिय करें या मुफ्त सैंडबॉक्स अपग्रेड आज़माएं।' : 'Activate enterprise license keys or try sandbox premium features.'}
-            >
-              {/* Premium License Controls */}
-              <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 space-y-3.5 text-left font-sans">
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-left w-full">
-                      <div className="flex items-center gap-1.5 shrink-0">
-                          <div className={`w-2.5 h-2.5 rounded-full ${isPremiumLicensed ? 'bg-amber-500 animate-pulse' : 'bg-slate-300'}`}></div>
-                          <p className="text-[11px] font-mono tracking-tight uppercase text-slate-500 dark:text-slate-400">
-                              License Mode: <span className={isPremiumLicensed ? 'text-amber-500 font-extrabold' : 'text-slate-600 dark:text-slate-500 font-bold'}>{isPremiumLicensed ? 'PREMIUM TIED (V2.0)' : 'FREE BASIC (OFFLINE ONLY)'}</span>
-                          </p>
-                      </div>
-                      <button
-                          type="button"
-                          onClick={handleUpgradeToPremium}
-                          className={`px-3 py-1 text-xs rounded-full font-bold transition shadow-sm shrink-0 cursor-pointer ${isPremiumLicensed ? 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200' : 'bg-amber-500 hover:bg-amber-600 text-slate-900 border border-amber-600/20'}`}
-                          id="premium_toggle_trigger_button_mobile"
-                      >
-                          {isPremiumLicensed 
-                            ? (currentLanguage === 'hi' ? 'मुफ़्त लाइसेंस बंद करें' : 'Demo Downgrade to Basic') 
-                            : (currentLanguage === 'hi' ? 'मुफ़्त प्रीमियम सक्रिय करें' : 'Activate Sandbox Premium License')}
-                      </button>
+          {/* Category 5: Database Tools */}
+          <SettingsAccordion
+            title={currentLanguage === 'hi' ? 'डेटाबेस उपकरण' : 'Database Tools'}
+            icon={HardDrive}
+            description={currentLanguage === 'hi' ? 'डेटाबेस बैकअप, वित्तीय वर्ष ट्रांसफर और ऐप रीसेट विकल्प प्रबंधित करें।' : 'Wipe records, reinstall default schemas, manage snapshots, and roll over fiscal terms.'}
+          >
+            <div className="space-y-3.5">
+              {/* Time Machine Bookmarks */}
+              <button
+                onClick={() => setActiveView('time_machine')}
+                className="w-full flex items-center justify-between p-3 rounded-xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/85 transition cursor-pointer text-left min-w-0 gap-3"
+              >
+                <div className="flex items-center gap-3 flex-1 min-w-0 pr-2">
+                  <div className="bg-emerald-50 dark:bg-emerald-900/30 p-2 rounded-lg text-emerald-600 dark:text-emerald-400 shrink-0">
+                    <Database size={18} />
                   </div>
+                  <div className="text-left flex-1 min-w-0">
+                    <span className="font-bold text-slate-800 dark:text-slate-200 block text-sm truncate">Time Machine Bookmarks</span>
+                    <span className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed block truncate font-sans">Local snapshots database point-in-time recovery saves</span>
+                  </div>
+                </div>
+                <span className="text-slate-400 shrink-0">&#10145;</span>
+              </button>
 
-                  {!isPremiumLicensed && (
-                      <div className="border-t border-slate-100 dark:border-slate-800/80 pt-3 mt-2 flex flex-col gap-2 w-full">
-                          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-                              {currentLanguage === 'hi' ? 'प्रीमियम सक्रिय करने के लिए लाइसेंस कुंजी दर्ज करें' : 'Enter License Key to Activate Premium'}
-                          </label>
-                          <div className="flex gap-2 w-full">
-                              <input 
-                                  type="text" 
-                                  value={licenseCode}
-                                  onChange={e => {
-                                      setLicenseCode(e.target.value);
-                                      setLicenseError('');
-                                  }}
-                                  placeholder="e.g. EAZY-PREMIUM-2026"
-                                  className="flex-1 bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/60 rounded-xl px-3.5 py-2.5 text-xs font-mono font-bold tracking-widest text-slate-800 dark:text-white outline-none focus:border-amber-500 dark:focus:border-amber-400 transition-colors uppercase min-w-0"
-                              />
-                              <button 
-                                  onClick={handleValidateLicenseCode}
-                                  className="bg-amber-500 hover:bg-amber-600 text-slate-900 font-extrabold px-4 py-2.5 rounded-xl transition-all active:scale-98 text-xs cursor-pointer shadow-sm flex items-center justify-center gap-1 shrink-0"
-                              >
-                                  <Crown size={12} className="fill-slate-900" />
-                                  {currentLanguage === 'hi' ? 'सक्रिय' : 'Activate'}
-                              </button>
-                          </div>
-                          {licenseError && (
-                              <p className="text-[10px] font-bold text-rose-500 mt-1">
-                                  ⚠️ {licenseError}
-                              </p>
-                          )}
-                      </div>
-                  )}
-              </div>
-            </SettingsAccordion>
-          )}
+              {/* Transfer Financial Year */}
+              <button
+                disabled={authContext.currentUser?.role === 'staff'}
+                onClick={() => {
+                  console.log("[SETTINGS] Initiate transfer financial year dialog modal triggers from button settings screen props");
+                  setShowTransferDialog(true);
+                }}
+                className={`w-full flex items-center justify-between p-3 rounded-xl border border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/85 transition text-left min-w-0 gap-3 ${
+                  authContext.currentUser?.role === 'staff' ? 'opacity-[0.45] cursor-not-allowed' : 'cursor-pointer bg-white dark:bg-slate-900'
+                }`}
+              >
+                <div className="flex items-center gap-3 flex-1 min-w-0 pr-2">
+                  <div className="bg-indigo-50 dark:bg-indigo-900/30 p-2 rounded-lg text-indigo-600 dark:text-indigo-400 shrink-0">
+                    <FileText size={18} />
+                  </div>
+                  <div className="text-left flex-1 min-w-0 font-sans">
+                    <span className="font-bold text-slate-800 dark:text-slate-200 block text-sm flex items-center gap-1 font-sans">
+                      <span className="truncate">{currentLanguage === 'hi' ? 'वित्तीय वर्ष ट्रांसफर करें' : 'Transfer Financial Year'}</span>
+                      {authContext.currentUser?.role === 'staff' && <Lock size={12} className="text-amber-500 inline shrink-0 font-sans" />}
+                    </span>
+                    <span className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed block truncate font-sans">
+                      {currentLanguage === 'hi' ? '🔒 स्टाफ रोल के लिए प्रतिबंधित क्रिया' : 'Carry balances to new fiscal period database'}
+                    </span>
+                  </div>
+                </div>
+                {authContext.currentUser?.role === 'staff' ? (
+                  <span className="text-xs text-amber-500 font-extrabold flex items-center gap-1 bg-amber-50 dark:bg-amber-900/10 px-2 py-1 rounded-md border border-amber-100 dark:border-amber-900/30 font-sans shrink-0">
+                    <Lock size={10} /> Lock
+                  </span>
+                ) : (
+                  <span className="text-slate-400 shrink-0">&#10145;</span>
+                )}
+              </button>
+
+              {/* Seed Demo Data Button */}
+              {authContext.currentUser?.role !== 'staff' && (
+                <button
+                  onClick={handleSeedClick}
+                  className="w-full bg-emerald-50 dark:bg-emerald-900/10 hover:bg-emerald-100/60 transition p-3.5 rounded-xl border border-emerald-100 dark:border-emerald-900/20 text-emerald-700 dark:text-emerald-400 font-bold text-xs text-center cursor-pointer block leading-snug font-sans shadow-sm"
+                >
+                  {isSeeding ? 'Seeding...' : '📥 Install Sample Enterprise Dairy Demo Data'}
+                </button>
+              )}
+
+              {/* Wipe Reset Databases */}
+              {authContext.currentUser?.role !== 'staff' && (
+                <button
+                  onClick={handleResetClick}
+                  className="w-full bg-red-400/10 dark:bg-red-950/25 hover:bg-red-400/20 transition p-3.5 rounded-xl border border-red-200 dark:border-red-900/40 text-red-600 dark:text-red-400 font-extrabold text-xs text-center cursor-pointer block leading-snug font-sans shadow-sm"
+                >
+                  {isResetting ? 'Resetting App...' : '⚠️ Wipe / Reset All Databases Point Blank'}
+                </button>
+              )}
+            </div>
+          </SettingsAccordion>
+
+          {/* Category 6: Diagnostics & Logs */}
+          <SettingsAccordion
+            title={currentLanguage === 'hi' ? 'डायग्नोस्टिक्स' : 'Diagnostics & Logs'}
+            icon={Activity}
+            description={currentLanguage === 'hi' ? 'सिस्टम प्रदर्शन, डेटाबेस स्वास्थ्य और ऑडिट लॉग जांचें।' : 'Inspect system queries profile, health status, and action logs.'}
+          >
+            <div className="space-y-3.5">
+              {/* System Health Check */}
+              <button
+                onClick={() => setActiveView('system_health')}
+                className="w-full flex items-center justify-between p-3 rounded-xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/85 transition cursor-pointer text-left min-w-0 gap-3"
+              >
+                <div className="flex items-center gap-3 flex-1 min-w-0 pr-2">
+                  <div className="bg-indigo-50 dark:bg-indigo-900/30 p-2 rounded-lg text-indigo-600 dark:text-indigo-400 shrink-0">
+                    <Activity size={18} />
+                  </div>
+                  <div className="text-left flex-1 min-w-0">
+                    <span className="font-bold text-slate-800 dark:text-slate-200 block text-sm truncate">
+                      {currentLanguage === 'hi' ? 'सिस्टम स्वास्थ्य' : 'System Health Check'}
+                    </span>
+                    <span className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed block truncate font-sans">
+                      {currentLanguage === 'hi' ? 'सक्रिय डेटाबेस तालिकाओं के आकार और स्वास्थ्य को ऑडिट करें' : 'Verify active tables status, size counters and storage parameters'}
+                    </span>
+                  </div>
+                </div>
+                <span className="text-slate-400 shrink-0">&#10145;</span>
+              </button>
+
+              {/* Master Health Analysis */}
+              <button
+                onClick={() => setActiveView('master_health')}
+                className="w-full flex items-center justify-between p-3 rounded-xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/85 transition cursor-pointer text-left min-w-0 gap-3"
+              >
+                <div className="flex items-center gap-3 flex-1 min-w-0 pr-2">
+                  <div className="bg-amber-50 dark:bg-amber-900/30 p-2 rounded-lg text-amber-600 dark:text-amber-400 shrink-0">
+                    <Heart size={18} />
+                  </div>
+                  <div className="text-left flex-1 min-w-0">
+                    <span className="font-bold text-slate-800 dark:text-slate-200 block text-sm truncate font-sans">
+                      {currentLanguage === 'hi' ? 'मास्टर स्वास्थ्य विश्लेषण' : 'Master Health Analysis'}
+                    </span>
+                    <span className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed block truncate font-sans mt-0.5">
+                      {currentLanguage === 'hi' ? 'टूटे हुए डेटा और अमान्य अनुक्रमणिकाओं को स्कैन करें' : 'Scan for broken referencing links & invalid indexing tables'}
+                    </span>
+                  </div>
+                </div>
+                <span className="text-slate-400 shrink-0">&#10145;</span>
+              </button>
+
+              {/* View Audit Logs */}
+              <button
+                onClick={() => {
+                  if (isAdminUnlocked) {
+                    setActiveView('audit_logs');
+                  } else {
+                    setPendingAdminView('audit_logs');
+                    setAdminPinInput('');
+                    setAdminPinError('');
+                    setShowAdminPinModal(true);
+                  }
+                }}
+                className="w-full flex items-center justify-between p-3 rounded-xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/85 transition cursor-pointer text-left min-w-0 gap-3"
+              >
+                <div className="flex items-center gap-3 flex-1 min-w-0 pr-2">
+                  <div className="bg-rose-50 dark:bg-rose-900/30 p-2 rounded-lg text-rose-600 dark:text-rose-400 shrink-0">
+                    <ShieldAlert size={18} />
+                  </div>
+                  <div className="text-left flex-1 min-w-0 font-sans">
+                    <span className="font-bold text-slate-800 dark:text-slate-200 block text-sm truncate">
+                      {currentLanguage === 'hi' ? 'सिस्टम ऑडिट लॉग्स' : 'System Audit Logs'}
+                    </span>
+                    <span className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed block truncate font-sans">
+                      {currentLanguage === 'hi' ? 'संवेदनशील रिकॉर्ड हटाने और स्टॉक संशोधनों की जाँच करें' : 'Track admin changes, staff actions & secure billing edits'}
+                    </span>
+                  </div>
+                </div>
+                <span className="text-slate-400 shrink-0">&#10145;</span>
+              </button>
+            </div>
+          </SettingsAccordion>
+
         </div>
+
+
+
+        
 
 
 
@@ -3502,6 +3967,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
               </p>
             </div>
             <div className="flex flex-col gap-2">
+              {/* Category 1: Business Settings */}
               <button
                 onClick={() => setSelectedCategoryTab('business_identity')}
                 className={`flex items-start gap-3 p-3 rounded-xl transition text-left cursor-pointer border ${
@@ -3517,60 +3983,15 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                 </div>
                 <div className="flex-1 min-w-0 font-sans">
                   <h3 className="text-xs font-bold truncate">
-                    {currentLanguage === 'hi' ? 'व्यवसाय पहचान' : 'Business Identity'}
+                    {currentLanguage === 'hi' ? 'व्यवसाय सेटअप' : 'Business Settings'}
                   </h3>
-                  <p className="text-[10px] text-slate-400 dark:text-slate-500 truncate leading-snug font-sans mt-0.5">
-                    {currentLanguage === 'hi' ? 'कंपनी प्रोफ़ाइल, टैक्स विवरण' : 'Store configuration & print profile'}
+                  <p className="text-[10px] text-slate-400 dark:text-slate-500 truncate leading-snug mt-0.5 font-sans">
+                    {currentLanguage === 'hi' ? 'कंपनी प्रोफ़ाइल, भाषा, नंबरिंग' : 'Profile, language & invoicing setup'}
                   </p>
                 </div>
               </button>
 
-              <button
-                onClick={() => setSelectedCategoryTab('security_access')}
-                className={`flex items-start gap-3 p-3 rounded-xl transition text-left cursor-pointer border ${
-                  selectedCategoryTab === 'security_access'
-                    ? 'bg-indigo-50/70 dark:bg-indigo-950/40 border-indigo-200 dark:border-indigo-800/60 text-indigo-700 dark:text-indigo-400 font-bold'
-                    : 'bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800/65 border-slate-100 dark:border-slate-800/80 text-slate-700 dark:text-slate-300'
-                }`}
-              >
-                <div className={`p-2 rounded-lg shrink-0 ${
-                  selectedCategoryTab === 'security_access' ? 'bg-indigo-600 text-white animate-pulse' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
-                }`}>
-                  <ShieldCheck size={16} />
-                </div>
-                <div className="flex-1 min-w-0 font-sans">
-                  <h3 className="text-xs font-bold truncate">
-                    {currentLanguage === 'hi' ? 'सुरक्षा और पहुंच' : 'Security & Access'}
-                  </h3>
-                  <p className="text-[10px] text-slate-400 dark:text-slate-500 truncate leading-snug font-sans mt-0.5">
-                    {currentLanguage === 'hi' ? 'पिन लॉक, रोल्स, सिंक' : 'Access credentials & pin control'}
-                  </p>
-                </div>
-              </button>
-
-              <button
-                onClick={() => setSelectedCategoryTab('data_cloud')}
-                className={`flex items-start gap-3 p-3 rounded-xl transition text-left cursor-pointer border ${
-                  selectedCategoryTab === 'data_cloud'
-                    ? 'bg-indigo-50/70 dark:bg-indigo-950/40 border-indigo-200 dark:border-indigo-800/60 text-indigo-700 dark:text-indigo-400 font-bold'
-                    : 'bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800/65 border-slate-100 dark:border-slate-800/80 text-slate-700 dark:text-slate-300'
-                }`}
-              >
-                <div className={`p-2 rounded-lg shrink-0 ${
-                  selectedCategoryTab === 'data_cloud' ? 'bg-indigo-600 text-white animate-pulse' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
-                }`}>
-                  <HardDrive size={16} />
-                </div>
-                <div className="flex-1 min-w-0 font-sans">
-                  <h3 className="text-xs font-bold truncate">
-                    {currentLanguage === 'hi' ? 'डेटा और क्लाउड' : 'Data & Cloud'}
-                  </h3>
-                  <p className="text-[10px] text-slate-400 dark:text-slate-500 truncate leading-snug font-sans mt-0.5">
-                    {currentLanguage === 'hi' ? 'रोलबैक, बैकअप, डेटा रीसेट' : 'Point-in-time state & snapshots'}
-                  </p>
-                </div>
-              </button>
-
+              {/* Category 2: Billing Preferences */}
               <button
                 onClick={() => setSelectedCategoryTab('app_preferences')}
                 className={`flex items-start gap-3 p-3 rounded-xl transition text-left cursor-pointer border ${
@@ -3586,86 +4007,109 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                 </div>
                 <div className="flex-1 min-w-0 font-sans">
                   <h3 className="text-xs font-bold truncate">
-                    {currentLanguage === 'hi' ? 'ऐप प्राथमिकताएं' : 'App Preferences'}
+                    {currentLanguage === 'hi' ? 'बिलिंग और उत्पाद' : 'Billing Preferences'}
                   </h3>
-                  <p className="text-[10px] text-slate-400 dark:text-slate-500 truncate leading-snug font-sans mt-0.5">
-                    {currentLanguage === 'hi' ? 'भाषा, सहायक, सहायक उपकरण' : 'Invoicing behaviors & language'}
+                  <p className="text-[10px] text-slate-400 dark:text-slate-500 truncate leading-snug mt-0.5 font-sans">
+                    {currentLanguage === 'hi' ? 'कर नियम, QR कोड, स्मार्ट सहायक' : 'Tax, scanner, UPI QR & smart assistant'}
                   </p>
                 </div>
               </button>
 
-              {authContext.currentUser?.role === 'admin' && (
-                <>
-                  <button
-                    onClick={() => setSelectedCategoryTab('admin_panel')}
-                    className={`flex items-start gap-3 p-3 rounded-xl transition text-left cursor-pointer border ${
-                      selectedCategoryTab === 'admin_panel'
-                        ? 'bg-indigo-50/70 dark:bg-indigo-950/40 border-indigo-200 dark:border-indigo-800/60 text-indigo-700 dark:text-indigo-400 font-bold'
-                        : 'bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800/65 border-slate-100 dark:border-slate-800/80 text-slate-700 dark:text-slate-300'
-                    }`}
-                  >
-                    <div className={`p-2 rounded-lg shrink-0 ${
-                      selectedCategoryTab === 'admin_panel' ? 'bg-indigo-600 text-white animate-pulse' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
-                    }`}>
-                      <ShieldAlert size={16} />
-                    </div>
-                    <div className="flex-1 min-w-0 font-sans">
-                      <h3 className="text-xs font-bold truncate">
-                        {currentLanguage === 'hi' ? 'एडमिन पैनल' : 'Admin Control'}
-                      </h3>
-                      <p className="text-[10px] text-slate-400 dark:text-slate-500 truncate leading-snug font-sans mt-0.5">
-                        {currentLanguage === 'hi' ? 'कर्मचारी प्रबंधन और ऑडिट' : 'Operator permission logs & staff'}
-                      </p>
-                    </div>
-                  </button>
+              {/* Category 3: Security & Permissions */}
+              <button
+                onClick={() => setSelectedCategoryTab('security_access')}
+                className={`flex items-start gap-3 p-3 rounded-xl transition text-left cursor-pointer border ${
+                  selectedCategoryTab === 'security_access'
+                    ? 'bg-indigo-50/70 dark:bg-indigo-950/40 border-indigo-200 dark:border-indigo-800/60 text-indigo-700 dark:text-indigo-400 font-bold'
+                    : 'bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800/65 border-slate-100 dark:border-slate-800/80 text-slate-700 dark:text-slate-300'
+                }`}
+              >
+                <div className={`p-2 rounded-lg shrink-0 ${
+                  selectedCategoryTab === 'security_access' ? 'bg-indigo-600 text-white animate-pulse' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
+                }`}>
+                  <ShieldCheck size={16} />
+                </div>
+                <div className="flex-1 min-w-0 font-sans">
+                  <h3 className="text-xs font-bold truncate">
+                    {currentLanguage === 'hi' ? 'सुरक्षा और पहुंच' : 'Security & Permissions'}
+                  </h3>
+                  <p className="text-[10px] text-slate-400 dark:text-slate-500 truncate leading-snug mt-0.5 font-sans">
+                    {currentLanguage === 'hi' ? 'पिन लॉक, रोल्स, कर्मचारी पहुंच' : 'PIN, admin password & staff logs'}
+                  </p>
+                </div>
+              </button>
 
-                  <button
-                    onClick={() => setSelectedCategoryTab('diagnostics')}
-                    className={`flex items-start gap-3 p-3 rounded-xl transition text-left cursor-pointer border ${
-                      selectedCategoryTab === 'diagnostics'
-                        ? 'bg-indigo-50/70 dark:bg-indigo-950/40 border-indigo-200 dark:border-indigo-800/60 text-indigo-700 dark:text-indigo-400 font-bold'
-                        : 'bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800/65 border-slate-100 dark:border-slate-800/80 text-slate-700 dark:text-slate-300'
-                    }`}
-                  >
-                    <div className={`p-2 rounded-lg shrink-0 ${
-                      selectedCategoryTab === 'diagnostics' ? 'bg-indigo-600 text-white animate-pulse' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
-                    }`}>
-                      <Activity size={16} />
-                    </div>
-                    <div className="flex-1 min-w-0 font-sans">
-                      <h3 className="text-xs font-bold truncate">
-                        {currentLanguage === 'hi' ? 'सिस्टम डायग्नोस्टिक्स' : 'Diagnostics & Testing'}
-                      </h3>
-                      <p className="text-[10px] text-slate-400 dark:text-slate-500 truncate leading-snug font-sans mt-0.5">
-                        {currentLanguage === 'hi' ? 'टेस्ट केस और सिस्टम ऑडिट' : 'Run automated trade math trials'}
-                      </p>
-                    </div>
-                  </button>
+              {/* Category 4: Cloud & Licensing */}
+              <button
+                onClick={() => setSelectedCategoryTab('premium_license')}
+                className={`flex items-start gap-3 p-3 rounded-xl transition text-left cursor-pointer border ${
+                  selectedCategoryTab === 'premium_license'
+                    ? 'bg-amber-50/70 dark:bg-amber-950/40 border-amber-200 dark:border-amber-800/60 text-amber-700 dark:text-amber-400 font-bold'
+                    : 'bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800/65 border-slate-100 dark:border-slate-800/80 text-slate-700 dark:text-slate-300'
+                }`}
+              >
+                <div className={`p-2 rounded-lg shrink-0 ${
+                  selectedCategoryTab === 'premium_license' ? 'bg-amber-500 text-white animate-pulse' : 'bg-slate-100 dark:bg-slate-800 text-amber-500 dark:text-amber-400'
+                }`}>
+                  <Crown size={16} />
+                </div>
+                <div className="flex-1 min-w-0 font-sans">
+                  <h3 className="text-xs font-bold truncate">
+                    {currentLanguage === 'hi' ? 'क्लाउड और प्रीमियम' : 'Cloud & Licensing'}
+                  </h3>
+                  <p className="text-[10px] text-slate-400 dark:text-slate-500 truncate leading-snug mt-0.5 font-sans">
+                    {currentLanguage === 'hi' ? 'क्लाउड सिंक, लाइसेंस कुंजी सक्रियता' : 'Firebase sync & license key activation'}
+                  </p>
+                </div>
+              </button>
 
-                  <button
-                    onClick={() => setSelectedCategoryTab('premium_license')}
-                    className={`flex items-start gap-3 p-3 rounded-xl transition text-left cursor-pointer border ${
-                      selectedCategoryTab === 'premium_license'
-                        ? 'bg-amber-50/70 dark:bg-amber-950/40 border-amber-200 dark:border-amber-800/60 text-amber-700 dark:text-amber-400 font-bold'
-                        : 'bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800/65 border-slate-100 dark:border-slate-800/80 text-slate-700 dark:text-slate-300'
-                    }`}
-                  >
-                    <div className={`p-2 rounded-lg shrink-0 ${
-                      selectedCategoryTab === 'premium_license' ? 'bg-amber-500 text-white animate-pulse' : 'bg-slate-100 dark:bg-slate-800 text-amber-500 dark:text-amber-400'
-                    }`}>
-                      <Crown size={16} />
-                    </div>
-                    <div className="flex-1 min-w-0 font-sans">
-                      <h3 className="text-xs font-bold truncate">
-                        {currentLanguage === 'hi' ? 'प्रीमियम लाइसेंस' : 'Premium License'}
-                      </h3>
-                      <p className="text-[10px] text-slate-400 dark:text-slate-500 truncate leading-snug font-sans mt-0.5">
-                        {currentLanguage === 'hi' ? 'लाइसेंस कुंजी सक्रिय करें' : 'Activate license keys & sandbox'}
-                      </p>
-                    </div>
-                  </button>
-                </>
-              )}
+              {/* Category 5: Database Tools */}
+              <button
+                onClick={() => setSelectedCategoryTab('data_cloud')}
+                className={`flex items-start gap-3 p-3 rounded-xl transition text-left cursor-pointer border ${
+                  selectedCategoryTab === 'data_cloud'
+                    ? 'bg-indigo-50/70 dark:bg-indigo-950/40 border-indigo-200 dark:border-indigo-800/60 text-indigo-700 dark:text-indigo-400 font-bold'
+                    : 'bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800/65 border-slate-100 dark:border-slate-800/80 text-slate-700 dark:text-slate-300'
+                }`}
+              >
+                <div className={`p-2 rounded-lg shrink-0 ${
+                  selectedCategoryTab === 'data_cloud' ? 'bg-indigo-600 text-white animate-pulse' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
+                }`}>
+                  <HardDrive size={16} />
+                </div>
+                <div className="flex-1 min-w-0 font-sans">
+                  <h3 className="text-xs font-bold truncate">
+                    {currentLanguage === 'hi' ? 'डेटाबेस उपकरण' : 'Database Tools'}
+                  </h3>
+                  <p className="text-[10px] text-slate-400 dark:text-slate-500 truncate leading-snug mt-0.5 font-sans">
+                    {currentLanguage === 'hi' ? 'रोलबैक, बैकअप, डेटा रीसेट' : 'Point-in-time snapshot recovery & demo data'}
+                  </p>
+                </div>
+              </button>
+
+              {/* Category 6: Diagnostics & Logs */}
+              <button
+                onClick={() => setSelectedCategoryTab('diagnostics')}
+                className={`flex items-start gap-3 p-3 rounded-xl transition text-left cursor-pointer border ${
+                  selectedCategoryTab === 'diagnostics'
+                    ? 'bg-indigo-50/70 dark:bg-indigo-950/40 border-indigo-200 dark:border-indigo-800/60 text-indigo-700 dark:text-indigo-400 font-bold'
+                    : 'bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800/65 border-slate-100 dark:border-slate-800/80 text-slate-700 dark:text-slate-300'
+                }`}
+              >
+                <div className={`p-2 rounded-lg shrink-0 ${
+                  selectedCategoryTab === 'diagnostics' ? 'bg-indigo-600 text-white animate-pulse' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
+                }`}>
+                  <Activity size={16} />
+                </div>
+                <div className="flex-1 min-w-0 font-sans">
+                  <h3 className="text-xs font-bold truncate">
+                    {currentLanguage === 'hi' ? 'डायग्नोस्टिक्स' : 'Diagnostics & Logs'}
+                  </h3>
+                  <p className="text-[10px] text-slate-400 dark:text-slate-500 truncate leading-snug mt-0.5 font-sans">
+                    {currentLanguage === 'hi' ? 'सिस्टम प्रदर्शन, ऑडिट लॉग्स' : 'Verify schema health & actions log'}
+                  </p>
+                </div>
+              </button>
             </div>
           </div>
 
@@ -3684,10 +4128,10 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                   <div>
                     <h2 className="text-xl font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
                       <User className="text-indigo-600 dark:text-indigo-400" size={24} />
-                      {currentLanguage === 'hi' ? 'व्यवसाय पहचान' : 'Business Identity'}
+                      {currentLanguage === 'hi' ? 'व्यवसाय सेटअप' : 'Business Settings'}
                     </h2>
                     <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-sans">
-                      {currentLanguage === 'hi' ? 'कंपनी प्रोफ़ाइल, टैक्स विवरण और प्रिंट हेडर प्रबंधित करें।' : 'Manage store identification, business address, contact numbers, and voucher printing headers.'}
+                      {currentLanguage === 'hi' ? 'कंपनी प्रोफ़ाइल, नंबरिंग सेटअप, और ऐप भाषा प्रबंधित करें।' : 'Manage store identification, business address, contact numbers, and voucher printing headers.'}
                     </p>
                   </div>
 
@@ -3777,6 +4221,169 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                         <span className="text-slate-400 shrink-0">&#10145;</span>
                       )}
                     </button>
+
+                    {/* Bilingual App Language Row */}
+                    <div className="bg-slate-50/50 dark:bg-slate-900/50 p-4 rounded-xl border border-slate-100 dark:border-slate-800/65 shadow-sm flex items-center justify-between gap-4 min-w-0">
+                      <div className="text-left flex-1 min-w-0 pr-1 select-auto font-sans">
+                        <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest block font-sans truncate">App Language (भाषा)</span>
+                        <span className="text-xs text-slate-400 leading-relaxed block truncate font-sans mt-0.5">
+                          {currentLanguage === 'hi' ? 'सक्रिय भाषा: हिंदी' : 'Active language: English'}
+                        </span>
+                      </div>
+                      <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-full shadow-inner border border-slate-200/50 dark:border-slate-700/60 pointer-events-auto items-center shrink-0">
+                        <button 
+                          onClick={() => onLanguageChange('en')}
+                          className={`px-4 py-1.5 rounded-full text-xs font-extrabold tracking-wide transition-all duration-200 cursor-pointer ${
+                            currentLanguage === 'en' 
+                              ? 'bg-indigo-600 dark:bg-indigo-500 text-white shadow-sm font-black scale-102' 
+                              : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/50 dark:hover:bg-slate-700/50'
+                          }`}
+                        >
+                          EN
+                        </button>
+                        <button 
+                          onClick={() => onLanguageChange('hi')}
+                          className={`px-4 py-1.5 rounded-full text-xs font-extrabold tracking-wide transition-all duration-200 cursor-pointer ${
+                            currentLanguage === 'hi' 
+                              ? 'bg-indigo-600 dark:bg-indigo-500 text-white shadow-sm font-black scale-102' 
+                              : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/50 dark:hover:bg-slate-700/50'
+                          }`}
+                        >
+                          हिंदी
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+
+              {selectedCategoryTab === 'app_preferences' && (
+                <motion.div
+                  key="app_preferences"
+                  initial={{ opacity: 0, x: 15 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -15 }}
+                  transition={{ duration: 0.2 }}
+                  className="space-y-6 text-left"
+                >
+                  <div>
+                    <h2 className="text-xl font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+                      <SlidersHorizontal className="text-indigo-600 dark:text-indigo-400" size={24} />
+                      {currentLanguage === 'hi' ? 'बिलिंग और उत्पाद' : 'Billing Preferences'}
+                    </h2>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-sans">
+                      {currentLanguage === 'hi' ? 'बिलिंग प्राथमिकताओं, QR कोड, बारकोड, और स्मार्ट सहायक प्रबंधित करें।' : 'Configure invoice structures, QR codes, scan inputs, general dashboard layouts, and floating tools.'}
+                    </p>
+                  </div>
+
+                  <div className="pt-4 border-t border-slate-100 dark:border-slate-800 space-y-4">
+                    {/* Switch Toggles */}
+                    <div className="p-4 bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800/80 shadow-sm space-y-3.5">
+                      {/* Home QR Code inline Switcher */}
+                      <div className="flex items-center justify-between py-1 border-b border-slate-100/80 dark:border-slate-800/70 gap-3 min-w-0">
+                        <div className="text-left flex-1 min-w-0 font-sans">
+                          <span className="font-bold text-slate-800 dark:text-slate-200 text-sm block">Home QR Code</span>
+                          <span className="text-xs text-slate-500 dark:text-slate-400 leading-normal block truncate font-sans">Render merchant quick scan UPI QR onto the landing dashboard</span>
+                        </div>
+                        <label className="relative inline-flex items-center cursor-pointer shrink-0">
+                          <input 
+                            type="checkbox" 
+                            className="sr-only peer" 
+                            checked={localStorage.getItem('showDashboardQR') !== 'false'}
+                            onChange={(e) => {
+                              localStorage.setItem('showDashboardQR', e.target.checked.toString());
+                              window.dispatchEvent(new Event('storage'));
+                              setAppSettings(prev => ({...prev, offlineMode: !prev.offlineMode}));
+                              setTimeout(() => setAppSettings(prev => ({...prev, offlineMode: !prev.offlineMode})), 5);
+                            }}
+                          />
+                          <div className="w-11 h-6 bg-slate-200 dark:bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 dark:after:border-slate-600 after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                        </label>
+                      </div>
+
+                      {/* Barcode Scanner inline Switcher */}
+                      <div className="flex items-center justify-between py-1 border-b border-slate-100/80 dark:border-slate-800/70 gap-3 min-w-0">
+                        <div className="text-left flex-1 min-w-0 font-sans">
+                          <span className="font-bold text-slate-800 dark:text-slate-200 text-sm block">Barcode Scanner</span>
+                          <span className="text-xs text-slate-500 dark:text-slate-400 leading-normal block font-sans">Leverage native device frame cameras for items scan inputs</span>
+                        </div>
+                        <label className="relative inline-flex items-center cursor-pointer shrink-0">
+                          <input 
+                            type="checkbox" 
+                            className="sr-only peer" 
+                            checked={localStorage.getItem('showBarcodeScanner') !== 'false'}
+                            onChange={(e) => {
+                              localStorage.setItem('showBarcodeScanner', e.target.checked.toString());
+                              window.dispatchEvent(new Event('storage'));
+                              setAppSettings(prev => ({...prev, offlineMode: !prev.offlineMode}));
+                              setTimeout(() => setAppSettings(prev => ({...prev, offlineMode: !prev.offlineMode})), 5);
+                            }}
+                          />
+                          <div className="w-11 h-6 bg-slate-200 dark:bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 dark:after:border-slate-600 after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                        </label>
+                      </div>
+
+                      {/* Smart assistant inline switcher [Premium 👑] */}
+                      {isPremiumLicensed && (
+                        <div className="flex items-center justify-between py-1 gap-3 min-w-0">
+                          <div className="text-left flex-1 min-w-0 font-sans">
+                            <span className="font-bold text-slate-800 dark:text-indigo-600 text-sm block">Smart Floating AI Assistant <span className="text-amber-500 font-extrabold text-xs">👑 Premium</span></span>
+                            <span className="text-xs text-slate-500 dark:text-slate-400 leading-normal block font-sans">
+                              {currentLanguage === 'hi' ? 'यूनिवर्सल चैटबॉट और हिंदी कमांड असिस्टेंट सक्षम करें' : 'Enable floating Gemini-backed command dialog widgets'}
+                            </span>
+                          </div>
+                          <label className="relative inline-flex items-center cursor-pointer shrink-0">
+                            <input 
+                              type="checkbox" 
+                              className="sr-only peer" 
+                              checked={localStorage.getItem('showSmartAssistant') !== 'false'}
+                              onChange={(e) => {
+                                localStorage.setItem('showSmartAssistant', e.target.checked.toString());
+                                window.dispatchEvent(new Event('storage'));
+                                setAppSettings(prev => ({...prev, offlineMode: !prev.offlineMode}));
+                                setTimeout(() => setAppSettings(prev => ({...prev, offlineMode: !prev.offlineMode})), 5);
+                              }}
+                            />
+                            <div className="w-11 h-6 bg-slate-200 dark:bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 dark:after:border-slate-600 after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                          </label>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Secondary preferences settings pages */}
+                    <div className="space-y-3">
+                      <button
+                        onClick={() => setActiveView('preferences2')}
+                        className="w-full flex items-center justify-between p-4 rounded-xl border border-slate-100 dark:border-slate-800/80 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition cursor-pointer text-left shadow-sm gap-4"
+                      >
+                        <div className="flex items-center gap-3.5 pr-2">
+                          <div className="bg-indigo-50 dark:bg-indigo-900/30 p-2.5 rounded-xl text-indigo-600 dark:text-indigo-400 shrink-0">
+                            <SlidersHorizontal size={20} />
+                          </div>
+                          <div className="text-left flex-1 font-sans">
+                            <span className="font-bold text-slate-800 dark:text-slate-200 block text-sm">Sale & Purchase Settings</span>
+                            <span className="text-xs text-slate-500 dark:text-slate-400 leading-normal block font-sans mt-0.5">Configure item batches, tax rules, wholesale controls and discounts</span>
+                          </div>
+                        </div>
+                        <span className="text-slate-400 shrink-0">&#10145;</span>
+                      </button>
+
+                      <button
+                        onClick={() => setActiveView('preferences')}
+                        className="w-full flex items-center justify-between p-4 rounded-xl border border-slate-100 dark:border-slate-800/80 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition cursor-pointer text-left shadow-sm gap-4"
+                      >
+                        <div className="flex items-center gap-3.5 pr-2">
+                          <div className="bg-indigo-50 dark:bg-indigo-900/30 p-2.5 rounded-xl text-indigo-600 dark:text-indigo-400 shrink-0">
+                            <SlidersHorizontal size={20} />
+                          </div>
+                          <div className="text-left flex-1 font-sans">
+                            <span className="font-bold text-slate-800 dark:text-slate-200 block text-sm">Dashboard & General Preferences</span>
+                            <span className="text-xs text-slate-500 dark:text-slate-400 leading-normal block font-sans mt-0.5">Toggle home screen components, system guides and visual rails</span>
+                          </div>
+                        </div>
+                        <span className="text-slate-400 shrink-0">&#10145;</span>
+                      </button>
+                    </div>
                   </div>
                 </motion.div>
               )}
@@ -3793,15 +4400,36 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                   <div>
                     <h2 className="text-xl font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
                       <ShieldCheck className="text-indigo-600 dark:text-indigo-400" size={24} />
-                      {currentLanguage === 'hi' ? 'सुरक्षा और पहुंच' : 'Security & Access'}
+                      {currentLanguage === 'hi' ? 'सुरक्षा और पहुंच' : 'Security & Permissions'}
                     </h2>
                     <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-sans">
-                      {currentLanguage === 'hi' ? 'सुरक्षित पहुंच पासवर्ड सेट करें, कर्मचारी मोड चुनौती दें या सिंक क्रेडेंशियल देखें।' : 'Change credentials, simulate staff restrictions, modify PIN lock parameters, or view cloud synchronization credentials.'}
+                      {currentLanguage === 'hi' ? 'सुरक्षा पिन, कर्मचारी पहुंच और भूमिकाओं को कॉन्फ़िगर करें।' : 'Change administrator PIN, simulate staff mode, or configure custom staff roles.'}
                     </p>
                   </div>
 
                   <div className="pt-4 border-t border-slate-100 dark:border-slate-800 space-y-4">
-                    {/* Simulated Role Switcher */}
+                    {/* App PIN & Password */}
+                    <button
+                      onClick={() => setActiveView('password_settings')}
+                      className="w-full flex items-center justify-between p-4 rounded-xl border border-slate-100 dark:border-slate-800/80 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition cursor-pointer text-left min-w-0 gap-4 shadow-sm"
+                    >
+                      <div className="flex items-center gap-3.5 flex-1 min-w-0 pr-2">
+                        <div className="bg-amber-50 dark:bg-amber-900/30 p-2.5 rounded-xl text-amber-600 dark:text-amber-400 shrink-0">
+                          <Key size={20} />
+                        </div>
+                        <div className="text-left flex-1 min-w-0 font-sans">
+                          <span className="font-bold text-slate-800 dark:text-slate-200 block text-sm">
+                            {currentLanguage === 'hi' ? 'ऐप पिन और पासवर्ड' : 'App PIN & Password'}
+                          </span>
+                          <span className="text-xs text-slate-500 dark:text-slate-400 leading-normal block truncate font-sans mt-0.5">
+                            {currentLanguage === 'hi' ? 'मास्टर पिन बदलें या नया एडमिन पासवर्ड सेट करें' : 'Change Master PIN security, update administrator credentials'}
+                          </span>
+                        </div>
+                      </div>
+                      <span className="text-slate-400 shrink-0">&#10145;</span>
+                    </button>
+
+                    {/* Simulated Permissions Switcher */}
                     <div className="bg-slate-50/50 dark:bg-slate-900/40 p-4 rounded-xl border border-slate-100 dark:border-slate-800/80 shadow-sm font-sans space-y-3">
                       <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block font-sans">Simulated Permissions Mode</span>
                       <div className="grid grid-cols-2 gap-3">
@@ -3834,7 +4462,81 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                       </p>
                     </div>
 
-                    {/* Cloud Firebase Session Account */}
+                    {/* Manage Staff & Permissions */}
+                    <button
+                      onClick={() => {
+                        if (isAdminUnlocked) {
+                          setActiveView('staff_members');
+                        } else {
+                          setPendingAdminView('staff_members');
+                          setAdminPinInput('');
+                          setAdminPinError('');
+                          setShowAdminPinModal(true);
+                        }
+                      }}
+                      className="w-full flex items-center justify-between p-4 rounded-xl border border-slate-100 dark:border-slate-800/80 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/80 transition cursor-pointer text-left shadow-sm min-w-0 gap-4"
+                    >
+                      <div className="flex items-center gap-3.5 flex-1 min-w-0 pr-2">
+                        <div className="bg-indigo-50 dark:bg-indigo-900/30 p-2.5 rounded-xl text-indigo-600 dark:text-indigo-400 shrink-0">
+                          <Users size={20} />
+                        </div>
+                        <div className="text-left flex-1 min-w-0 font-sans">
+                          <span className="font-bold text-slate-800 dark:text-slate-200 block text-sm flex items-center gap-1.5 font-sans">
+                            {currentLanguage === 'hi' ? 'कर्मचारी और अनुमतियाँ' : 'Manage Staff & Permissions'}
+                          </span>
+                          <span className="text-xs text-slate-500 dark:text-slate-400 leading-normal block truncate mt-0.5 font-sans">
+                            {currentLanguage === 'hi' ? 'स्टाफ सदस्य जोड़ें और अनुमतियों को नियंत्रित करें' : 'Add new registers, configure print privileges and action locks'}
+                          </span>
+                        </div>
+                      </div>
+                      <span className="text-slate-400 shrink-0">&#10145;</span>
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+
+              {selectedCategoryTab === 'premium_license' && (
+                <motion.div
+                  key="premium_license"
+                  initial={{ opacity: 0, x: 15 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -15 }}
+                  transition={{ duration: 0.2 }}
+                  className="space-y-6 text-left"
+                >
+                  <div>
+                    <h2 className="text-xl font-extrabold text-amber-500 flex items-center gap-2">
+                      <Crown className="text-amber-500" size={24} />
+                      {currentLanguage === 'hi' ? 'क्लाउड और प्रीमियम' : 'Cloud & Licensing'}
+                    </h2>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-sans">
+                      {currentLanguage === 'hi' ? 'क्लाउड सिंक विकल्प, प्रमाणीकरण, और लाइसेंस मोड कॉन्फ़िगर करें।' : 'Manage online databases, real-time sync nodes, and license verification parameters.'}
+                    </p>
+                  </div>
+
+                  <div className="pt-4 border-t border-slate-100 dark:border-slate-800/80 space-y-4">
+                    {/* Cloud Sync & Backup Toggle [Premium 👑] */}
+                    {isPremiumLicensed && (
+                      <div className="p-4 bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800 shadow-sm flex items-center justify-between gap-4 min-w-0">
+                        <div className="text-left flex-1 min-w-0 pr-1 select-auto font-sans">
+                          <span className="font-bold text-slate-800 dark:text-slate-200 text-sm block">Cloud Sync & Backup <span className="text-amber-500 font-extrabold text-xs">👑 Premium</span></span>
+                          <span className="text-xs text-slate-500 dark:text-slate-400 leading-normal block font-sans mt-0.5">
+                            {currentLanguage === 'hi' ? 'डेटा और इन्वॉइस को सुरक्षित क्लाउड सर्वर पर सिंक करें' : 'Online real-time sync of sales ledger to safe cloud'}
+                          </span>
+                        </div>
+                        <label className="relative inline-flex items-center cursor-pointer shrink-0">
+                          <input 
+                            type="checkbox" 
+                            className="sr-only peer" 
+                            checked={appSettings.cloudSyncEnabled}
+                            onChange={(e) => handleAppSettingsChange('cloudSyncEnabled', e.target.checked)}
+                          />
+                          <div className="w-11 h-6 bg-slate-200 dark:bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 dark:after:border-slate-600 after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                        </label>
+                      </div>
+                    )}
+
+                    {/* Cloud Account Detail (Google Sign-In, Email Auth) */}
                     <div className="p-4 bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800/80 flex flex-col gap-2.5 shadow-sm">
                       <span className="text-xs uppercase font-extrabold text-slate-500 tracking-wider font-sans">Cloud Account Detail</span>
                       {auth.currentUser && !auth.currentUser.isAnonymous ? (
@@ -3881,26 +4583,111 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                       )}
                     </div>
 
-                    {/* Set Pin / Password Settings */}
-                    <button
-                      onClick={() => setActiveView('password_settings')}
-                      className="w-full flex items-center justify-between p-4 rounded-xl border border-slate-100 dark:border-slate-800/80 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition cursor-pointer text-left min-w-0 gap-4 shadow-sm"
-                    >
-                      <div className="flex items-center gap-3.5 flex-1 min-w-0 pr-2">
-                        <div className="bg-amber-50 dark:bg-amber-900/30 p-2.5 rounded-xl text-amber-600 dark:text-amber-400 shrink-0">
-                          <Key size={20} />
+                    {/* Premium License Mode & Activation */}
+                    <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-200/85 dark:border-slate-800 space-y-4">
+                      <div className="flex items-center justify-between gap-3 text-left w-full">
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          <div className={`w-2.5 h-2.5 rounded-full ${isPremiumLicensed ? 'bg-amber-500 animate-pulse' : 'bg-slate-300'}`}></div>
+                          <p className="text-[11px] font-mono tracking-tight uppercase text-slate-500 dark:text-slate-400">
+                            License Mode: <span className={isPremiumLicensed ? 'text-amber-500 font-extrabold' : 'text-slate-600 dark:text-slate-500 font-bold'}>{isPremiumLicensed ? 'PREMIUM TIED (V2.0)' : 'FREE BASIC (OFFLINE ONLY)'}</span>
+                          </p>
                         </div>
-                        <div className="text-left flex-1 min-w-0">
-                          <span className="font-bold text-slate-800 dark:text-slate-200 block text-sm truncate">
-                            {currentLanguage === 'hi' ? 'ऐप पिन और पासवर्ड' : 'App Pin & Password'}
-                          </span>
-                          <span className="text-xs text-slate-500 dark:text-slate-400 leading-normal block truncate font-sans mt-0.5">
-                            {currentLanguage === 'hi' ? 'मास्टर पिन रीसेट करें या नया एडमिन पासवर्ड सेट करें' : 'Change Master Pin security, update administrator credentials'}
-                          </span>
-                        </div>
+                        {authContext.currentUser?.role === 'admin' && (
+                          <button
+                            type="button"
+                            onClick={handleUpgradeToPremium}
+                            className={`px-3 py-1 text-xs rounded-full font-bold transition shadow-sm shrink-0 cursor-pointer ${isPremiumLicensed ? 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200' : 'bg-amber-500 hover:bg-amber-600 text-slate-900 border border-amber-600/20'}`}
+                            id="premium_toggle_trigger_button_desktop"
+                          >
+                            {isPremiumLicensed 
+                              ? (currentLanguage === 'hi' ? 'मुफ़्त लाइसेंस बंद करें' : 'Demo Downgrade to Basic') 
+                              : (currentLanguage === 'hi' ? 'मुफ़्त प्रीमियम सक्रिय करें' : 'Activate Sandbox Premium License')}
+                          </button>
+                        )}
                       </div>
-                      <span className="text-slate-400 shrink-0">&#10145;</span>
-                    </button>
+
+                      {!isPremiumLicensed && authContext.currentUser?.role === 'admin' && (
+                        <div className="border-t border-slate-100 dark:border-slate-800/80 pt-3 mt-2 flex flex-col gap-2 w-full">
+                          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                            {currentLanguage === 'hi' ? 'प्रीमियम सक्रिय करने के लिए लाइसेंस कुंजी दर्ज करें' : 'Enter License Key to Activate Premium'}
+                          </label>
+                          <div className="flex gap-2 w-full">
+                            <input 
+                              type="text" 
+                              value={licenseCode}
+                              onChange={e => {
+                                setLicenseCode(e.target.value);
+                                setLicenseError('');
+                              }}
+                              placeholder="e.g. EAZY-PREMIUM-2026"
+                              className="flex-1 bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/60 rounded-xl px-3.5 py-2.5 text-xs font-mono font-bold tracking-widest text-slate-800 dark:text-white outline-none focus:border-amber-500 dark:focus:border-amber-400 transition-colors uppercase min-w-0"
+                            />
+                            <button 
+                              onClick={handleValidateLicenseCode}
+                              className="bg-amber-500 hover:bg-amber-600 text-slate-900 font-extrabold px-5 rounded-xl transition-all active:scale-98 text-xs cursor-pointer shadow-sm flex items-center justify-center gap-1.5 shrink-0"
+                            >
+                              <Crown size={12} className="fill-slate-900" />
+                              {currentLanguage === 'hi' ? 'सक्रिय' : 'Activate'}
+                            </button>
+                          </div>
+                          {licenseError && (
+                            <p className="text-[10px] font-bold text-rose-500 mt-1">
+                              ⚠️ {licenseError}
+                            </p>
+                          )}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Premium Features Status Checklist */}
+                    <div className="p-5 bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200/85 dark:border-slate-800 space-y-4 text-left">
+                      <div className="flex items-center gap-2 border-b border-slate-100 dark:border-slate-800/80 pb-3">
+                        <Crown className="text-amber-500 shrink-0" size={18} />
+                        <span className="text-xs uppercase font-extrabold text-slate-500 tracking-wider font-sans">
+                          {currentLanguage === 'hi' ? 'प्रीमियम सुविधाओं की सूची' : 'Premium Feature Checklist'}
+                        </span>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {[
+                          {
+                            title: currentLanguage === 'hi' ? 'रीयल-टाइम क्लाउड सिंक' : 'Cloud Sync & Backups',
+                            desc: currentLanguage === 'hi' ? 'सुरक्षित क्लाउड पर ऑटो बैकअप और रियल-टाइम सिंक' : 'Automatically sync invoice data & backups to cloud storage',
+                          },
+                          {
+                            title: currentLanguage === 'hi' ? 'बहु-मल्टी डिवाइस रजिस्टर' : 'Multi-Device Registers',
+                            desc: currentLanguage === 'hi' ? 'एक साथ कई डिवाइस पर बिलिंग और कैशियर काउंटर जोड़ें' : 'Connect concurrent cashiers & mobile billing terminals',
+                          },
+                          {
+                            title: currentLanguage === 'hi' ? 'स्मार्ट एआई सहायक' : 'Gemini AI Assistant',
+                            desc: currentLanguage === 'hi' ? 'स्टॉक पूछताछ, चालान निर्माण और व्यावसायिक रिपोर्ट के लिए एआई' : 'Ask questions, search products, & auto-fill billing via AI',
+                          },
+                          {
+                            title: currentLanguage === 'hi' ? 'उन्नत ऑडिट लॉग जांच' : 'Advanced Audit & Security Logs',
+                            desc: currentLanguage === 'hi' ? 'कर्मचारियों के प्रत्येक लेनदेन और संशोधनों पर नज़र रखें' : 'Detailed tracking of cashier activities and system actions',
+                          }
+                        ].map((feature, idx) => (
+                          <div key={idx} className="flex gap-3 items-start">
+                            <div className={`p-1.5 rounded-lg shrink-0 mt-0.5 ${
+                              isPremiumLicensed 
+                                ? 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400' 
+                                : 'bg-slate-50 dark:bg-slate-800/40 text-slate-400 dark:text-slate-500'
+                            }`}>
+                              {isPremiumLicensed ? <Check size={14} className="font-extrabold" /> : <X size={14} />}
+                            </div>
+                            <div className="flex-grow select-none">
+                              <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5 leading-none font-sans">
+                                {feature.title}
+                                {!isPremiumLicensed && (
+                                  <span className="text-[9px] font-extrabold uppercase px-1 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-500 leading-none">PRO</span>
+                                )}
+                              </h4>
+                              <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-1 leading-normal font-sans">{feature.desc}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                   </div>
                 </motion.div>
               )}
@@ -3917,10 +4704,10 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                   <div>
                     <h2 className="text-xl font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
                       <HardDrive className="text-indigo-600 dark:text-indigo-400" size={24} />
-                      {currentLanguage === 'hi' ? 'डेटा और क्लाउड' : 'Data & Cloud'}
+                      {currentLanguage === 'hi' ? 'डेटाबेस उपकरण' : 'Database Tools'}
                     </h2>
                     <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-sans">
-                      {currentLanguage === 'hi' ? 'वित्तीय लेनदेन, पॉइंट-इन-टाइम रिकवरी बैकअप और सिस्टम रीसेट कार्यों का प्रबंधन।' : 'Configure secure storage caches, perform fiscal close rollbacks, deploy point-in-time recovery saves or seeding assets.'}
+                      {currentLanguage === 'hi' ? 'डेटाबेस बैकअप, वित्तीय वर्ष ट्रांसफर और ऐप रीसेट विकल्प प्रबंधित करें।' : 'Wipe records, reinstall default schemas, manage snapshots, and roll over fiscal terms.'}
                     </p>
                   </div>
 
@@ -3973,42 +4760,6 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                       )}
                     </button>
 
-                    {/* System diagnostics */}
-                    <button
-                      onClick={() => setActiveView('system_health')}
-                      className="w-full flex items-center justify-between p-4 rounded-xl border border-slate-100 dark:border-slate-800/80 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition cursor-pointer text-left min-w-0 gap-4 shadow-sm"
-                    >
-                      <div className="flex items-center gap-3.5 flex-1 min-w-0 pr-2">
-                        <div className="bg-indigo-50 dark:bg-indigo-900/30 p-2.5 rounded-xl text-indigo-600 dark:text-indigo-400 shrink-0">
-                          <Activity size={20} />
-                        </div>
-                        <div className="text-left flex-1 min-w-0 font-sans">
-                          <span className="font-bold text-slate-800 dark:text-slate-200 block text-sm truncate">System Diagnostics & Health</span>
-                          <span className="text-xs text-slate-500 dark:text-slate-400 leading-normal block truncate mt-0.5 font-sans">Diagnostic integrity reports & performance indicators</span>
-                        </div>
-                      </div>
-                      <span className="text-slate-400 shrink-0">&#10145;</span>
-                    </button>
-
-                    {/* Master Stress Test Dashboard */}
-                    {authContext.currentUser?.role === 'admin' && (
-                      <button
-                        onClick={() => setActiveView('master_health')}
-                        className="w-full flex items-center justify-between p-4 rounded-xl border border-rose-100 dark:border-rose-900 bg-[#fef2f2] dark:bg-rose-950/20 hover:bg-[#fee2e2] dark:hover:bg-rose-900/35 transition cursor-pointer text-left font-sans min-w-0 gap-4 shadow-sm"
-                      >
-                        <div className="flex items-center gap-3.5 flex-1 min-w-0 pr-2">
-                          <div className="bg-rose-100 dark:bg-rose-900/30 p-2.5 rounded-xl text-rose-600 dark:text-rose-400 shrink-0">
-                            <ShieldCheck size={20} />
-                          </div>
-                          <div className="text-left flex-1 min-w-0">
-                            <span className="font-bold text-slate-800 dark:text-rose-400 block text-sm flex items-center gap-1.5 font-sans truncate">Master Stress-Test Dashboard</span>
-                            <span className="text-xs text-slate-500 dark:text-rose-350 leading-normal block truncate mt-0.5 font-sans">Database query profiling and memory threshold diagnostics</span>
-                          </div>
-                        </div>
-                        <span className="text-rose-500 font-bold shrink-0">&#10145;</span>
-                      </button>
-                    )}
-
                     {/* Seed Demo Data Button */}
                     {authContext.currentUser?.role !== 'staff' && (
                       <button
@@ -4032,9 +4783,9 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                 </motion.div>
               )}
 
-              {selectedCategoryTab === 'app_preferences' && (
+              {selectedCategoryTab === 'diagnostics' && (
                 <motion.div
-                  key="app_preferences"
+                  key="diagnostics"
                   initial={{ opacity: 0, x: 15 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -15 }}
@@ -4042,206 +4793,59 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                   className="space-y-6 text-left"
                 >
                   <div>
-                    <h2 className="text-xl font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
-                      <SlidersHorizontal className="text-indigo-600 dark:text-indigo-400" size={24} />
-                      {currentLanguage === 'hi' ? 'ऐप प्राथमिकताएं' : 'App Preferences'}
+                    <h2 className="text-xl font-extrabold text-[#3b5998] dark:text-indigo-400 flex items-center gap-2">
+                      <Activity className="text-indigo-600 dark:text-indigo-400" size={24} />
+                      {currentLanguage === 'hi' ? 'डायग्नोस्टिक्स' : 'Diagnostics & Logs'}
                     </h2>
                     <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-sans">
-                      {currentLanguage === 'hi' ? 'इनवॉइसिंग डिज़ाइनों, भाषा स्थानीयकरण, स्कैनर सेटिंग्स और फ्लोटिंग सहायकों को बदलें।' : 'Customize local billing rules, enable automated QR modules, select preferred localizations, or configure smart AI dialog utilities.'}
-                    </p>
-                  </div>
-
-                  <div className="pt-4 border-t border-slate-100 dark:border-slate-800 space-y-4">
-                    {/* Bilingual App Language Row */}
-                    <div className="bg-slate-50/50 dark:bg-slate-900/50 p-4 rounded-xl border border-slate-100 dark:border-slate-800/65 shadow-sm flex items-center justify-between gap-4 min-w-0">
-                      <div className="text-left flex-1 min-w-0 pr-1 select-auto font-sans">
-                        <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest block font-sans truncate">App Language (भाषा)</span>
-                        <span className="text-xs text-slate-400 leading-relaxed block truncate font-sans mt-0.5">
-                          {currentLanguage === 'hi' ? 'सक्रिय भाषा: हिंदी' : 'Active language: English'}
-                        </span>
-                      </div>
-                      <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-full shadow-inner border border-slate-200 dark:border-slate-700/60 pointer-events-auto items-center shrink-0">
-                        <button 
-                          onClick={() => onLanguageChange('en')}
-                          className={`px-4 py-1.5 rounded-full text-xs font-extrabold tracking-wide transition-all duration-200 cursor-pointer ${
-                            currentLanguage === 'en' 
-                              ? 'bg-indigo-600 dark:bg-indigo-500 text-white shadow-sm font-black scale-102' 
-                              : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/50 dark:hover:bg-slate-700/50'
-                          }`}
-                        >
-                          EN
-                        </button>
-                        <button 
-                          onClick={() => onLanguageChange('hi')}
-                          className={`px-4 py-1.5 rounded-full text-xs font-extrabold tracking-wide transition-all duration-200 cursor-pointer ${
-                            currentLanguage === 'hi' 
-                              ? 'bg-indigo-600 dark:bg-indigo-500 text-white shadow-sm font-black scale-102' 
-                              : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/50 dark:hover:bg-slate-700/50'
-                          }`}
-                        >
-                          हिंदी
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Switch Toggles */}
-                    <div className="p-4 bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800/80 shadow-sm space-y-3.5">
-                      {/* Home QR Code inline Switcher */}
-                      <div className="flex items-center justify-between py-1 border-b border-slate-100/80 dark:border-slate-800/70 gap-3 min-w-0">
-                        <div className="text-left flex-1 min-w-0 font-sans">
-                          <span className="font-bold text-slate-800 dark:text-slate-200 text-sm block">Home QR Code</span>
-                          <span className="text-xs text-slate-500 dark:text-slate-400 leading-normal block truncate font-sans">Render merchant quick scan UPI QR onto the landing dashboard</span>
-                        </div>
-                        <label className="relative inline-flex items-center cursor-pointer shrink-0">
-                          <input 
-                            type="checkbox" 
-                            className="sr-only peer" 
-                            checked={localStorage.getItem('showDashboardQR') !== 'false'}
-                            onChange={(e) => {
-                              localStorage.setItem('showDashboardQR', e.target.checked.toString());
-                              window.dispatchEvent(new Event('storage'));
-                              setAppSettings(prev => ({...prev, offlineMode: !prev.offlineMode}));
-                              setTimeout(() => setAppSettings(prev => ({...prev, offlineMode: !prev.offlineMode})), 5);
-                            }}
-                          />
-                          <div className="w-11 h-6 bg-slate-200 dark:bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 dark:after:border-slate-600 after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
-                        </label>
-                      </div>
-
-                      {/* Barcode Scanner inline Switcher */}
-                      <div className="flex items-center justify-between py-1 border-b border-slate-100/80 dark:border-slate-800/70 gap-3 min-w-0">
-                        <div className="text-left flex-1 min-w-0 font-sans">
-                          <span className="font-bold text-slate-800 dark:text-slate-200 text-sm block">Barcode Scanner</span>
-                          <span className="text-xs text-slate-500 dark:text-slate-400 leading-normal block font-sans">Leverage native device frame cameras for items scan inputs</span>
-                        </div>
-                        <label className="relative inline-flex items-center cursor-pointer shrink-0">
-                          <input 
-                            type="checkbox" 
-                            className="sr-only peer" 
-                            checked={localStorage.getItem('showBarcodeScanner') !== 'false'}
-                            onChange={(e) => {
-                              localStorage.setItem('showBarcodeScanner', e.target.checked.toString());
-                              window.dispatchEvent(new Event('storage'));
-                              setAppSettings(prev => ({...prev, offlineMode: !prev.offlineMode}));
-                              setTimeout(() => setAppSettings(prev => ({...prev, offlineMode: !prev.offlineMode})), 5);
-                            }}
-                          />
-                          <div className="w-11 h-6 bg-slate-200 dark:bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 dark:after:border-slate-600 after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
-                        </label>
-                      </div>
-
-                      {/* Smart assistant inline switcher */}
-                      <div className="flex items-center justify-between py-1 gap-3 min-w-0">
-                        <div className="text-left flex-1 min-w-0 font-sans">
-                          <span className="font-bold text-slate-800 dark:text-indigo-600 text-sm block">Smart Floating AI Assistant</span>
-                          <span className="text-xs text-slate-500 dark:text-slate-400 leading-normal block font-sans">
-                            {currentLanguage === 'hi' ? 'यूनिवर्सल चैटबॉट और हिंदी कमांड असिस्टेंट सक्षम करें' : 'Enable floating Gemini-backed command dialog widgets'}
-                          </span>
-                        </div>
-                        <label className="relative inline-flex items-center cursor-pointer shrink-0">
-                          <input 
-                            type="checkbox" 
-                            className="sr-only peer" 
-                            checked={localStorage.getItem('showSmartAssistant') !== 'false'}
-                            onChange={(e) => {
-                              localStorage.setItem('showSmartAssistant', e.target.checked.toString());
-                              window.dispatchEvent(new Event('storage'));
-                              setAppSettings(prev => ({...prev, offlineMode: !prev.offlineMode}));
-                              setTimeout(() => setAppSettings(prev => ({...prev, offlineMode: !prev.offlineMode})), 5);
-                            }}
-                          />
-                          <div className="w-11 h-6 bg-slate-200 dark:bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 dark:after:border-slate-600 after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
-                        </label>
-                      </div>
-                    </div>
-
-                    {/* Secondary preferences settings pages */}
-                    <div className="space-y-3">
-                      <button
-                        onClick={() => setActiveView('preferences2')}
-                        className="w-full flex items-center justify-between p-4 rounded-xl border border-slate-100 dark:border-slate-800/80 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition cursor-pointer text-left shadow-sm gap-4"
-                      >
-                        <div className="flex items-center gap-3.5 pr-2">
-                          <div className="bg-indigo-50 dark:bg-indigo-900/30 p-2.5 rounded-xl text-indigo-600 dark:text-indigo-400 shrink-0">
-                            <SlidersHorizontal size={20} />
-                          </div>
-                          <div className="text-left flex-1 font-sans">
-                            <span className="font-bold text-slate-800 dark:text-slate-200 block text-sm">Sale & Purchase Settings</span>
-                            <span className="text-xs text-slate-500 dark:text-slate-400 leading-normal block font-sans mt-0.5">Configure item batches, tax rules, wholesale controls and discounts</span>
-                          </div>
-                        </div>
-                        <span className="text-slate-400 shrink-0">&#10145;</span>
-                      </button>
-
-                      <button
-                        onClick={() => setActiveView('preferences')}
-                        className="w-full flex items-center justify-between p-4 rounded-xl border border-slate-100 dark:border-slate-800/80 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition cursor-pointer text-left shadow-sm gap-4"
-                      >
-                        <div className="flex items-center gap-3.5 pr-2">
-                          <div className="bg-indigo-50 dark:bg-indigo-900/30 p-2.5 rounded-xl text-indigo-600 dark:text-indigo-400 shrink-0">
-                            <SlidersHorizontal size={20} />
-                          </div>
-                          <div className="text-left flex-1 font-sans">
-                            <span className="font-bold text-slate-800 dark:text-slate-200 block text-sm">Dashboard & General Preferences</span>
-                            <span className="text-xs text-slate-500 dark:text-slate-400 leading-normal block font-sans mt-0.5">Toggle home screen components, system guides and visual rails</span>
-                          </div>
-                        </div>
-                        <span className="text-slate-400 shrink-0">&#10145;</span>
-                      </button>
-                    </div>
-                  </div>
-                </motion.div>
-              )}
-
-              {selectedCategoryTab === 'admin_panel' && authContext.currentUser?.role === 'admin' && (
-                <motion.div
-                  key="admin_panel"
-                  initial={{ opacity: 0, x: 15 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -15 }}
-                  transition={{ duration: 0.2 }}
-                  className="space-y-6 text-left"
-                >
-                  <div>
-                    <h2 className="text-xl font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
-                      <ShieldAlert className="text-indigo-600 dark:text-indigo-400" size={24} />
-                      {currentLanguage === 'hi' ? 'एडमिन पैनल' : 'Admin Control Panel'}
-                    </h2>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-sans">
-                      {currentLanguage === 'hi' ? 'स्टाफ सदस्यों और उनके डिलीट/स्टॉक संपादन अनुमतियों को नियंत्रित करें।' : 'Review system modifications, restrict operational privileges, or manage business operator accounts.'}
+                      {currentLanguage === 'hi' ? 'सिस्टम प्रदर्शन, डेटाबेस स्वास्थ्य और ऑडिट लॉग जांचें।' : 'Inspect system queries profile, health status, and action logs.'}
                     </p>
                   </div>
 
                   <div className="pt-4 border-t border-slate-100 dark:border-slate-800/80 space-y-3">
+                    {/* System Health Check */}
                     <button
-                      onClick={() => {
-                        if (isAdminUnlocked) {
-                          setActiveView('staff_members');
-                        } else {
-                          setPendingAdminView('staff_members');
-                          setAdminPinInput('');
-                          setAdminPinError('');
-                          setShowAdminPinModal(true);
-                        }
-                      }}
-                      className="w-full flex items-center justify-between p-4 rounded-xl border border-slate-100 dark:border-slate-800/80 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/80 transition cursor-pointer text-left shadow-sm min-w-0 gap-4"
+                      onClick={() => setActiveView('system_health')}
+                      className="w-full flex items-center justify-between p-4 rounded-xl border border-slate-100 dark:border-slate-800/80 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition cursor-pointer text-left min-w-0 gap-4 shadow-sm"
                     >
                       <div className="flex items-center gap-3.5 flex-1 min-w-0 pr-2">
                         <div className="bg-indigo-50 dark:bg-indigo-900/30 p-2.5 rounded-xl text-indigo-600 dark:text-indigo-400 shrink-0">
-                          <Users size={20} />
+                          <Activity size={20} />
                         </div>
                         <div className="text-left flex-1 min-w-0">
                           <span className="font-bold text-slate-800 dark:text-slate-200 block text-sm truncate">
-                            {currentLanguage === 'hi' ? 'स्टाफ और अनुमतियाँ प्रबंधित करें' : 'Manage Staff & Permissions'}
+                            {currentLanguage === 'hi' ? 'सिस्टम स्वास्थ्य' : 'System Health Check'}
                           </span>
                           <span className="text-xs text-slate-500 dark:text-slate-400 leading-normal block truncate font-sans mt-0.5">
-                            {currentLanguage === 'hi' ? 'स्टाफ सदस्य जोड़ें और उनके डिलीट/स्टॉक अनुमतियों को सेट करें' : 'Add staff operators, manage deleted billing & stock edits limitations'}
+                            {currentLanguage === 'hi' ? 'सक्रिय डेटाबेस तालिकाओं के आकार और स्वास्थ्य को ऑडिट करें' : 'Verify active tables status, size counters and storage parameters'}
                           </span>
                         </div>
                       </div>
                       <span className="text-slate-400 shrink-0">&#10145;</span>
                     </button>
 
+                    {/* Master Health Analysis */}
+                    <button
+                      onClick={() => setActiveView('master_health')}
+                      className="w-full flex items-center justify-between p-4 rounded-xl border border-slate-100 dark:border-slate-800/80 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition cursor-pointer text-left min-w-0 gap-4 shadow-sm"
+                    >
+                      <div className="flex items-center gap-3.5 flex-1 min-w-0 pr-2">
+                        <div className="bg-amber-50 dark:bg-amber-900/30 p-2.5 rounded-xl text-amber-600 dark:text-amber-400 shrink-0">
+                          <Heart size={20} />
+                        </div>
+                        <div className="text-left flex-1 min-w-0 font-sans">
+                          <span className="font-bold text-slate-800 dark:text-slate-200 block text-sm truncate">
+                            {currentLanguage === 'hi' ? 'मास्टर स्वास्थ्य विश्लेषण' : 'Master Health Analysis'}
+                          </span>
+                          <span className="text-xs text-slate-500 dark:text-slate-400 leading-normal block truncate font-sans mt-0.5">
+                            {currentLanguage === 'hi' ? 'टूटे हुए डेटा और अमान्य अनुक्रमणिकाओं को स्कैन करें' : 'Scan for broken referencing links & invalid indexing tables'}
+                          </span>
+                        </div>
+                      </div>
+                      <span className="text-slate-400 shrink-0">&#10145;</span>
+                    </button>
+
+                    {/* View Audit Logs */}
                     <button
                       onClick={() => {
                         if (isAdminUnlocked) {
@@ -4256,121 +4860,32 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                       className="w-full flex items-center justify-between p-4 rounded-xl border border-slate-100 dark:border-slate-800/80 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/80 transition cursor-pointer text-left shadow-sm min-w-0 gap-4"
                     >
                       <div className="flex items-center gap-3.5 flex-1 min-w-0 pr-2">
-                        <div className="bg-emerald-50 dark:bg-emerald-900/30 p-2.5 rounded-xl text-emerald-600 dark:text-emerald-400 shrink-0">
-                          <Activity size={20} />
+                        <div className="bg-rose-50 dark:bg-rose-900/30 p-2.5 rounded-xl text-rose-600 dark:text-rose-400 shrink-0">
+                          <ShieldAlert size={20} />
                         </div>
                         <div className="text-left flex-1 min-w-0 font-sans">
                           <span className="font-bold text-slate-800 dark:text-slate-200 block text-sm truncate">
                             {currentLanguage === 'hi' ? 'सिस्टम ऑडिट लॉग्स' : 'System Audit Logs'}
                           </span>
-                          <span className="text-xs text-slate-500 dark:text-slate-400 leading-normal block truncate font-sans mt-0.5">
-                            {currentLanguage === 'hi' ? 'सभी यूजर गतिविधियों, डेटा बदलावों और महत्वपूर्ण लॉगिन ऑडिट को ट्रैक करें' : 'Track all user activities, data modifications, and secure logins history'}
+                          <span className="text-xs text-slate-500 dark:text-slate-400 leading-normal block truncate font-sans mt-0.5 font-sans">
+                            {currentLanguage === 'hi' ? 'संवेदनशील रिकॉर्ड हटाने और स्टॉक संशोधनों की जाँच करें' : 'Track admin changes, staff actions & secure billing edits'}
                           </span>
                         </div>
                       </div>
                       <span className="text-slate-400 shrink-0">&#10145;</span>
                     </button>
-                  </div>
-                </motion.div>
-              )}
 
-              {selectedCategoryTab === 'diagnostics' && authContext.currentUser?.role === 'admin' && (
-                <motion.div
-                  key="diagnostics"
-                  initial={{ opacity: 0, x: 15 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -15 }}
-                  transition={{ duration: 0.2 }}
-                  className="space-y-6 text-left"
-                >
-                  <div>
-                    <h2 className="text-xl font-extrabold text-[#3b5998] dark:text-indigo-400 flex items-center gap-2">
-                      <Activity className="text-indigo-600 dark:text-indigo-400" size={24} />
-                      {currentLanguage === 'hi' ? 'सिस्टम डायग्नोस्टिक्स' : 'Diagnostics & System Trials'}
-                    </h2>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-sans">
-                      {currentLanguage === 'hi' ? 'ऑटोमेटेड परीक्षा और सुरक्षा ऑडिट ट्रेल को निष्पादित करें।' : 'Run system trials, monitor synchronization status, and verify mathematical invoicing structures.'}
-                    </p>
-                  </div>
-
-                  <div className="pt-4 border-t border-slate-100 dark:border-slate-800/80">
-                    <TestCaseRunner />
-                  </div>
-                </motion.div>
-              )}
-              {selectedCategoryTab === 'premium_license' && authContext.currentUser?.role === 'admin' && (
-                <motion.div
-                  key="premium_license"
-                  initial={{ opacity: 0, x: 15 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -15 }}
-                  transition={{ duration: 0.2 }}
-                  className="space-y-6 text-left"
-                >
-                  <div>
-                    <h2 className="text-xl font-extrabold text-amber-500 flex items-center gap-2">
-                      <Crown className="text-amber-500" size={24} />
-                      {currentLanguage === 'hi' ? 'प्रीमियम लाइसेंस' : 'Premium License'}
-                    </h2>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-sans">
-                      {currentLanguage === 'hi' ? 'लाइसेंस कुंजी सक्रिय करें या मुफ्त सैंडबॉक्स अपग्रेड आज़माएं।' : 'Activate enterprise license keys or try the free sandbox developer upgrade.'}
-                    </p>
-                  </div>
-
-                  <div className="pt-4 border-t border-slate-100 dark:border-slate-800/80 bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-200/85 dark:border-slate-800 space-y-4">
-                      <div className="flex items-center justify-between gap-3 text-left w-full">
-                          <div className="flex items-center gap-1.5 shrink-0">
-                              <div className={`w-2.5 h-2.5 rounded-full ${isPremiumLicensed ? 'bg-amber-500 animate-pulse' : 'bg-slate-300'}`}></div>
-                              <p className="text-[11px] font-mono tracking-tight uppercase text-slate-500 dark:text-slate-400">
-                                  License Mode: <span className={isPremiumLicensed ? 'text-amber-500 font-extrabold' : 'text-slate-600 dark:text-slate-500 font-bold'}>{isPremiumLicensed ? 'PREMIUM TIED (V2.0)' : 'FREE BASIC (OFFLINE ONLY)'}</span>
-                              </p>
-                          </div>
-                          <button
-                              type="button"
-                              onClick={handleUpgradeToPremium}
-                              className={`px-3 py-1 text-xs rounded-full font-bold transition shadow-sm shrink-0 cursor-pointer ${isPremiumLicensed ? 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200' : 'bg-amber-500 hover:bg-amber-600 text-slate-900 border border-amber-600/20'}`}
-                              id="premium_toggle_trigger_button_desktop"
-                          >
-                              {isPremiumLicensed 
-                                ? (currentLanguage === 'hi' ? 'मुफ़्त लाइसेंस बंद करें' : 'Demo Downgrade to Basic') 
-                                : (currentLanguage === 'hi' ? 'मुफ़्त प्रीमियम सक्रिय करें' : 'Activate Sandbox Premium License')}
-                          </button>
+                    {/* Automated trade math trials */}
+                    {authContext.currentUser?.role === 'admin' && (
+                      <div className="pt-6 border-t border-slate-100 dark:border-slate-800/80">
+                        <h3 className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-3 font-sans">Automated Test Execution</h3>
+                        <TestCaseRunner />
                       </div>
-
-                      {!isPremiumLicensed && (
-                          <div className="border-t border-slate-100 dark:border-slate-800/80 pt-3 mt-2 flex flex-col gap-2 w-full">
-                              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-                                  {currentLanguage === 'hi' ? 'प्रीमियम सक्रिय करने के लिए लाइसेंस कुंजी दर्ज करें' : 'Enter License Key to Activate Premium'}
-                              </label>
-                              <div className="flex gap-2 w-full">
-                                  <input 
-                                      type="text" 
-                                      value={licenseCode}
-                                      onChange={e => {
-                                          setLicenseCode(e.target.value);
-                                          setLicenseError('');
-                                      }}
-                                      placeholder="e.g. EAZY-PREMIUM-2026"
-                                      className="flex-1 bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/60 rounded-xl px-3.5 py-2.5 text-xs font-mono font-bold tracking-widest text-slate-800 dark:text-white outline-none focus:border-amber-500 dark:focus:border-amber-400 transition-colors uppercase min-w-0"
-                                  />
-                                  <button 
-                                      onClick={handleValidateLicenseCode}
-                                      className="bg-amber-500 hover:bg-amber-600 text-slate-900 font-extrabold px-5 rounded-xl transition-all active:scale-98 text-xs cursor-pointer shadow-sm flex items-center justify-center gap-1.5 shrink-0"
-                                  >
-                                      <Crown size={12} className="fill-slate-900" />
-                                      {currentLanguage === 'hi' ? 'सक्रिय' : 'Activate'}
-                                  </button>
-                              </div>
-                              {licenseError && (
-                                  <p className="text-[10px] font-bold text-rose-500 mt-1">
-                                      ⚠️ {licenseError}
-                                  </p>
-                              )}
-                          </div>
-                      )}
+                    )}
                   </div>
                 </motion.div>
               )}
+
             </AnimatePresence>
           </div>
         </div>
