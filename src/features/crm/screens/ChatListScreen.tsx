@@ -44,6 +44,32 @@ export const ChatListScreen: React.FC<ChatListScreenProps> = ({ onBack, onSelect
   const [activeChatIds, setActiveChatIds] = useState<string[]>([]); 
   const [loading, setLoading] = useState(true);
   const [lastMessages, setLastMessages] = useState<Record<string, ChatMessage>>({});
+
+  const lang = (localStorage.getItem('language') || 'en') as 'en' | 'hi';
+  const isHi = lang === 'hi';
+  const t = {
+    settings: isHi ? 'सेटिंग्स' : 'Settings',
+    noContactsFound: isHi ? 'कोई संपर्क नहीं मिला' : 'No contacts found',
+    noChatsYet: isHi ? 'कोई चैट नहीं' : 'No chats yet',
+    tapSearchDesc: isHi ? 'संपर्क खोजने और चैट शुरू करने के लिए सर्च आइकॉन पर टैप करें।' : 'Tap the search icon to find contacts and start chatting.',
+    noBroadcastsYet: isHi ? 'कोई ब्रॉडकास्ट नहीं' : 'No Broadcasts yet',
+    createBroadcastDesc: isHi ? 'एक बार में कई ग्राहकों को संदेश भेजने के लिए एक ब्रॉडकास्ट सूची बनाएं।' : 'Create a broadcast list to message multiple customers at once.',
+    myStatus: isHi ? 'मेरा स्टेटस' : 'My status',
+    createCallLink: isHi ? 'कॉल लिंक बनाएं' : 'Create call link',
+    shareCallLinkDesc: isHi ? 'अपने व्हाट्सएप कॉल के लिए एक लिंक साझा करें' : 'Share a link for your WhatsApp call',
+    searchCategory: isHi ? 'श्रेणी खोजें...' : 'Search Category',
+    searching: isHi ? 'खोजा जा रहा है...' : 'SEARCHING...',
+    quickBillChat: isHi ? 'क्विकबिल चैट' : 'QuickBill Chat',
+    chats: isHi ? 'चैट' : 'Chats',
+    broadcasts: isHi ? 'ब्रॉडकास्ट' : 'Broadcasts',
+    status: isHi ? 'स्टेटस' : 'Status',
+    loading: isHi ? 'लोड हो रहा है...' : 'Loading...',
+    noCategoriesFound: isHi ? 'कोई श्रेणियां नहीं मिलीं' : 'No categories found',
+    deleteModalTitle: isHi ? 'चैट हटाएं' : 'Delete Chat',
+    deleteModalDesc: isHi ? 'इस चैट के संदेशों को स्थायी रूप से हटा दिया जाएगा।' : 'Messages in this chat will be permanently removed.',
+    cancel: isHi ? 'रद्द करें' : 'Cancel',
+    delete: isHi ? 'हटाएं' : 'Delete'
+  };
   
   // Navigation State
   const [currentView, setCurrentView] = useState<ViewState>('main');
@@ -368,7 +394,7 @@ export const ChatListScreen: React.FC<ChatListScreenProps> = ({ onBack, onSelect
               <button onClick={() => setCurrentView('main')} className="p-1 rounded-full hover:bg-white/10">
                   <ArrowLeft size={24} />
               </button>
-              <h1 className="text-xl font-bold">Settings</h1>
+              <h1 className="text-xl font-bold">{t.settings}</h1>
           </header>
           {/* Settings Items would go here */}
       </div>
@@ -378,8 +404,8 @@ export const ChatListScreen: React.FC<ChatListScreenProps> = ({ onBack, onSelect
     <div className="divide-y divide-gray-100 dark:divide-slate-800">
       {partiesToDisplay.length === 0 ? (
           <div className="p-10 flex flex-col items-center justify-center text-slate-500 gap-2">
-              <span className="text-lg font-medium">{isSearching ? 'No contacts found' : 'No chats yet'}</span>
-              {!isSearching && <p className="text-sm text-center">Tap the search icon to find contacts and start chatting.</p>}
+              <span className="text-lg font-medium">{isSearching ? t.noContactsFound : t.noChatsYet}</span>
+              {!isSearching && <p className="text-sm text-center">{t.tapSearchDesc}</p>}
           </div>
       ) : (
         partiesToDisplay.map((party, index) => {
@@ -454,8 +480,8 @@ export const ChatListScreen: React.FC<ChatListScreenProps> = ({ onBack, onSelect
     <div className="divide-y divide-gray-100 dark:divide-slate-800">
       {broadcastGroups.length === 0 ? (
           <div className="p-10 flex flex-col items-center justify-center text-slate-500 gap-2">
-              <span className="text-lg font-medium">No Broadcasts yet</span>
-              <p className="text-sm text-center">Create a broadcast list to message multiple customers at once.</p>
+              <span className="text-lg font-medium">{t.noBroadcastsYet}</span>
+              <p className="text-sm text-center">{t.createBroadcastDesc}</p>
           </div>
       ) : (
         broadcastGroups.map((group) => {
@@ -535,10 +561,10 @@ export const ChatListScreen: React.FC<ChatListScreenProps> = ({ onBack, onSelect
                        </div>
                    )}
                </div>
-               <div className="flex-1">
-                   <h3 className="font-bold text-slate-900 dark:text-white">My status</h3>
-                   <p className="text-sm text-slate-500 dark:text-slate-400">{myStatuses.length > 0 ? myStatuses[myStatuses.length - 1].time : 'Tap to add status update'}</p>
-               </div>
+                <div className="flex-1">
+                    <h3 className="font-bold text-slate-900 dark:text-white">{t.myStatus}</h3>
+                    <p className="text-sm text-slate-500 dark:text-slate-400">{myStatuses.length > 0 ? myStatuses[myStatuses.length - 1].time : (isHi ? 'स्टेटस अपडेट जोड़ने के लिए टैप करें' : 'Tap to add status update')}</p>
+                </div>
           </div>
       </div>
   );
@@ -550,12 +576,12 @@ export const ChatListScreen: React.FC<ChatListScreenProps> = ({ onBack, onSelect
                   <LinkIcon size={24} className="-rotate-45" />
               </div>
               <div className="flex-1">
-                  <h3 className="font-bold text-slate-900 dark:text-white">Create call link</h3>
-                  <p className="text-sm text-slate-500 dark:text-slate-400">Share a link for your WhatsApp call</p>
+                  <h3 className="font-bold text-slate-900 dark:text-white">{t.createCallLink}</h3>
+                  <p className="text-sm text-slate-500 dark:text-slate-400">{t.shareCallLinkDesc}</p>
               </div>
           </div>
           <div className="p-4 text-center text-slate-500 text-sm mt-4">
-              Your personal calls are end-to-end encrypted
+              {isHi ? 'आपकी व्यक्तिगत कॉल एंड-टू-एंड एन्क्रिप्टेड हैं' : 'Your personal calls are end-to-end encrypted'}
           </div>
       </div>
   );
@@ -579,19 +605,19 @@ export const ChatListScreen: React.FC<ChatListScreenProps> = ({ onBack, onSelect
       {isSearching ? (
           <div className="flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white">
              <div className="bg-[#283593] text-white p-4 pt-[max(env(safe-area-inset-top),48px)] flex items-center gap-3 shadow-md shrink-0 sticky top-0 z-20">
-                 <button onClick={() => { setIsSearching(false); setSearchText(''); setAllParties([]); }} className="text-white">
-                     <ArrowLeft size={24} />
-                 </button>
-                 <h1 className="text-xl font-bold">Search Category</h1>
+                  <button onClick={() => { setIsSearching(false); setSearchText(''); setAllParties([]); }} className="text-white">
+                      <ArrowLeft size={24} />
+                  </button>
+                  <h1 className="text-xl font-bold">{t.searchCategory}</h1>
              </div>
              
              <div className="p-4 bg-white dark:bg-[#111b21] border-b border-gray-200 dark:border-slate-800 shadow-sm">
-                 {/* Distance Slider */}
-                 <div className="mb-6">
-                     <div className="flex justify-between items-end mb-2">
-                         <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">
-                             SEARCH DISTANCE (RANGE)
-                         </label>
+                  {/* Distance Slider */}
+                  <div className="mb-6">
+                      <div className="flex justify-between items-end mb-2">
+                          <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">
+                              {isHi ? 'खोज दूरी (दायरा)' : 'SEARCH DISTANCE (RANGE)'}
+                          </label>
                          <span className="text-base font-bold text-[#283593]">{searchRadius} KM</span>
                      </div>
                      <div className="relative w-full h-6 flex items-center">
@@ -625,7 +651,7 @@ export const ChatListScreen: React.FC<ChatListScreenProps> = ({ onBack, onSelect
                          }}
                          onFocus={() => setShowSuggestions(true)}
                          className="w-full border border-blue-300 dark:border-slate-700 rounded-lg p-3 pl-10 text-base text-black dark:text-white bg-white dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-[#283593] transition-all font-medium"
-                         placeholder="Search Category (e.g. Dairy, Grocery)"
+                         placeholder={isHi ? 'श्रेणी खोजें (जैसे डेयरी, किराना)' : 'Search Category (e.g. Dairy, Grocery)'}
                      />
                      {/* Suggestions */}
                      {showSuggestions && searchText && filteredCategories.length > 0 && (
@@ -658,10 +684,10 @@ export const ChatListScreen: React.FC<ChatListScreenProps> = ({ onBack, onSelect
                      {loading ? (
                          <div className="flex items-center justify-center gap-2">
                              <Loader2 className="w-5 h-5 animate-spin" />
-                             <span>SEARCHING...</span>
+                             <span>{t.searching}</span>
                          </div>
                      ) : (
-                         "SEARCH"
+                         isHi ? 'खोजें' : 'SEARCH'
                      )}
                  </button>
              </div>
@@ -679,7 +705,7 @@ export const ChatListScreen: React.FC<ChatListScreenProps> = ({ onBack, onSelect
                  <div className="px-4 pb-3 flex justify-between items-center min-h-[60px]">
                     <div className="flex items-center gap-3">
                         <button onClick={onBack} className="p-1 rounded-full hover:bg-white/10"><ArrowLeft size={24} /></button>
-                        <h1 className="text-xl font-bold tracking-wide">QuickBill Chat</h1>
+                        <h1 className="text-xl font-bold tracking-wide">{t.quickBillChat}</h1>
                     </div>
                     <div className="flex items-center gap-5 text-white">
                         <button onClick={() => statusInputRef.current?.click()}><Camera size={22} /></button>
@@ -688,7 +714,7 @@ export const ChatListScreen: React.FC<ChatListScreenProps> = ({ onBack, onSelect
                             <button onClick={(e) => { e.stopPropagation(); setIsMenuOpen(!isMenuOpen); }}><MoreVertical size={22} /></button>
                             {isMenuOpen && (
                                 <div className="absolute top-10 right-0 w-48 bg-white dark:bg-[#233138] text-slate-800 dark:text-slate-100 rounded-lg shadow-xl py-2 z-50 origin-top-right animate-in fade-in zoom-in-95 duration-100">
-                                    <button onClick={() => { setIsMenuOpen(false); setCurrentView('settings_home'); }} className="w-full text-left px-4 py-3 hover:bg-slate-100 dark:hover:bg-slate-700 text-base">Settings</button>
+                                    <button onClick={() => { setIsMenuOpen(false); setCurrentView('settings_home'); }} className="w-full text-left px-4 py-3 hover:bg-slate-100 dark:hover:bg-slate-700 text-base">{t.settings}</button>
                                 </div>
                             )}
                         </div>
@@ -696,25 +722,25 @@ export const ChatListScreen: React.FC<ChatListScreenProps> = ({ onBack, onSelect
                 </div>
                 <div className="flex text-[#b8e0da] dark:text-slate-400 font-bold text-sm uppercase">
                     <div className="w-10 flex items-center justify-center pb-3 border-b-4 border-transparent"><div className="opacity-60"><Camera size={20} /></div></div>
-                    <button onClick={() => setActiveTab('chats')} className={`flex-1 text-center pb-3 border-b-4 transition-colors ${activeTab === 'chats' ? 'border-white dark:border-[#00a884] text-white dark:text-[#00a884]' : 'border-transparent hover:text-white dark:hover:text-slate-300'}`}>Chats</button>
-                    <button onClick={() => setActiveTab('broadcasts')} className={`flex-1 text-center pb-3 border-b-4 transition-colors ${activeTab === 'broadcasts' ? 'border-white dark:border-[#00a884] text-white dark:text-[#00a884]' : 'border-transparent hover:text-white dark:hover:text-slate-300'}`}>Broadcasts</button>
-                    <button onClick={() => setActiveTab('status')} className={`flex-1 text-center pb-3 border-b-4 transition-colors ${activeTab === 'status' ? 'border-white dark:border-[#00a884] text-white dark:text-[#00a884]' : 'border-transparent hover:text-white dark:hover:text-slate-300'}`}>Status</button>
+                    <button onClick={() => setActiveTab('chats')} className={`flex-1 text-center pb-3 border-b-4 transition-colors ${activeTab === 'chats' ? 'border-white dark:border-[#00a884] text-white dark:text-[#00a884]' : 'border-transparent hover:text-white dark:hover:text-slate-300'}`}>{t.chats}</button>
+                    <button onClick={() => setActiveTab('broadcasts')} className={`flex-1 text-center pb-3 border-b-4 transition-colors ${activeTab === 'broadcasts' ? 'border-white dark:border-[#00a884] text-white dark:text-[#00a884]' : 'border-transparent hover:text-white dark:hover:text-slate-300'}`}>{t.broadcasts}</button>
+                    <button onClick={() => setActiveTab('status')} className={`flex-1 text-center pb-3 border-b-4 transition-colors ${activeTab === 'status' ? 'border-white dark:border-[#00a884] text-white dark:text-[#00a884]' : 'border-transparent hover:text-white dark:hover:text-slate-300'}`}>{t.status}</button>
                 </div>
             </div>
       )}
 
       {/* Main Content */}
       <div className="flex-1 overflow-y-auto bg-white dark:bg-[#111b21] transition-colors">
-        {loading ? <div className="p-4 text-center text-slate-500 font-medium">Loading...</div> : (
+        {loading ? <div className="p-4 text-center text-slate-500 font-medium">{t.loading}</div> : (
            <>
              {isSearching && allParties.length === 0 ? (
                  <div className="p-4">
                       <h2 className="text-sm font-bold text-slate-400 mb-3 uppercase tracking-wider">
-                          {searchText ? 'Search Results' : 'Business Types'}
+                          {searchText ? (isHi ? 'खोज परिणाम' : 'Search Results') : (isHi ? 'व्यवसाय के प्रकार' : 'Business Types')}
                       </h2>
                       <div className="space-y-1">
                           {filteredCategories.length === 0 ? (
-                              <div className="p-8 text-center text-gray-400">No categories found</div>
+                              <div className="p-8 text-center text-gray-400">{t.noCategoriesFound}</div>
                           ) : (
                               filteredCategories.map((cat, idx) => (
                                   <button 
@@ -837,7 +863,7 @@ export const ChatListScreen: React.FC<ChatListScreenProps> = ({ onBack, onSelect
                       autoFocus
                       value={textStatusContent}
                       onChange={(e) => setTextStatusContent(e.target.value)}
-                      placeholder="Type a status"
+                      placeholder={isHi ? 'एक स्टेटस टाइप करें' : 'Type a status'}
                       className="w-full bg-transparent text-white text-center text-4xl outline-none resize-none placeholder-white/60 min-h-[150px]"
                   />
               </div>
@@ -860,11 +886,11 @@ export const ChatListScreen: React.FC<ChatListScreenProps> = ({ onBack, onSelect
                 <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-full flex items-center justify-center mx-auto mb-4 border border-red-200 dark:border-red-900/50">
                     <Trash2 size={32} />
                 </div>
-                <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Delete {selectedChatIds.length} Chat(s)?</h3>
-                <p className="text-slate-500 dark:text-slate-400 mb-6 font-medium">Messages in this chat will be permanently removed.</p>
+                <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">{isHi ? `क्या आप ${selectedChatIds.length} चैट हटाना चाहते हैं?` : `Delete ${selectedChatIds.length} Chat(s)?`}</h3>
+                <p className="text-slate-500 dark:text-slate-400 mb-6 font-medium">{t.deleteModalDesc}</p>
                 <div className="flex gap-3">
-                    <button onClick={() => setShowDeleteModal(false)} className="flex-1 py-3 rounded-xl font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">Cancel</button>
-                    <button onClick={handleDeleteChats} className="flex-1 py-3 rounded-xl font-bold bg-red-600 text-white hover:bg-red-700 shadow-lg">Delete</button>
+                    <button onClick={() => setShowDeleteModal(false)} className="flex-1 py-3 rounded-xl font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">{t.cancel}</button>
+                    <button onClick={handleDeleteChats} className="flex-1 py-3 rounded-xl font-bold bg-red-600 text-white hover:bg-red-700 shadow-lg">{t.delete}</button>
                 </div>
             </div>
         </div>

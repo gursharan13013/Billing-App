@@ -3,7 +3,6 @@ import { ArrowLeft, Calendar } from 'lucide-react';
 import { Party, TransactionType, Invoice } from '../../../core/types/';
 import { billingService } from '../../../services/billingService';
 
-
 interface PartyItemDetailReportScreenProps {
   onBack: () => void;
   party: Party | null; // null means "All"
@@ -26,6 +25,21 @@ export const PartyItemDetailReportScreen: React.FC<PartyItemDetailReportScreenPr
   const [loading, setLoading] = useState(true);
   const [fromDate, setFromDate] = useState<string>('');
   const [toDate, setToDate] = useState<string>('');
+
+  const lang = (localStorage.getItem('language') || 'en') as 'en' | 'hi';
+  const isHi = lang === 'hi';
+  const t = {
+    allParties: isHi ? 'सभी पार्टियां' : 'All Parties',
+    to: isHi ? 'तक' : 'To',
+    date: isHi ? 'तारीख' : 'Date',
+    itemName: isHi ? 'सामग्री का नाम' : 'Item Name',
+    qty: isHi ? 'मात्रा' : 'Qty',
+    rate: isHi ? 'दर' : 'Rate',
+    tax: isHi ? 'टैक्स' : 'Tax',
+    amount: isHi ? 'राशि' : 'Amount',
+    noRecords: isHi ? 'कोई रिकॉर्ड नहीं मिला।' : 'No records found.',
+    total: isHi ? 'कुल' : 'Total'
+  };
 
   useEffect(() => {
     // Default date range: current month
@@ -94,77 +108,77 @@ export const PartyItemDetailReportScreen: React.FC<PartyItemDetailReportScreenPr
     if (!dateString) return 'DD/MM/YYYY';
     const d = new Date(dateString);
     const day = d.getDate();
-    const month = d.toLocaleString('en-US', { month: 'short' }).toUpperCase();
+    const month = d.toLocaleString(isHi ? 'hi-IN' : 'en-US', { month: 'short' }).toUpperCase();
     const year = d.getFullYear();
     return `${day}/${month}/${year}`;
   };
 
   return (
-    <div className="flex flex-col h-screen bg-white">
+    <div className="flex flex-col h-screen bg-[var(--bg-app)] text-[var(--text-main)] pb-[max(env(safe-area-inset-bottom),0px)]">
       {/* Header */}
-      <header className="bg-[#3b5998] text-white p-3 flex items-center shrink-0 pt-[max(env(safe-area-inset-top),48px)]">
-        <button onClick={onBack} className="mr-3 p-1 active:scale-95 transition-transform">
+      <header className="bg-[var(--bg-card)] border-b border-[var(--border-ui)] text-[var(--text-main)] p-4 pt-[max(env(safe-area-inset-top),48px)] flex items-center gap-3 shadow-sm shrink-0">
+        <button onClick={onBack} className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors mr-2">
           <ArrowLeft size={24} />
         </button>
         <div className="flex-1 overflow-hidden">
-          <h1 className="text-lg font-medium truncate">{party ? party.name : 'All Parties'}</h1>
+          <h1 className="text-lg font-black truncate tracking-tight">{party ? party.name : t.allParties}</h1>
         </div>
       </header>
 
       {/* Custom Date Range Filter */}
-      <div className="flex justify-center items-center py-3 border-b border-slate-200 shrink-0 gap-3 bg-white">
-          <div className="font-semibold text-black bg-slate-200 px-3 py-2 text-sm relative">
+      <div className="flex justify-center items-center py-3 border-b border-[var(--border-ui)] shrink-0 gap-3 bg-[var(--bg-card)]">
+          <div className="font-bold text-[var(--text-main)] bg-[var(--bg-app)] px-3 py-2 text-sm rounded-xl border border-[var(--border-ui)] relative cursor-pointer hover:bg-slate-100/50 transition-colors">
              <input type="date" value={fromDate} onChange={e => setFromDate(e.target.value)} className="absolute inset-0 opacity-0 cursor-pointer w-full" />
              {formatDate(fromDate)}
           </div>
-          <span className="font-bold text-black text-lg">To</span>
-          <div className="font-semibold text-black bg-slate-200 px-3 py-2 text-sm relative">
+          <span className="font-black text-[var(--text-secondary)] text-sm uppercase tracking-wider">{t.to}</span>
+          <div className="font-bold text-[var(--text-main)] bg-[var(--bg-app)] px-3 py-2 text-sm rounded-xl border border-[var(--border-ui)] relative cursor-pointer hover:bg-slate-100/50 transition-colors">
              <input type="date" value={toDate} onChange={e => setToDate(e.target.value)} className="absolute inset-0 opacity-0 cursor-pointer w-full" />
              {formatDate(toDate)}
           </div>
       </div>
 
       {/* Table Area */}
-      <div className="flex-1 overflow-x-auto overflow-y-auto no-scrollbar relative bg-white">
+      <div className="flex-1 overflow-x-auto overflow-y-auto no-scrollbar relative bg-[var(--bg-app)]">
          <table className="w-full min-w-[700px] text-left border-collapse">
-            <thead className="sticky top-0 bg-white z-10 border-b border-slate-200">
+            <thead className="sticky top-0 bg-[var(--bg-card)] text-[var(--text-main)] z-10 border-b border-[var(--border-ui)]">
                 <tr>
-                    <th className="p-3 text-[15px] font-bold text-black border-r border-slate-200 min-w-[100px]">Date</th>
-                    <th className="p-3 text-[15px] font-bold text-black border-r border-slate-200 min-w-[120px]">Item Name</th>
-                    <th className="p-3 text-[15px] font-bold text-black border-r border-slate-200">Qty</th>
-                    <th className="p-3 text-[15px] font-bold text-black border-r border-slate-200">Rate</th>
-                    <th className="p-3 text-[15px] font-bold text-black border-r border-slate-200">Tax</th>
-                    <th className="p-3 text-[15px] font-bold text-black">Amount</th>
+                    <th className="p-3 text-sm font-black border-r border-[var(--border-ui)] min-w-[100px]">{t.date}</th>
+                    <th className="p-3 text-sm font-black border-r border-[var(--border-ui)] min-w-[120px]">{t.itemName}</th>
+                    <th className="p-3 text-sm font-black border-r border-[var(--border-ui)]">{t.qty}</th>
+                    <th className="p-3 text-sm font-black border-r border-[var(--border-ui)]">{t.rate}</th>
+                    <th className="p-3 text-sm font-black border-r border-[var(--border-ui)]">{t.tax}</th>
+                    <th className="p-3 text-sm font-black">{t.amount}</th>
                 </tr>
             </thead>
-            <tbody className="divide-y divide-white/20">
+            <tbody className="divide-y divide-[var(--border-ui)]">
                 {displayRows.map((row, idx) => {
                     const rowDate = new Date(row.date);
                     const formattedRowDate = `${rowDate.getDate()}-${rowDate.getMonth() + 1}-${rowDate.getFullYear()}`;
                     return (
-                        <tr key={row.id} className={`${idx % 2 === 0 ? 'bg-[#6EE76E]' : 'bg-[#5FE15F]'}`}>
-                            <td className="p-3 text-[15px] text-black border-r border-white/30">{formattedRowDate}</td>
-                            <td className="p-3 text-[15px] text-black border-r border-white/30 truncate max-w-[150px]">{row.itemName}</td>
-                            <td className="p-3 text-[15px] text-black border-r border-white/30">{row.qty}</td>
-                            <td className="p-3 text-[15px] text-black border-r border-white/30">{row.rate.toFixed(2)}</td>
-                            <td className="p-3 text-[15px] text-black border-r border-white/30">{row.tax.toFixed(2)}</td>
-                            <td className="p-3 text-[15px] text-black">{row.amount.toFixed(2)}</td>
+                        <tr key={row.id} className="hover:bg-slate-100/50 dark:hover:bg-slate-800/50 transition-colors">
+                            <td className="p-3 text-sm text-[var(--text-main)] border-r border-[var(--border-ui)] font-semibold">{formattedRowDate}</td>
+                            <td className="p-3 text-sm text-[var(--text-main)] border-r border-[var(--border-ui)] font-semibold truncate max-w-[150px]">{row.itemName}</td>
+                            <td className="p-3 text-sm text-[var(--text-main)] border-r border-[var(--border-ui)] font-semibold">{row.qty}</td>
+                            <td className="p-3 text-sm text-[var(--text-main)] border-r border-[var(--border-ui)] font-semibold">₹{row.rate.toFixed(2)}</td>
+                            <td className="p-3 text-sm text-[var(--text-main)] border-r border-[var(--border-ui)] font-semibold">₹{row.tax.toFixed(2)}</td>
+                            <td className="p-3 text-sm text-[var(--text-main)] font-semibold">₹{row.amount.toFixed(2)}</td>
                         </tr>
                     );
                 })}
                 {displayRows.length === 0 && !loading && (
-                    <tr className="bg-white">
-                        <td colSpan={6} className="p-6 text-center text-slate-500">No records found.</td>
+                    <tr className="bg-[var(--bg-card)]">
+                        <td colSpan={6} className="p-6 text-center text-[var(--text-secondary)] font-medium">{t.noRecords}</td>
                     </tr>
                 )}
             </tbody>
-            <tfoot className="sticky bottom-0 bg-[#3b5998] text-white z-10 font-bold">
+            <tfoot className="sticky bottom-0 bg-[var(--brand-primary)] text-white z-10 font-black">
                 <tr>
-                    <td colSpan={2} className="p-3 text-[15px] border-r border-[#3b5998]/20 whitespace-nowrap">Total : {displayRows.length}</td>
-                    <td className="p-3 text-[15px] border-r border-[#3b5998]/20">{totals.qty}</td>
-                    <td className="p-3 text-[15px] border-r border-[#3b5998]/20">{(totals.qty > 0 ? totals.amount / totals.qty : 0).toFixed(2)}</td>
-                    <td className="p-3 text-[15px] border-r border-[#3b5998]/20">{totals.tax.toFixed(2)}</td>
-                    <td className="p-3 text-[15px]">{totals.amount.toFixed(2)}</td>
+                    <td colSpan={2} className="p-3 text-sm border-r border-white/10 whitespace-nowrap">{t.total} : {displayRows.length}</td>
+                    <td className="p-3 text-sm border-r border-white/10">{totals.qty}</td>
+                    <td className="p-3 text-sm border-r border-white/10">₹{(totals.qty > 0 ? totals.amount / totals.qty : 0).toFixed(2)}</td>
+                    <td className="p-3 text-sm border-r border-white/10">₹{totals.tax.toFixed(2)}</td>
+                    <td className="p-3 text-sm">₹{totals.amount.toFixed(2)}</td>
                 </tr>
             </tfoot>
          </table>

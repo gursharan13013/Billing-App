@@ -266,6 +266,7 @@ export const CompanyProfileScreen: React.FC<CompanyProfileScreenProps> = ({
 
   const handleSaveAndComplete = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
+    if (saving) return;
     setSaving(true);
     
     const sanitizedProfile: CompanyProfile = {
@@ -385,28 +386,28 @@ export const CompanyProfileScreen: React.FC<CompanyProfileScreenProps> = ({
 
   const canvasStyle = {
     background: isDark 
-      ? 'linear-gradient(to bottom, #020617 0%, #0f172a 70%, #1e1b4b 100%)'
-      : 'linear-gradient(to bottom, #f8fafc 0%, #f1f5f9 100%)',
-    color: isDark ? '#F1F5F9' : '#0F172A'
+      ? 'linear-gradient(to bottom, var(--bg-app) 0%, #020617 100%)'
+      : 'linear-gradient(to bottom, var(--bg-app) 0%, #EFEBE4 100%)',
+    color: 'var(--text-main)'
   };
 
   const cardStyle = {
-    backgroundColor: isDark ? 'rgba(9, 13, 22, 0.75)' : '#FFFFFF',
-    borderColor: isDark ? 'rgba(255, 255, 255, 0.05)' : '#E2E8F0',
+    backgroundColor: 'var(--bg-card)',
+    borderColor: 'var(--border-ui)',
     backdropFilter: 'blur(12px)',
     WebkitBackdropFilter: 'blur(12px)'
   };
 
   const headerBtnStyle = {
-    backgroundColor: isDark ? 'rgba(255, 255, 255, 0.03)' : '#FFFFFF',
-    borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : '#E2E8F0',
-    color: isDark ? '#F59E0B' : '#4F46E5'
+    backgroundColor: 'var(--bg-card)',
+    borderColor: 'var(--border-ui)',
+    color: isDark ? '#F59E0B' : 'var(--brand-primary)'
   };
 
   const inputStyle = {
-    backgroundColor: isDark ? 'rgba(9, 13, 22, 0.5)' : '#F8FAFC',
-    borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : '#CBD5E1',
-    color: isDark ? '#F1F5F9' : '#0F172A'
+    backgroundColor: 'var(--bg-app)',
+    borderColor: 'var(--border-ui)',
+    color: 'var(--text-main)'
   };
 
   const selectStyle = {
@@ -1077,7 +1078,7 @@ export const CompanyProfileScreen: React.FC<CompanyProfileScreenProps> = ({
                                             setCategorySearch(cat.en);
                                             setShowCategoryDropdown(false);
                                           }}
-                                          className="p-2.5 text-xs border-b cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 flex justify-between items-center text-slate-900 dark:text-slate-200 border-slate-105"
+                                          className="p-2.5 text-xs border-b cursor-pointer hover:bg-slate-50/50 dark:hover:bg-slate-800/80 flex justify-between items-center text-slate-900 dark:text-slate-200 border-slate-105"
                                         >
                                           <span>{cat.en}</span>
                                           <span className="text-xs text-slate-405 font-bold">({cat.hi})</span>
@@ -1279,7 +1280,7 @@ export const CompanyProfileScreen: React.FC<CompanyProfileScreenProps> = ({
                                   />
                                 </div>
 
-                                <div className="bg-slate-50 dark:bg-slate-950 p-2.5 rounded-xl border border-slate-200/50 dark:border-slate-800/80 flex items-center justify-between gap-2.5 mt-3">
+                                <div className="bg-[var(--bg-app)] p-2.5 rounded-xl border border-slate-200/50 dark:border-slate-800/80 flex items-center justify-between gap-2.5 mt-3">
                                   <div className="text-left leading-none">
                                     <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest leading-none">Coordinates Connection</span>
                                     <p className="text-xs font-bold text-brand-primary mt-0.5 font-mono leading-none">
@@ -1345,7 +1346,7 @@ export const CompanyProfileScreen: React.FC<CompanyProfileScreenProps> = ({
                                             setBankSearch('');
                                             setShowBankDropdown(false);
                                           }}
-                                          className="p-2.5 text-xs border-b cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-850 dark:text-slate-200 border-slate-100"
+                                          className="p-2.5 text-xs border-b cursor-pointer hover:bg-slate-50/50 dark:hover:bg-slate-800/80 text-slate-850 dark:text-slate-200 border-slate-100"
                                         >
                                           {bl.name}
                                         </div>

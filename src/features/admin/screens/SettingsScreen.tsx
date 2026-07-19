@@ -36,9 +36,9 @@ interface SettingsCardProps {
 
 const SettingsCard: React.FC<SettingsCardProps> = ({ title, hindiTitle, description, children }) => {
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-5 shadow-sm space-y-4 hover:shadow-md transition duration-200">
-      <div className="border-b border-slate-100 dark:border-slate-800/80 pb-3">
-        <h3 className="text-base font-extrabold text-slate-900 dark:text-white flex items-center gap-1.5 leading-relaxed">
+    <div className="bg-[var(--bg-card)] rounded-2xl border border-[var(--border-ui)] p-5 shadow-sm space-y-4 hover:shadow-md transition duration-200">
+      <div className="border-b pb-3">
+        <h3 className="text-base font-extrabold text-[var(--text-main)] flex items-center gap-1.5 leading-relaxed">
           {title} {hindiTitle && <span className="text-slate-500 dark:text-slate-400 font-medium text-xs font-sans tracking-normal leading-relaxed">({hindiTitle})</span>}
         </h3>
         <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-sans">{description}</p>
@@ -1095,8 +1095,8 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
   // INVOICE NUMBERING SUB-SCREEN
   if (activeView === 'invoice_numbering') {
       return (
-        <div className="flex flex-col h-full bg-slate-50 dark:bg-[#090D16] text-slate-900 dark:text-white pb-[max(env(safe-area-inset-bottom),0px)]">
-            <header className="bg-white/80 dark:bg-[#131B2E]/80 backdrop-blur-md border-b border-slate-200/60 dark:border-slate-800/80 text-slate-900 dark:text-white p-4 shadow-sm shrink-0 pt-[max(env(safe-area-inset-top),48px)]">
+        <div className="flex flex-col h-full bg-[var(--bg-app)] text-[var(--text-main)] pb-[max(env(safe-area-inset-bottom),0px)]">
+            <header className="bg-white/80 dark:bg-[#131B2E]/80 backdrop-blur-md border-b border-slate-200/60 dark:border-slate-800/80 text-[var(--text-main)] p-4 shadow-sm shrink-0 pt-[max(env(safe-area-inset-top),48px)]">
                 <div className="max-w-md mx-auto w-full flex items-center justify-between">
                     <div className="flex items-center gap-3">
                         <button 
@@ -1106,7 +1106,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                             <ArrowLeft size={18} />
                         </button>
                         <div className="text-left">
-                            <h1 className="text-sm font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-1.5 font-sans">
+                            <h1 className="text-sm font-black tracking-tight text-[var(--text-main)] flex items-center gap-1.5 font-sans">
                                 <Hash size={16} className="text-indigo-500" />
                                 {currentLanguage === 'hi' ? 'इन्वॉइस नंबरिंग' : 'Invoice Numbering'}
                             </h1>
@@ -1144,7 +1144,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                                         type="text" 
                                         value={setting.prefix} 
                                         onChange={e => handleVoucherSettingChange(index, 'prefix', e.target.value)}
-                                        className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 rounded-2xl p-3 text-xs font-bold focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/10 outline-none uppercase font-sans text-slate-900 dark:text-white transition-all shadow-sm"
+                                        className="w-full bg-[var(--bg-app)] border border-slate-200 dark:border-slate-850 rounded-2xl p-3 text-xs font-bold focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/10 outline-none uppercase font-sans text-[var(--text-main)] transition-all shadow-sm"
                                         placeholder="e.g. S"
                                     />
                                 </div>
@@ -1154,7 +1154,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                                         type="number" 
                                         value={setting.currentSequence} 
                                         onChange={e => handleVoucherSettingChange(index, 'currentSequence', parseInt(e.target.value) || 0)}
-                                        className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 rounded-2xl p-3 text-xs font-bold focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/10 outline-none font-sans text-slate-900 dark:text-white transition-all shadow-sm"
+                                        className="w-full bg-[var(--bg-app)] border border-slate-200 dark:border-slate-850 rounded-2xl p-3 text-xs font-bold focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/10 outline-none font-sans text-[var(--text-main)] transition-all shadow-sm"
                                     />
                                 </div>
                             </div>
@@ -1162,7 +1162,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-ping" />
                                 <span>
                                     {currentLanguage === 'hi' ? 'अगला नंबर (Next code): ' : 'Next Preview: '}
-                                    <b className="tracking-wide font-black uppercase text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-900 px-1.5 py-0.5 rounded font-mono ml-0.5">
+                                    <b className="tracking-wide font-black uppercase text-[var(--text-main)] bg-slate-100 dark:bg-slate-900 px-1.5 py-0.5 rounded font-mono ml-0.5">
                                         {setting.prefix || ''}{setting.currentSequence + 1}
                                     </b>
                                 </span>
@@ -1194,7 +1194,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
     }) => (
       <div 
         onClick={onClick} 
-        className={`p-4 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl flex items-center justify-between cursor-pointer hover:shadow-md hover:border-indigo-100 dark:hover:border-slate-700 transition duration-200 gap-3 min-w-0 ${onClick ? 'active:scale-[0.99]' : ''}`}
+        className={`p-4 bg-[var(--bg-card)] border border-[var(--border-ui)] rounded-2xl flex items-center justify-between cursor-pointer hover:shadow-md hover:border-indigo-100 dark:hover:border-slate-700 transition duration-200 gap-3 min-w-0 ${onClick ? 'active:scale-[0.99]' : ''}`}
       >
         <div className="flex items-center gap-3.5 flex-1 min-w-0">
           <div className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-slate-800 flex items-center justify-center shrink-0 text-indigo-600 dark:text-indigo-400">
@@ -1226,9 +1226,9 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
         initial={{ opacity: 0, y: 15 }} 
         animate={{ opacity: 1, y: 0 }} 
         transition={{ duration: 0.2 }}
-        className="flex flex-col h-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white pb-[max(env(safe-area-inset-bottom),0px)]"
+        className="flex flex-col h-full bg-[var(--bg-app)] text-[var(--text-main)] pb-[max(env(safe-area-inset-bottom),0px)]"
       >
-        <header className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-4 flex items-center gap-3 shadow-sm border-b border-slate-100 dark:border-slate-800 sticky top-0 z-40 pt-[max(env(safe-area-inset-top),48px)]">
+        <header className="bg-[var(--bg-card)] text-[var(--text-main)] p-4 flex items-center gap-3 shadow-sm border-b border-[var(--border-ui)] sticky top-0 z-40 pt-[max(env(safe-area-inset-top),48px)]">
           <button onClick={() => onBack()} className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-700 dark:text-slate-300 transition"><ArrowLeft size={22} /></button>
           <div className="flex flex-col">
             <h1 className="text-lg font-bold text-indigo-600 dark:text-indigo-400 font-sans tracking-tight leading-none truncate">{currentLanguage === 'hi' ? 'प्राथमिकताएं' : 'Dashboard & General'}</h1>
@@ -1236,7 +1236,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
           </div>
         </header>
 
-        <div className="flex-1 overflow-y-auto bg-slate-50 dark:bg-slate-950 p-4 space-y-6">
+        <div className="flex-1 overflow-y-auto bg-[var(--bg-app)] p-4 space-y-6">
           <div className="max-w-4xl mx-auto space-y-6">
 
             {/* Category 1: General & Invoicing Tools */}
@@ -1276,8 +1276,8 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Language Card */}
-                <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden flex flex-col">
-                  <div className="p-3.5 border-b border-slate-100 dark:border-slate-850 bg-slate-50/50 dark:bg-slate-800/40 flex items-center gap-2">
+                <div className="bg-[var(--bg-card)] rounded-2xl shadow-sm border border-[var(--border-ui)] overflow-hidden flex flex-col">
+                  <div className="p-3.5 border-b border-slate-100 dark:border-slate-850 bg-[var(--bg-app)]/50 flex items-center gap-2">
                     <Globe size={16} className="text-indigo-600 dark:text-indigo-400" />
                     <span className="text-xs font-extrabold uppercase text-slate-500 tracking-wider font-sans">
                       {currentLanguage === 'hi' ? 'ऐप की भाषा' : 'App Language'}
@@ -1285,7 +1285,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                   </div>
                   <button 
                     onClick={() => onLanguageChange('en')} 
-                    className="w-full flex justify-between items-center p-3.5 hover:bg-indigo-50/30 dark:hover:bg-slate-800/30 transition border-b border-slate-100 dark:border-slate-800 cursor-pointer text-left"
+                    className="w-full flex justify-between items-center p-3.5 hover:bg-indigo-50/30 dark:hover:bg-slate-800/30 transition border-b border-[var(--border-ui)] cursor-pointer text-left"
                   >
                     <div className="flex flex-col">
                       <span className="text-sm font-bold text-slate-800 dark:text-slate-200">English</span>
@@ -1306,8 +1306,8 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                 </div>
 
                 {/* Theme Card */}
-                <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden flex flex-col">
-                  <div className="p-3.5 border-b border-slate-100 dark:border-slate-850 bg-slate-50/50 dark:bg-slate-800/40 flex items-center gap-2">
+                <div className="bg-[var(--bg-card)] rounded-2xl shadow-sm border border-[var(--border-ui)] overflow-hidden flex flex-col">
+                  <div className="p-3.5 border-b border-slate-100 dark:border-slate-850 bg-[var(--bg-app)]/50 flex items-center gap-2">
                     {currentTheme === 'light' ? <Sun size={16} className="text-orange-500"/> : currentTheme === 'dark' ? <Moon size={16} className="text-blue-500"/> : <Laptop size={16} className="text-indigo-500"/>}
                     <span className="text-xs font-extrabold uppercase text-slate-500 tracking-wider font-sans">
                       {currentLanguage === 'hi' ? 'ऐप थीम' : 'App Theme'}
@@ -1342,8 +1342,8 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                 {currentLanguage === 'hi' ? 'सिस्टम नियंत्रण और पुनर्प्राप्ति' : 'System Control & Recovery'}
               </h2>
               
-              <div className="bg-slate-50 dark:bg-slate-900/40 rounded-2xl border border-slate-200 dark:border-slate-800/80 p-4 space-y-4 shadow-sm">
-                <div className="flex items-center gap-3 border-b border-slate-100 dark:border-slate-800 pb-3">
+              <div className="bg-[var(--bg-app)] rounded-2xl border p-4 space-y-4 shadow-sm">
+                <div className="flex items-center gap-3 border-b border-[var(--border-ui)] pb-3">
                   <RefreshCcw size={18} className="text-indigo-600 dark:text-indigo-400 animate-spin" style={{ animationDuration: '8s' }} />
                   <div className="min-w-0 flex-1">
                     <h3 className="font-extrabold text-slate-800 dark:text-white text-xs uppercase tracking-wider">
@@ -1358,7 +1358,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                 <div className="grid grid-cols-2 gap-3">
                   <button
                     onClick={() => window.location.reload()}
-                    className="p-3 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-xl flex flex-col items-center justify-center text-center gap-1 hover:border-indigo-400 transition-all duration-200 active:scale-95 group cursor-pointer shadow-sm"
+                    className="p-3 bg-[var(--bg-card)] border border-[var(--border-ui)] rounded-xl flex flex-col items-center justify-center text-center gap-1 hover:border-indigo-400 transition-all duration-200 active:scale-95 group cursor-pointer shadow-sm"
                   >
                     <RefreshCcw size={18} className="text-indigo-500 group-hover:rotate-180 transition-transform duration-500" />
                     <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
@@ -1381,7 +1381,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                         window.location.reload();
                       }
                     }}
-                    className="p-3 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-xl flex flex-col items-center justify-center text-center gap-1 hover:border-amber-500 transition-all duration-200 active:scale-95 group cursor-pointer shadow-sm"
+                    className="p-3 bg-[var(--bg-card)] border border-[var(--border-ui)] rounded-xl flex flex-col items-center justify-center text-center gap-1 hover:border-amber-500 transition-all duration-200 active:scale-95 group cursor-pointer shadow-sm"
                   >
                     <ShieldCheck size={18} className="text-amber-500 group-hover:scale-110 transition-transform" />
                     <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
@@ -1397,7 +1397,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
               {/* Reset App Data */}
               <button 
                 onClick={handleResetClick}
-                className="w-full bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-rose-100 dark:border-rose-950/20 p-4 flex items-center justify-between hover:shadow-md hover:border-rose-300 transition duration-200 gap-3 text-left cursor-pointer group"
+                className="w-full bg-[var(--bg-card)] rounded-2xl shadow-sm border border-rose-100 dark:border-rose-950/20 p-4 flex items-center justify-between hover:shadow-md hover:border-rose-300 transition duration-200 gap-3 text-left cursor-pointer group"
               >
                 <div className="flex items-center gap-3.5 flex-1 min-w-0">
                   <div className="w-10 h-10 rounded-xl bg-rose-50 dark:bg-rose-950/40 flex items-center justify-center shrink-0 text-rose-600 dark:text-rose-400 group-hover:bg-rose-100 dark:group-hover:bg-rose-900 transition-colors">
@@ -1423,11 +1423,11 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
         {/* Confirmation Modal */}
         {showSeedConfirmation && (
             <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-                <div className="bg-white dark:bg-slate-900 rounded-xl shadow-2xl w-full max-w-sm overflow-hidden p-6 text-center animate-in fade-in zoom-in duration-200 border border-slate-200 dark:border-slate-800">
+                <div className="bg-[var(--bg-card)] rounded-xl shadow-2xl w-full max-w-sm overflow-hidden p-6 text-center animate-in fade-in zoom-in duration-200 border border-[var(--border-ui)]">
                     {isSeeding ? (
                         <div className="flex flex-col items-center justify-center py-4">
                             <Loader2 size={48} className="text-blue-600 dark:text-blue-400 animate-spin mb-4" />
-                            <h3 className="text-xl font-bold text-slate-900 dark:text-white">Loading Data...</h3>
+                            <h3 className="text-xl font-bold text-[var(--text-main)]">Loading Data...</h3>
                             <p className="text-slate-500 dark:text-slate-400 text-sm mt-2">Please wait while we set up your demo.</p>
                         </div>
                     ) : (
@@ -1435,7 +1435,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                             <div className="w-16 h-16 bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 rounded-full flex items-center justify-center mx-auto mb-4 border border-orange-200 dark:border-orange-900/50">
                                 <Database size={32} />
                             </div>
-                            <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Load Demo Data?</h3>
+                            <h3 className="text-xl font-bold text-[var(--text-main)] mb-2">Load Demo Data?</h3>
                             <div className="bg-orange-50 dark:bg-orange-900/20 p-3 rounded-lg border border-orange-100 dark:border-orange-900/30 mb-6">
                                 <p className="text-slate-700 dark:text-slate-300 text-sm font-medium flex gap-2 items-start text-left">
                                     <AlertTriangle size={16} className="text-orange-600 shrink-0 mt-0.5" />
@@ -1465,11 +1465,11 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
         {/* Reset App Data Confirmation Modal */}
         {showResetConfirmation && (
             <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-                <div className="bg-white dark:bg-slate-900 rounded-xl shadow-2xl w-full max-w-sm overflow-hidden p-6 text-center animate-in fade-in zoom-in duration-200 border border-slate-200 dark:border-slate-800">
+                <div className="bg-[var(--bg-card)] rounded-xl shadow-2xl w-full max-w-sm overflow-hidden p-6 text-center animate-in fade-in zoom-in duration-200 border border-[var(--border-ui)]">
                     {isResetting ? (
                         <div className="flex flex-col items-center justify-center py-4">
                             <Loader2 size={48} className="text-red-600 dark:text-red-400 animate-spin mb-4" />
-                            <h3 className="text-xl font-bold text-slate-900 dark:text-white">Resetting App...</h3>
+                            <h3 className="text-xl font-bold text-[var(--text-main)]">Resetting App...</h3>
                             <p className="text-slate-500 dark:text-slate-400 text-sm mt-2">Please wait while we clear your data.</p>
                         </div>
                     ) : (
@@ -1477,7 +1477,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                             <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-full flex items-center justify-center mx-auto mb-4 border border-red-200 dark:border-red-900/50">
                                 <RefreshCcw size={32} />
                             </div>
-                            <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Reset App Data?</h3>
+                            <h3 className="text-xl font-bold text-[var(--text-main)] mb-2">Reset App Data?</h3>
                             <div className="bg-red-50 dark:bg-red-900/20 p-3 rounded-lg border border-red-100 dark:border-red-900/30 mb-6">
                                 <p className="text-red-700 dark:text-red-300 text-sm font-medium flex gap-2 items-start text-left">
                                     <AlertTriangle size={16} className="text-red-600 shrink-0 mt-0.5" />
@@ -1509,8 +1509,8 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
 
   if (false) {
     return (
-      <div className="flex flex-col h-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white pb-[max(env(safe-area-inset-bottom),0px)] animate-fadeIn">
-        <header className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-4 flex items-center gap-3 shadow-sm border-b border-slate-100 dark:border-slate-800 shrink-0 pt-[max(env(safe-area-inset-top),48px)] sticky top-0 z-40">
+      <div className="flex flex-col h-full bg-[var(--bg-app)] text-[var(--text-main)] pb-[max(env(safe-area-inset-bottom),0px)] animate-fadeIn">
+        <header className="bg-[var(--bg-card)] text-[var(--text-main)] p-4 flex items-center gap-3 shadow-sm border-b border-[var(--border-ui)] shrink-0 pt-[max(env(safe-area-inset-top),48px)] sticky top-0 z-40">
           <button onClick={() => setActiveView('preferences')} className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg transition" id="ceo_back_pref_btn">
             <ArrowLeft size={22} />
           </button>
@@ -1530,7 +1530,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
  
             <div className="space-y-4">
                 {/* Cloud Sync Toggle */}
-                <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200/80 dark:border-slate-800 p-4 hover:bg-slate-50 dark:hover:bg-slate-800/25 transition space-y-3">
+                <div className="bg-[var(--bg-card)] rounded-xl shadow-sm border border-[var(--border-ui)] p-4 hover:bg-slate-50/50 dark:hover:bg-slate-800/25 transition space-y-3">
                     <div className="flex items-center justify-between w-full gap-3 min-w-0">
                         <div className="flex items-center gap-3 flex-1 min-w-0">
                             <div className="bg-green-50 dark:bg-green-950/40 p-2.5 rounded-xl text-green-600 dark:text-green-400 shrink-0">
@@ -1558,7 +1558,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                     </div>
 
                     {/* Premium Sandbox License Seeder Badge */}
-                    <div className="border-t border-dashed border-slate-100 dark:border-slate-800 pt-3 mt-2 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-left">
+                    <div className="border-t border-dashed border-[var(--border-ui)] pt-3 mt-2 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-left">
                         <div className="flex items-center gap-1.5">
                             <div className={`w-2.5 h-2.5 rounded-full ${isPremiumLicensed ? 'bg-amber-500 animate-pulse' : 'bg-slate-300'}`}></div>
                             <p className="text-[11px] font-mono tracking-tight uppercase text-slate-500 dark:text-slate-400">
@@ -1578,7 +1578,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                     </div>
 
                     {!isPremiumLicensed && (
-                        <div className="border-t border-slate-100 dark:border-slate-800/80 pt-3 mt-2.5 flex flex-col gap-2">
+                        <div className="border-t pt-3 mt-2.5 flex flex-col gap-2">
                             <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
                                 {currentLanguage === 'hi' ? 'प्रीमियम सक्रिय करने के लिए लाइसेंस कुंजी दर्ज करें' : 'Enter License Key to Activate Premium'}
                             </label>
@@ -1611,7 +1611,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                 </div>
  
                 {/* Messaging Toggle */}
-                <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200/80 dark:border-slate-800 p-4 flex items-center justify-between w-full gap-3 min-w-0 hover:bg-slate-50 dark:hover:bg-slate-800/25 transition">
+                <div className="bg-[var(--bg-card)] rounded-xl shadow-sm border border-[var(--border-ui)] p-4 flex items-center justify-between w-full gap-3 min-w-0 hover:bg-slate-50/50 dark:hover:bg-slate-800/25 transition">
                     <div className="flex items-center gap-3 flex-1 min-w-0">
                         <div className="bg-purple-50 dark:bg-purple-950/40 p-2.5 rounded-xl text-purple-600 dark:text-purple-400 shrink-0">
                             <Bot size={22} />
@@ -1637,7 +1637,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                 </div>
  
                 {/* Live Search Toggle */}
-                <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200/80 dark:border-slate-800 p-4 flex items-center justify-between w-full gap-3 min-w-0 hover:bg-slate-50 dark:hover:bg-slate-800/25 transition flex-1">
+                <div className="bg-[var(--bg-card)] rounded-xl shadow-sm border border-[var(--border-ui)] p-4 flex items-center justify-between w-full gap-3 min-w-0 hover:bg-slate-50/50 dark:hover:bg-slate-800/25 transition flex-1">
                     <div className="flex items-center gap-3 flex-1 min-w-0">
                         <div className="bg-amber-50 dark:bg-amber-950/40 p-2.5 rounded-xl text-amber-600 dark:text-amber-400 shrink-0">
                             <Globe size={22} />
@@ -1663,8 +1663,8 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                 </div>
             </div>
  
-            <div className="pt-4 border-t border-slate-100 dark:border-slate-800/60">
-                <div className="flex items-start gap-2.5 text-slate-500 dark:text-slate-400 p-2 min-w-0 bg-slate-50 dark:bg-slate-900/20 rounded-xl border border-slate-200 dark:border-slate-800/60">
+            <div className="pt-4 border-t border-[var(--border-ui)]/60">
+                <div className="flex items-start gap-2.5 text-slate-500 dark:text-slate-400 p-2 min-w-0 bg-slate-50 dark:bg-slate-900/20 rounded-xl border border-[var(--border-ui)]/60">
                     <ShieldCheck size={18} className="shrink-0 mt-0.5 text-indigo-600 dark:text-indigo-400" />
                     <p className="text-xs leading-relaxed break-words font-sans">
                         <b>{currentLanguage === 'hi' ? 'मुख्य नोट:' : 'System Backup Note:'}</b> {currentLanguage === 'hi' 
@@ -1766,14 +1766,14 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
     const isLockEnabled = localStorage.getItem('appLockEnabled') === 'true';
     
     return (
-      <div className="flex flex-col h-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white pb-[max(env(safe-area-inset-bottom),0px)] animate-in fade-in duration-200">
+      <div className="flex flex-col h-full bg-[var(--bg-app)] text-[var(--text-main)] pb-[max(env(safe-area-inset-bottom),0px)] animate-in fade-in duration-200">
         <header className="bg-indigo-600 dark:bg-slate-900 text-white p-4 flex items-center gap-3 shadow-md shrink-0 pt-[max(env(safe-area-inset-top),48px)] border-b border-indigo-700/30 dark:border-slate-800">
           <button onClick={() => setActiveView('main')} className="p-1 hover:bg-white/10 rounded-lg active:scale-90 transition-all duration-150"><ArrowLeft size={24} /></button>
           <h1 className="text-xl font-bold tracking-tight">{t.appSecurity}</h1>
         </header>
 
         <div className="p-5 space-y-4 flex-1 overflow-y-auto">
-             <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800/80 p-5 flex items-center justify-between w-full">
+             <div className="bg-[var(--bg-card)] rounded-3xl shadow-sm border p-5 flex items-center justify-between w-full">
                  <div className="flex items-center gap-4">
                      <div className="bg-indigo-50 dark:bg-indigo-950/40 p-3 rounded-2xl text-indigo-600 dark:text-indigo-400 border border-indigo-100/30 dark:border-indigo-900/15">
                          <ShieldCheck size={24} />
@@ -1813,10 +1813,10 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                       setPinInput('');
                       setPinModalConfig({ isOpen: true, mode: 'change_verify' });
                   }}
-                  className="w-full bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800/80 p-5 flex items-center justify-between hover:bg-slate-50/55 dark:hover:bg-slate-800/40 transition-all duration-200 active:scale-98"
+                  className="w-full bg-[var(--bg-card)] rounded-3xl shadow-sm border p-5 flex items-center justify-between hover:bg-slate-50/55 dark:hover:bg-slate-800/40 transition-all duration-200 active:scale-98"
                 >
                     <div className="flex items-center gap-4">
-                         <div className="bg-slate-50 dark:bg-slate-950/60 p-3 rounded-2xl text-indigo-600 dark:text-indigo-400 border border-slate-100 dark:border-slate-800/40">
+                         <div className="bg-[var(--bg-app)]/60 p-3 rounded-2xl text-indigo-600 dark:text-indigo-400 border border-[var(--border-ui)]/40">
                              <Key size={24} />
                          </div>
                          <div className="flex-1 text-left">
@@ -1831,7 +1831,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
         {/* THEMED PIN MODAL */}
         {pinModalConfig.isOpen && (
              <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                 <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 w-full max-w-sm shadow-2xl flex flex-col border border-slate-200 dark:border-slate-800 animate-in fade-in zoom-in duration-200">
+                 <div className="bg-[var(--bg-card)] rounded-2xl p-6 w-full max-w-sm shadow-2xl flex flex-col border border-[var(--border-ui)] animate-in fade-in zoom-in duration-200">
                      <div className="w-12 h-12 bg-indigo-50 dark:bg-indigo-950/45 rounded-full flex items-center justify-center mx-auto mb-4 border border-indigo-100/15">
                          <Key size={24} className="text-indigo-600 dark:text-indigo-400 animate-pulse" />
                      </div>
@@ -1984,7 +1984,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
     };
 
     return (
-      <div className="flex flex-col h-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white pb-[max(env(safe-area-inset-bottom),0px)] font-sans">
+      <div className="flex flex-col h-full bg-[var(--bg-app)] text-[var(--text-main)] pb-[max(env(safe-area-inset-bottom),0px)] font-sans">
         {/* Dynamic header */}
         <header className="bg-gradient-to-r from-slate-800 to-slate-950 text-white p-4 flex items-center justify-between shadow-lg shrink-0 pt-[max(env(safe-area-inset-top),48px)] border-b border-slate-700/50">
           <div className="flex items-center gap-3.5">
@@ -2069,7 +2069,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
           )}
 
           {/* GOOGLE DRIVE INTEGRATION PANEL */}
-          <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl p-4 shadow-sm space-y-4 font-sans">
+          <div className="bg-[var(--bg-card)] border border-gray-200 dark:border-slate-800 rounded-2xl p-4 shadow-sm space-y-4 font-sans">
             <div className="flex items-center justify-between border-b border-gray-100 dark:border-slate-800 pb-3">
               <div className="flex items-center gap-2">
                 <Cloud className="text-blue-500 fill-blue-500/10 shrink-0" size={20} />
@@ -2200,7 +2200,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
             )}
 
             {/* Manual Setup Guide with folding toggle */}
-            <div className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
+            <div className="border border-[var(--border-ui)] rounded-xl overflow-hidden">
               <button 
                 onClick={() => setShowSetupGuide(!showSetupGuide)}
                 className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900 flex items-center justify-between hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-bold text-slate-700 dark:text-slate-300 transition-colors"
@@ -2214,7 +2214,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
               </button>
               
               {showSetupGuide && (
-                <div className="p-4 bg-slate-50/50 dark:bg-slate-900/40 text-xs text-slate-600 dark:text-slate-400 space-y-3 leading-relaxed border-t border-slate-200 dark:border-slate-800">
+                <div className="p-4 bg-slate-50/50 dark:bg-slate-900/40 text-xs text-slate-600 dark:text-slate-400 space-y-3 leading-relaxed border-t border-[var(--border-ui)]">
                   <p className="font-bold text-slate-700 dark:text-slate-300">Google OAuth Client configuration guide for CEO / Admins:</p>
                   <ol className="list-decimal pl-4 space-y-2">
                     <li>Go to <a href="https://console.cloud.google.com" target="_blank" rel="noopener noreferrer" className="text-blue-500 underline inline-flex items-center gap-0.5">Google Cloud Console <ExternalLink size={10} /></a> and select/create a project.</li>
@@ -2278,12 +2278,12 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                   </div>
                 </div>
               ) : isDriveLoading && driveSnapshotsList.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-8 text-gray-400 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-xl">
+                <div className="flex flex-col items-center justify-center py-8 text-gray-400 bg-[var(--bg-card)] border border-gray-200 dark:border-slate-800 rounded-xl">
                   <Loader2 className="animate-spin mb-2" size={24} />
                   <span className="text-[11px] font-semibold">Google Drive scans ho raha hai...</span>
                 </div>
               ) : driveSnapshotsList.length === 0 ? (
-                <div className="bg-white dark:bg-slate-900 border border-dashed border-gray-200 dark:border-slate-800 rounded-xl p-6 text-center">
+                <div className="bg-[var(--bg-card)] border border-dashed border-gray-200 dark:border-slate-800 rounded-xl p-6 text-center">
                   <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">Google Drive backup directory mein abhi tak koi cloud snapshots nahi hain.</p>
                   <p className="text-[10px] text-gray-400 mt-1">Niche kisi bhi local snapshot ke sath wale upload button click karke use cloud par send karein.</p>
                 </div>
@@ -2296,7 +2296,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                     return (
                       <div 
                         key={driveFile.id} 
-                        className="bg-white dark:bg-slate-900 border border-emerald-100 dark:border-slate-800/80 rounded-xl p-3.5 flex items-center justify-between shadow-sm hover:border-emerald-400 dark:hover:border-emerald-500/50 transition duration-150"
+                        className="bg-[var(--bg-card)] border border-emerald-100 dark:border-slate-800/80 rounded-xl p-3.5 flex items-center justify-between shadow-sm hover:border-emerald-400 dark:hover:border-emerald-500/50 transition duration-150"
                       >
                         <div className="space-y-1 min-w-0 pr-2">
                           <div className="flex items-center gap-2 flex-wrap">
@@ -2335,7 +2335,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                 <span className="text-sm font-semibold">Snapshots load ho rahe hain...</span>
               </div>
             ) : snapshotsList.length === 0 ? (
-              <div className="bg-white dark:bg-slate-900 border border-dashed border-gray-200 dark:border-slate-800 rounded-xl p-8 text-center">
+              <div className="bg-[var(--bg-card)] border border-dashed border-gray-200 dark:border-slate-800 rounded-xl p-8 text-center">
                 <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">Abhi tak koi local snapshot nahi mila hai.</p>
                 <p className="text-xs text-gray-400 mt-1">Upar diye button par click karke apna pehla local backup snapshot banayein!</p>
               </div>
@@ -2347,7 +2347,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                   return (
                     <div 
                       key={filename} 
-                      className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-xl p-3.5 flex items-center justify-between shadow-sm hover:border-blue-400 dark:hover:border-blue-500/50 transition duration-150"
+                      className="bg-[var(--bg-card)] border border-gray-200 dark:border-slate-800 rounded-xl p-3.5 flex items-center justify-between shadow-sm hover:border-blue-400 dark:hover:border-blue-500/50 transition duration-150"
                     >
                       <div className="space-y-1 min-w-0 pr-2">
                         <div className="flex items-center gap-2 flex-wrap">
@@ -2415,7 +2415,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
         {/* Custom Dialog for Snapshot Confirmation inside Time Machine view */}
         {snapshotConfirm && (
             <div className="fixed inset-0 bg-black/65 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 w-full max-w-sm shadow-2xl flex flex-col">
+                <div className="bg-[var(--bg-card)] rounded-2xl p-6 w-full max-w-sm shadow-2xl flex flex-col">
                     <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-2 flex items-center gap-2">
                         {snapshotConfirm.type === 'delete' ? (
                           <>
@@ -2474,7 +2474,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
         {/* Custom Dialog for Messages inside Time Machine view */}
         {dialogMessage && (
             <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 w-full max-w-sm shadow-2xl flex flex-col items-center text-center">
+                <div className="bg-[var(--bg-card)] rounded-2xl p-6 w-full max-w-sm shadow-2xl flex flex-col items-center text-center">
                     <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-4 ${dialogMessage.isError ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}`}>
                         {dialogMessage.isError ? <ShieldCheck size={32} /> : <ShieldCheck size={32} />}
                     </div>
@@ -2512,7 +2512,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
     }) => (
       <div 
         onClick={onClick} 
-        className={`p-4 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl flex items-center justify-between cursor-pointer hover:shadow-md hover:border-indigo-100 dark:hover:border-slate-700 transition duration-200 gap-3 min-w-0 ${onClick ? 'active:scale-[0.99]' : ''}`}
+        className={`p-4 bg-[var(--bg-card)] border border-[var(--border-ui)] rounded-2xl flex items-center justify-between cursor-pointer hover:shadow-md hover:border-indigo-100 dark:hover:border-slate-700 transition duration-200 gap-3 min-w-0 ${onClick ? 'active:scale-[0.99]' : ''}`}
       >
         <div className="flex items-center gap-3.5 flex-1 min-w-0">
           <div className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-slate-800 flex items-center justify-center shrink-0 text-indigo-600 dark:text-indigo-400">
@@ -2545,9 +2545,9 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
         initial={{ opacity: 0, y: 15 }} 
         animate={{ opacity: 1, y: 0 }} 
         transition={{ duration: 0.2 }}
-        className="flex flex-col h-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white pb-[max(env(safe-area-inset-bottom),0px)]"
+        className="flex flex-col h-full bg-[var(--bg-app)] text-[var(--text-main)] pb-[max(env(safe-area-inset-bottom),0px)]"
       >
-        <header className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-4 flex items-center gap-3 shadow-sm border-b border-slate-100 dark:border-slate-800 sticky top-0 z-40 pt-[max(env(safe-area-inset-top),48px)]">
+        <header className="bg-[var(--bg-card)] text-[var(--text-main)] p-4 flex items-center gap-3 shadow-sm border-b border-[var(--border-ui)] sticky top-0 z-40 pt-[max(env(safe-area-inset-top),48px)]">
           <button onClick={() => setActiveView('main')} className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-700 dark:text-slate-300 transition"><ArrowLeft size={22} /></button>
           <div className="flex flex-col">
             <h1 className="text-lg font-bold text-indigo-600 dark:text-indigo-400 font-sans tracking-tight leading-none truncate">{currentLanguage === 'hi' ? 'बिक्री और खरीद सेटिंग्स' : 'Sale & Purchase Settings'}</h1>
@@ -2555,7 +2555,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
           </div>
         </header>
 
-        <div className="flex-1 overflow-y-auto bg-slate-50 dark:bg-slate-950 p-4 space-y-6">
+        <div className="flex-1 overflow-y-auto bg-[var(--bg-app)] p-4 space-y-6">
           <div className="max-w-4xl mx-auto space-y-6">
             
 
@@ -2639,9 +2639,9 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
         initial={{ opacity: 0, y: 15 }} 
         animate={{ opacity: 1, y: 0 }} 
         transition={{ duration: 0.2 }}
-        className="flex flex-col h-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white pb-[max(env(safe-area-inset-bottom),0px)]"
+        className="flex flex-col h-full bg-[var(--bg-app)] text-[var(--text-main)] pb-[max(env(safe-area-inset-bottom),0px)]"
       >
-        <header className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-4 flex items-center gap-3 shadow-sm border-b border-slate-100 dark:border-slate-800 sticky top-0 z-40 pt-[max(env(safe-area-inset-top),48px)]">
+        <header className="bg-[var(--bg-card)] text-[var(--text-main)] p-4 flex items-center gap-3 shadow-sm border-b border-[var(--border-ui)] sticky top-0 z-40 pt-[max(env(safe-area-inset-top),48px)]">
           <button onClick={() => setActiveView('preferences2')} className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-700 dark:text-slate-300 transition"><ArrowLeft size={22} /></button>
           <div className="flex flex-col">
             <h1 className="text-lg font-bold text-indigo-600 dark:text-indigo-400 font-sans tracking-tight leading-none truncate">{currentLanguage === 'hi' ? 'सामान्य सेटिंग्स' : 'General Settings'}</h1>
@@ -2649,11 +2649,11 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
           </div>
         </header>
 
-        <div className="flex-1 overflow-y-auto bg-slate-50 dark:bg-slate-950 p-6 flex flex-col items-center">
+        <div className="flex-1 overflow-y-auto bg-[var(--bg-app)] p-6 flex flex-col items-center">
             {/* Logo area */}
             <div className="relative group mb-8">
               <div className="absolute -inset-0.5 bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-[26px] blur opacity-40 group-hover:opacity-75 transition duration-500"></div>
-              <div className="relative w-24 h-24 bg-white dark:bg-slate-900 rounded-[24px] border border-slate-100 dark:border-slate-800 flex items-center justify-center shadow-md shrink-0">
+              <div className="relative w-24 h-24 bg-[var(--bg-card)] rounded-[24px] border border-[var(--border-ui)] flex items-center justify-center shadow-md shrink-0">
                   <Bot size={52} className="text-indigo-600 dark:text-indigo-400 animate-pulse" />
               </div>
             </div>
@@ -2661,28 +2661,28 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
              <div className="w-full max-w-sm grid grid-cols-2 gap-3 mt-4">
                  <button 
                    onClick={() => onNavigate('companyProfile')}
-                   className="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 hover:border-indigo-500 dark:hover:border-indigo-500 text-slate-800 dark:text-white py-4 px-2 text-center text-xs sm:text-sm font-bold min-h-[64px] rounded-2xl shadow-sm flex flex-col items-center justify-center gap-1.5 transition-all duration-200 active:scale-95 leading-tight hover:shadow-md"
+                   className="bg-[var(--bg-card)] border border-slate-200/60 dark:border-slate-800 hover:border-indigo-500 dark:hover:border-indigo-500 text-slate-800 dark:text-white py-4 px-2 text-center text-xs sm:text-sm font-bold min-h-[64px] rounded-2xl shadow-sm flex flex-col items-center justify-center gap-1.5 transition-all duration-200 active:scale-95 leading-tight hover:shadow-md"
                  >
                      <Database size={18} className="text-indigo-600 dark:text-indigo-400" />
                      {currentLanguage === 'hi' ? 'बैंक विवरण' : 'Bank Details'}
                  </button>
                  <button 
                    onClick={() => onNavigate('companyProfile')}
-                   className="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 hover:border-indigo-500 dark:hover:border-indigo-500 text-slate-800 dark:text-white py-4 px-2 text-center text-xs sm:text-sm font-bold min-h-[64px] rounded-2xl shadow-sm flex flex-col items-center justify-center gap-1.5 transition-all duration-200 active:scale-95 leading-tight hover:shadow-md"
+                   className="bg-[var(--bg-card)] border border-slate-200/60 dark:border-slate-800 hover:border-indigo-500 dark:hover:border-indigo-500 text-slate-800 dark:text-white py-4 px-2 text-center text-xs sm:text-sm font-bold min-h-[64px] rounded-2xl shadow-sm flex flex-col items-center justify-center gap-1.5 transition-all duration-200 active:scale-95 leading-tight hover:shadow-md"
                  >
                      <FileText size={18} className="text-emerald-600 dark:text-emerald-400" />
                      {currentLanguage === 'hi' ? 'नियम व शर्तें' : 'Terms & Condition'}
                  </button>
                  <button 
                    onClick={() => onNavigate('companyProfile')}
-                   className="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 hover:border-indigo-500 dark:hover:border-indigo-500 text-slate-800 dark:text-white py-4 px-2 text-center text-xs sm:text-sm font-bold min-h-[64px] rounded-2xl shadow-sm flex flex-col items-center justify-center gap-1.5 transition-all duration-200 active:scale-95 leading-tight hover:shadow-md"
+                   className="bg-[var(--bg-card)] border border-slate-200/60 dark:border-slate-800 hover:border-indigo-500 dark:hover:border-indigo-500 text-slate-800 dark:text-white py-4 px-2 text-center text-xs sm:text-sm font-bold min-h-[64px] rounded-2xl shadow-sm flex flex-col items-center justify-center gap-1.5 transition-all duration-200 active:scale-95 leading-tight hover:shadow-md"
                  >
                      <Bot size={18} className="text-amber-600 dark:text-amber-400" />
                      {currentLanguage === 'hi' ? 'व्यवसाय लोगो' : 'Company Logo'}
                  </button>
                  <button 
                    onClick={() => onNavigate('companyProfile')}
-                   className="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 hover:border-indigo-500 dark:hover:border-indigo-500 text-slate-800 dark:text-white py-4 px-2 text-center text-xs sm:text-sm font-bold min-h-[64px] rounded-2xl shadow-sm flex flex-col items-center justify-center gap-1.5 transition-all duration-200 active:scale-95 leading-tight hover:shadow-md"
+                   className="bg-[var(--bg-card)] border border-slate-200/60 dark:border-slate-800 hover:border-indigo-500 dark:hover:border-indigo-500 text-slate-800 dark:text-white py-4 px-2 text-center text-xs sm:text-sm font-bold min-h-[64px] rounded-2xl shadow-sm flex flex-col items-center justify-center gap-1.5 transition-all duration-200 active:scale-95 leading-tight hover:shadow-md"
                  >
                      <Laptop size={18} className="text-sky-600 dark:text-sky-400" />
                      {currentLanguage === 'hi' ? 'प्रिंट सेटिंग्स' : 'Print Settings'}
@@ -2723,7 +2723,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
         return (
             <div 
               onClick={() => handleToggle(checkedKey)} 
-              className="p-4 border-b border-slate-100 dark:border-slate-800/60 flex items-center justify-between cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/40 gap-4 min-w-0 transition-colors bg-white dark:bg-slate-900"
+              className="p-4 border-b border-[var(--border-ui)]/60 flex items-center justify-between cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/40 gap-4 min-w-0 transition-colors bg-[var(--bg-card)]"
             >
               <div className="flex items-center gap-3.5 flex-1 min-w-0 pr-2">
                 <div className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-slate-800 flex items-center justify-center shrink-0 text-indigo-600 dark:text-indigo-400">
@@ -2746,9 +2746,9 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
         initial={{ opacity: 0, y: 15 }} 
         animate={{ opacity: 1, y: 0 }} 
         transition={{ duration: 0.2 }}
-        className="flex flex-col h-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white pb-[max(env(safe-area-inset-bottom),0px)]"
+        className="flex flex-col h-full bg-[var(--bg-app)] text-[var(--text-main)] pb-[max(env(safe-area-inset-bottom),0px)]"
       >
-        <header className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-4 flex items-center gap-3 shadow-sm border-b border-slate-100 dark:border-slate-800 sticky top-0 z-40 pt-[max(env(safe-area-inset-top),48px)]">
+        <header className="bg-[var(--bg-card)] text-[var(--text-main)] p-4 flex items-center gap-3 shadow-sm border-b border-[var(--border-ui)] sticky top-0 z-40 pt-[max(env(safe-area-inset-top),48px)]">
           <button onClick={() => setActiveView('preferences2')} className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-700 dark:text-slate-300 transition"><ArrowLeft size={22} /></button>
           <div className="flex flex-col">
             <h1 className="text-lg font-bold text-indigo-600 dark:text-indigo-400 font-sans tracking-tight leading-none truncate">{currentLanguage === 'hi' ? 'आइटम सेटिंग्स' : 'Item Settings'}</h1>
@@ -2756,8 +2756,8 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
           </div>
         </header>
 
-        <div className="flex-1 overflow-y-auto bg-slate-50 dark:bg-slate-950 p-4">
-          <div className="max-w-xl mx-auto bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden divide-y divide-slate-100 dark:divide-slate-800">
+        <div className="flex-1 overflow-y-auto bg-[var(--bg-app)] p-4">
+          <div className="max-w-xl mx-auto bg-[var(--bg-card)] rounded-2xl border border-[var(--border-ui)] shadow-sm overflow-hidden divide-y divide-slate-100 dark:divide-slate-800">
             <CheckboxRow label="Enable Cess" labelHi="सेस कर सक्षम करें (Cess)" checkedKey="cess" icon={SlidersHorizontal} />
             <CheckboxRow label="Enable Batch Number" labelHi="बैच संख्या सक्षम करें (Batch Number)" checkedKey="batchNumber" icon={Hash} />
             <CheckboxRow label="Enable Manufacturing Date" labelHi="उत्पादन तिथि सक्षम करें (Mfg Date)" checkedKey="manufacturingDate" icon={Info} />
@@ -2796,7 +2796,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
         return (
             <div 
               onClick={() => handleToggle(checkedKey)} 
-              className="p-4 border-b border-slate-100 dark:border-slate-800/60 flex items-center justify-between cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/40 gap-4 min-w-0 transition-colors bg-white dark:bg-slate-900"
+              className="p-4 border-b border-[var(--border-ui)]/60 flex items-center justify-between cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/40 gap-4 min-w-0 transition-colors bg-[var(--bg-card)]"
             >
               <div className="flex items-center gap-3.5 flex-1 min-w-0 pr-2">
                 <div className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-slate-800 flex items-center justify-center shrink-0 text-indigo-600 dark:text-indigo-400">
@@ -2819,9 +2819,9 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
         initial={{ opacity: 0, y: 15 }} 
         animate={{ opacity: 1, y: 0 }} 
         transition={{ duration: 0.2 }}
-        className="flex flex-col h-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white pb-[max(env(safe-area-inset-bottom),0px)]"
+        className="flex flex-col h-full bg-[var(--bg-app)] text-[var(--text-main)] pb-[max(env(safe-area-inset-bottom),0px)]"
       >
-        <header className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-4 flex items-center gap-3 shadow-sm border-b border-slate-100 dark:border-slate-800 sticky top-0 z-40 pt-[max(env(safe-area-inset-top),48px)]">
+        <header className="bg-[var(--bg-card)] text-[var(--text-main)] p-4 flex items-center gap-3 shadow-sm border-b border-[var(--border-ui)] sticky top-0 z-40 pt-[max(env(safe-area-inset-top),48px)]">
           <button onClick={() => setActiveView('preferences2')} className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-700 dark:text-slate-300 transition"><ArrowLeft size={22} /></button>
           <div className="flex flex-col">
             <h1 className="text-lg font-bold text-indigo-600 dark:text-indigo-400 font-sans tracking-tight leading-none truncate">{currentLanguage === 'hi' ? 'खरीद बिल सेटिंग्स' : 'Purchase Bill Settings'}</h1>
@@ -2829,8 +2829,8 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
           </div>
         </header>
 
-        <div className="flex-1 overflow-y-auto bg-slate-50 dark:bg-slate-950 p-4">
-          <div className="max-w-xl mx-auto bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden divide-y divide-slate-100 dark:divide-slate-800">
+        <div className="flex-1 overflow-y-auto bg-[var(--bg-app)] p-4">
+          <div className="max-w-xl mx-auto bg-[var(--bg-card)] rounded-2xl border border-[var(--border-ui)] shadow-sm overflow-hidden divide-y divide-slate-100 dark:divide-slate-800">
             <CheckboxRow label="Enable Bill Discount" labelHi="समग्र बिल छूट सक्षम करें (Bill Discount)" checkedKey="billDiscount" icon={SlidersHorizontal} />
             <CheckboxRow label="Enable Sale Rate & MRP Calculation" labelHi="बिक्री दर और अधिकतम खुदरा मूल्य गणना सक्षम करें" checkedKey="saleRateMrpCalculation" icon={SlidersHorizontal} />
             <CheckboxRow label="Enable Additional Charges" labelHi="अतिरिक्त प्रभार सक्षम करें (Additional Charges)" checkedKey="additionalCharges" icon={SlidersHorizontal} />
@@ -2867,7 +2867,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
         return (
             <div 
               onClick={() => handleToggle(checkedKey)} 
-              className="p-4 border-b border-slate-100 dark:border-slate-800/60 flex items-center justify-between cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/40 gap-4 min-w-0 transition-colors bg-white dark:bg-slate-900"
+              className="p-4 border-b border-[var(--border-ui)]/60 flex items-center justify-between cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/40 gap-4 min-w-0 transition-colors bg-[var(--bg-card)]"
             >
               <div className="flex items-center gap-3.5 flex-1 min-w-0 pr-2">
                 <div className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-slate-800 flex items-center justify-center shrink-0 text-indigo-600 dark:text-indigo-400">
@@ -2890,9 +2890,9 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
         initial={{ opacity: 0, y: 15 }} 
         animate={{ opacity: 1, y: 0 }} 
         transition={{ duration: 0.2 }}
-        className="flex flex-col h-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white pb-[max(env(safe-area-inset-bottom),0px)]"
+        className="flex flex-col h-full bg-[var(--bg-app)] text-[var(--text-main)] pb-[max(env(safe-area-inset-bottom),0px)]"
       >
-        <header className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-4 flex items-center gap-3 shadow-sm border-b border-slate-100 dark:border-slate-800 sticky top-0 z-40 pt-[max(env(safe-area-inset-top),48px)]">
+        <header className="bg-[var(--bg-card)] text-[var(--text-main)] p-4 flex items-center gap-3 shadow-sm border-b border-[var(--border-ui)] sticky top-0 z-40 pt-[max(env(safe-area-inset-top),48px)]">
           <button onClick={() => setActiveView('preferences2')} className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-700 dark:text-slate-300 transition"><ArrowLeft size={22} /></button>
           <div className="flex flex-col">
             <h1 className="text-lg font-bold text-indigo-600 dark:text-indigo-400 font-sans tracking-tight leading-none truncate">{currentLanguage === 'hi' ? 'खरीद वापसी सेटिंग्स' : 'Purchase Return Settings'}</h1>
@@ -2900,8 +2900,8 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
           </div>
         </header>
 
-        <div className="flex-1 overflow-y-auto bg-slate-50 dark:bg-slate-950 p-4">
-          <div className="max-w-xl mx-auto bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden divide-y divide-slate-100 dark:divide-slate-800">
+        <div className="flex-1 overflow-y-auto bg-[var(--bg-app)] p-4">
+          <div className="max-w-xl mx-auto bg-[var(--bg-card)] rounded-2xl border border-[var(--border-ui)] shadow-sm overflow-hidden divide-y divide-slate-100 dark:divide-slate-800">
             <CheckboxRow label="Enable Additional Charges" labelHi="अतिरिक्त प्रभार सक्षम करें (Additional Charges)" checkedKey="additionalCharges" icon={SlidersHorizontal} />
             <CheckboxRow label="Enable Item Wise Discount" labelHi="आइटम अनुसार छूट सक्षम करें (Item-Wise Discount)" checkedKey="itemWiseDiscount" icon={SlidersHorizontal} />
             <CheckboxRow label="Enable Transportation Detail" labelHi="परिवहन विवरण सक्षम करें (Transportation)" checkedKey="transportationDetail" icon={ExternalLink} />
@@ -2932,9 +2932,9 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
         initial={{ opacity: 0, y: 15 }} 
         animate={{ opacity: 1, y: 0 }} 
         transition={{ duration: 0.2 }}
-        className="flex flex-col h-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white pb-[max(env(safe-area-inset-bottom),0px)]"
+        className="flex flex-col h-full bg-[var(--bg-app)] text-[var(--text-main)] pb-[max(env(safe-area-inset-bottom),0px)]"
       >
-        <header className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-4 flex items-center justify-between shadow-sm border-b border-slate-100 dark:border-slate-800 sticky top-0 z-40 pt-[max(env(safe-area-inset-top),48px)]">
+        <header className="bg-[var(--bg-card)] text-[var(--text-main)] p-4 flex items-center justify-between shadow-sm border-b border-[var(--border-ui)] sticky top-0 z-40 pt-[max(env(safe-area-inset-top),48px)]">
           <div className="flex items-center gap-3 min-w-0">
               <button onClick={() => { setActiveView('preferences2'); setLedgerSearchQuery(''); }} className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-700 dark:text-slate-300 transition shrink-0"><ArrowLeft size={22} /></button>
               <div className="flex flex-col min-w-0">
@@ -2945,7 +2945,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
           <button onClick={() => { setActiveView('preferences2'); setLedgerSearchQuery(''); }} className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-700 dark:text-slate-300 transition shrink-0"><Check size={22} /></button>
         </header>
 
-        <div className="p-3 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800/80">
+        <div className="p-3 bg-[var(--bg-card)] border-b border-[var(--border-ui)]/80">
           <div className="relative max-w-md mx-auto">
             <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400 dark:text-slate-500">
               <SlidersHorizontal size={16} />
@@ -2955,18 +2955,18 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
               value={ledgerSearchQuery}
               onChange={(e) => setLedgerSearchQuery(e.target.value)}
               placeholder={currentLanguage === 'hi' ? 'खाता खोजें...' : 'Search ledger...'}
-              className="w-full pl-9 pr-4 py-2 text-sm bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/60 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition"
+              className="w-full pl-9 pr-4 py-2 text-sm bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/60 rounded-xl text-[var(--text-main)] placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition"
             />
           </div>
         </div>
 
-        <div className="flex bg-slate-50 dark:bg-slate-800/30 px-4 py-3 font-bold border-b border-slate-100 dark:border-slate-800/80 text-xs sm:text-sm gap-3 select-none text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+        <div className="flex bg-slate-50 dark:bg-slate-800/30 px-4 py-3 font-bold border-b text-xs sm:text-sm gap-3 select-none text-slate-400 dark:text-slate-500 uppercase tracking-wider">
             <div className="w-16 shrink-0">{currentLanguage === 'hi' ? 'क्रमांक' : 'No.'}</div>
             <div className="flex-1 min-w-0 text-left">{currentLanguage === 'hi' ? 'खाता का नाम' : 'Ledger Name'}</div>
             <div className="shrink-0 pr-4">{currentLanguage === 'hi' ? 'स्थिति' : 'Status'}</div>
         </div>
 
-        <div className="flex-1 flex flex-col overflow-y-auto bg-white dark:bg-slate-900 divide-y divide-slate-100 dark:divide-slate-800/50">
+        <div className="flex-1 flex flex-col overflow-y-auto bg-[var(--bg-card)] divide-y divide-slate-100 dark:divide-slate-800/50">
             {filteredLedgers.length > 0 ? (
               filteredLedgers.map((ledger) => (
                 <div 
@@ -3019,7 +3019,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
         return (
             <div 
               onClick={() => handleToggle(checkedKey)} 
-              className="p-4 border-b border-slate-100 dark:border-slate-800/60 flex items-center justify-between cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/40 gap-4 min-w-0 transition-colors bg-white dark:bg-slate-900"
+              className="p-4 border-b border-[var(--border-ui)]/60 flex items-center justify-between cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/40 gap-4 min-w-0 transition-colors bg-[var(--bg-card)]"
             >
               <div className="flex items-center gap-3.5 flex-1 min-w-0 pr-2">
                 <div className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-slate-800 flex items-center justify-center shrink-0 text-indigo-600 dark:text-indigo-400">
@@ -3042,9 +3042,9 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
         initial={{ opacity: 0, y: 15 }} 
         animate={{ opacity: 1, y: 0 }} 
         transition={{ duration: 0.2 }}
-        className="flex flex-col h-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white pb-[max(env(safe-area-inset-bottom),0px)]"
+        className="flex flex-col h-full bg-[var(--bg-app)] text-[var(--text-main)] pb-[max(env(safe-area-inset-bottom),0px)]"
       >
-        <header className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-4 flex items-center gap-3 shadow-sm border-b border-slate-100 dark:border-slate-800 sticky top-0 z-40 pt-[max(env(safe-area-inset-top),48px)]">
+        <header className="bg-[var(--bg-card)] text-[var(--text-main)] p-4 flex items-center gap-3 shadow-sm border-b border-[var(--border-ui)] sticky top-0 z-40 pt-[max(env(safe-area-inset-top),48px)]">
           <button onClick={() => setActiveView('preferences2')} className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-700 dark:text-slate-300 transition"><ArrowLeft size={22} /></button>
           <div className="flex flex-col">
             <h1 className="text-lg font-bold text-indigo-600 dark:text-indigo-400 font-sans tracking-tight leading-none truncate">{currentLanguage === 'hi' ? 'परिवहन विवरण सेटिंग्स' : 'Transportation Settings'}</h1>
@@ -3052,8 +3052,8 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
           </div>
         </header>
 
-        <div className="flex-1 overflow-y-auto bg-slate-50 dark:bg-slate-950 p-4">
-          <div className="max-w-xl mx-auto bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden divide-y divide-slate-100 dark:divide-slate-800">
+        <div className="flex-1 overflow-y-auto bg-[var(--bg-app)] p-4">
+          <div className="max-w-xl mx-auto bg-[var(--bg-card)] rounded-2xl border border-[var(--border-ui)] shadow-sm overflow-hidden divide-y divide-slate-100 dark:divide-slate-800">
             <CheckboxRow label="Enable GR No." labelHi="जीआर क्रमांक सक्षम करें (GR/LR No.)" checkedKey="grNo" icon={SlidersHorizontal} />
             <CheckboxRow label="Enable Vehicle No." labelHi="वाहन क्रमांक सक्षम करें (Vehicle No.)" checkedKey="vehicleNo" icon={SlidersHorizontal} />
             <CheckboxRow label="Enable Origin" labelHi="उद्गम स्थल सक्षम करें (Origin)" checkedKey="origin" icon={SlidersHorizontal} />
@@ -3089,7 +3089,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
         return (
             <div 
               onClick={() => handleToggle(checkedKey)} 
-              className="p-4 border-b border-slate-100 dark:border-slate-800/60 flex items-center justify-between cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/40 gap-4 min-w-0 transition-colors bg-white dark:bg-slate-900"
+              className="p-4 border-b border-[var(--border-ui)]/60 flex items-center justify-between cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/40 gap-4 min-w-0 transition-colors bg-[var(--bg-card)]"
             >
               <div className="flex items-center gap-3.5 flex-1 min-w-0 pr-2">
                 <div className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-slate-800 flex items-center justify-center shrink-0 text-indigo-600 dark:text-indigo-400">
@@ -3112,9 +3112,9 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
         initial={{ opacity: 0, y: 15 }} 
         animate={{ opacity: 1, y: 0 }} 
         transition={{ duration: 0.2 }}
-        className="flex flex-col h-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white pb-[max(env(safe-area-inset-bottom),0px)]"
+        className="flex flex-col h-full bg-[var(--bg-app)] text-[var(--text-main)] pb-[max(env(safe-area-inset-bottom),0px)]"
       >
-        <header className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-4 flex items-center gap-3 shadow-sm border-b border-slate-100 dark:border-slate-800 sticky top-0 z-40 pt-[max(env(safe-area-inset-top),48px)]">
+        <header className="bg-[var(--bg-card)] text-[var(--text-main)] p-4 flex items-center gap-3 shadow-sm border-b border-[var(--border-ui)] sticky top-0 z-40 pt-[max(env(safe-area-inset-top),48px)]">
           <button onClick={() => setActiveView('preferences2')} className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-700 dark:text-slate-300 transition"><ArrowLeft size={22} /></button>
           <div className="flex flex-col">
             <h1 className="text-lg font-bold text-indigo-600 dark:text-indigo-400 font-sans tracking-tight leading-none truncate">{currentLanguage === 'hi' ? 'बिक्री वापसी सेटिंग्स' : 'Sale Return Settings'}</h1>
@@ -3122,8 +3122,8 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
           </div>
         </header>
 
-        <div className="flex-1 overflow-y-auto bg-slate-50 dark:bg-slate-950 p-4 space-y-4">
-          <div className="max-w-xl mx-auto bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden divide-y divide-slate-100 dark:divide-slate-800">
+        <div className="flex-1 overflow-y-auto bg-[var(--bg-app)] p-4 space-y-4">
+          <div className="max-w-xl mx-auto bg-[var(--bg-card)] rounded-2xl border border-[var(--border-ui)] shadow-sm overflow-hidden divide-y divide-slate-100 dark:divide-slate-800">
             <CheckboxRow label="Enable Bill Discount" labelHi="बिल छूट सक्षम करें (Bill Discount)" checkedKey="billDiscount" icon={SlidersHorizontal} />
             <CheckboxRow label="Enable Additional Charges" labelHi="अतिरिक्त प्रभार सक्षम करें (Additional Charges)" checkedKey="additionalCharges" icon={SlidersHorizontal} />
             <CheckboxRow label="Enable Item Wise Discount" labelHi="आइटम अनुसार छूट सक्षम करें (Item-Wise Discount)" checkedKey="itemWiseDiscount" icon={SlidersHorizontal} />
@@ -3134,7 +3134,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
 
           <div 
             onClick={() => setSelectedCategoryTab('business_identity')}
-            className="max-w-xl mx-auto p-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm flex items-center justify-between cursor-pointer hover:shadow-md transition-shadow"
+            className="max-w-xl mx-auto p-4 bg-[var(--bg-card)] rounded-2xl border border-[var(--border-ui)] shadow-sm flex items-center justify-between cursor-pointer hover:shadow-md transition-shadow"
           >
             <div className="text-left">
               <h2 className="text-sm sm:text-base font-semibold text-slate-800 dark:text-slate-100">
@@ -3174,7 +3174,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
         return (
             <div 
               onClick={() => handleToggle(checkedKey)} 
-              className="p-4 border-b border-slate-100 dark:border-slate-800/60 flex items-center justify-between cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/40 gap-4 min-w-0 transition-colors bg-white dark:bg-slate-900"
+              className="p-4 border-b border-[var(--border-ui)]/60 flex items-center justify-between cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/40 gap-4 min-w-0 transition-colors bg-[var(--bg-card)]"
             >
               <div className="flex items-center gap-3.5 flex-1 min-w-0 pr-2">
                 <div className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-slate-800 flex items-center justify-center shrink-0 text-indigo-600 dark:text-indigo-400">
@@ -3197,9 +3197,9 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
         initial={{ opacity: 0, y: 15 }} 
         animate={{ opacity: 1, y: 0 }} 
         transition={{ duration: 0.2 }}
-        className="flex flex-col h-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white pb-[max(env(safe-area-inset-bottom),0px)]"
+        className="flex flex-col h-full bg-[var(--bg-app)] text-[var(--text-main)] pb-[max(env(safe-area-inset-bottom),0px)]"
       >
-        <header className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-4 flex items-center gap-3 shadow-sm border-b border-slate-100 dark:border-slate-800 sticky top-0 z-40 pt-[max(env(safe-area-inset-top),48px)]">
+        <header className="bg-[var(--bg-card)] text-[var(--text-main)] p-4 flex items-center gap-3 shadow-sm border-b border-[var(--border-ui)] sticky top-0 z-40 pt-[max(env(safe-area-inset-top),48px)]">
           <button onClick={() => setActiveView('preferences2')} className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-700 dark:text-slate-300 transition"><ArrowLeft size={22} /></button>
           <div className="flex flex-col">
             <h1 className="text-lg font-bold text-indigo-600 dark:text-indigo-400 font-sans tracking-tight leading-none truncate">{currentLanguage === 'hi' ? 'बिक्री बिल सेटिंग्स' : 'Sale Bill Settings'}</h1>
@@ -3207,8 +3207,8 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
           </div>
         </header>
 
-        <div className="flex-1 overflow-y-auto bg-slate-50 dark:bg-slate-950 p-4 space-y-4">
-          <div className="max-w-xl mx-auto bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden divide-y divide-slate-100 dark:divide-slate-800">
+        <div className="flex-1 overflow-y-auto bg-[var(--bg-app)] p-4 space-y-4">
+          <div className="max-w-xl mx-auto bg-[var(--bg-card)] rounded-2xl border border-[var(--border-ui)] shadow-sm overflow-hidden divide-y divide-slate-100 dark:divide-slate-800">
             <CheckboxRow label="Enable Cash Billing" labelHi="नकद बिलिंग सक्षम करें (Cash Billing)" checkedKey="cashBilling" icon={SlidersHorizontal} />
             <CheckboxRow label="Enable Bill Discount" labelHi="समग्र बिल छूट सक्षम करें (Bill Discount)" checkedKey="billDiscount" icon={SlidersHorizontal} />
             <CheckboxRow label="Enable Additional Charges" labelHi="अतिरिक्त प्रभार सक्षम करें (Additional Charges)" checkedKey="additionalCharges" icon={SlidersHorizontal} />
@@ -3224,7 +3224,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
 
           <div 
             onClick={() => setSelectedCategoryTab('business_identity')}
-            className="max-w-xl mx-auto p-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm flex items-center justify-between cursor-pointer hover:shadow-md transition-shadow"
+            className="max-w-xl mx-auto p-4 bg-[var(--bg-card)] rounded-2xl border border-[var(--border-ui)] shadow-sm flex items-center justify-between cursor-pointer hover:shadow-md transition-shadow"
           >
             <div className="text-left">
               <h2 className="text-sm sm:text-base font-semibold text-slate-800 dark:text-slate-100">
@@ -3245,8 +3245,8 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
   const isStaff = authContext.currentUser?.role === 'staff';
 
   return (
-    <div className="flex flex-col h-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 overflow-y-auto pb-[max(env(safe-area-inset-bottom),0px)]">
-      <header className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-4 flex items-center justify-between shadow-sm border-b border-slate-100 dark:border-slate-800 sticky top-0 z-40 pt-[max(env(safe-area-inset-top),48px)]">
+    <div className="flex flex-col h-full bg-[var(--bg-app)] text-[var(--text-main)] overflow-y-auto pb-[max(env(safe-area-inset-bottom),0px)]">
+      <header className="bg-[var(--bg-card)] text-[var(--text-main)] p-4 flex items-center justify-between shadow-sm border-b border-[var(--border-ui)] sticky top-0 z-40 pt-[max(env(safe-area-inset-top),48px)]">
         <div className="flex items-center gap-3">
           <button 
             onClick={onBack}
@@ -3280,7 +3280,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
         </button>
       </header>
 
-      <div className="flex-1 bg-slate-50 dark:bg-slate-950 p-4 space-y-6">
+      <div className="flex-1 bg-[var(--bg-app)] p-4 space-y-6">
         {/* Dynamic Sync Engine status & General Title summary */}
         <div className="bg-gradient-to-r from-indigo-600 to-indigo-700 dark:from-slate-900 dark:to-slate-800 text-white rounded-2xl p-5 shadow-sm flex flex-col sm:flex-row justify-between sm:items-center gap-4 border border-indigo-100 dark:border-slate-800">
           <div className="space-y-1">
@@ -3319,7 +3319,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
           >
             <div className="space-y-3.5">
               {/* Store Code details */}
-              <div className="w-full flex items-center justify-between p-3.5 rounded-xl border border-slate-100 dark:border-slate-800/80 bg-white dark:bg-slate-900 shadow-sm gap-3">
+              <div className="w-full flex items-center justify-between p-3.5 rounded-xl border bg-[var(--bg-card)] shadow-sm gap-3">
                 <div className="flex items-center gap-3 flex-1 min-w-0 pr-1">
                   <div className="bg-indigo-50 dark:bg-indigo-900/30 p-2 rounded-lg text-indigo-600 dark:text-indigo-400 shrink-0">
                     <Hash size={18} />
@@ -3346,8 +3346,8 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
               <button
                 disabled={authContext.currentUser?.role === 'staff'}
                 onClick={() => onNavigate('companyProfile')}
-                className={`w-full flex items-center justify-between p-3 rounded-xl border border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 transition text-left min-w-0 gap-3 ${
-                  authContext.currentUser?.role === 'staff' ? 'opacity-[0.45] cursor-not-allowed' : 'cursor-pointer bg-white dark:bg-slate-900'
+                className={`w-full flex items-center justify-between p-3 rounded-xl border border-[var(--border-ui)] hover:bg-slate-50 dark:hover:bg-slate-800 transition text-left min-w-0 gap-3 ${
+                  authContext.currentUser?.role === 'staff' ? 'opacity-[0.45] cursor-not-allowed' : 'cursor-pointer bg-[var(--bg-card)]'
                 }`}
               >
                 <div className="flex items-center gap-3 flex-1 min-w-0 pr-2">
@@ -3377,8 +3377,8 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
               <button
                 disabled={authContext.currentUser?.role === 'staff'}
                 onClick={() => setActiveView('invoice_numbering')}
-                className={`w-full flex items-center justify-between p-3 rounded-xl border border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 transition text-left min-w-0 gap-3 ${
-                  authContext.currentUser?.role === 'staff' ? 'opacity-[0.45] cursor-not-allowed' : 'cursor-pointer bg-white dark:bg-slate-900'
+                className={`w-full flex items-center justify-between p-3 rounded-xl border border-[var(--border-ui)] hover:bg-slate-50 dark:hover:bg-slate-800 transition text-left min-w-0 gap-3 ${
+                  authContext.currentUser?.role === 'staff' ? 'opacity-[0.45] cursor-not-allowed' : 'cursor-pointer bg-[var(--bg-card)]'
                 }`}
               >
                 <div className="flex items-center gap-3 flex-1 min-w-0 pr-2">
@@ -3405,7 +3405,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
               </button>
 
               {/* Bilingual App Language Row */}
-              <div className="bg-white dark:bg-slate-900 p-3.5 rounded-xl border border-slate-100 dark:border-slate-800/80 shadow-sm flex items-center justify-between gap-3 min-w-0">
+              <div className="bg-[var(--bg-card)] p-3.5 rounded-xl border shadow-sm flex items-center justify-between gap-3 min-w-0">
                 <div className="text-left flex-1 min-w-0 pr-1 select-auto font-sans">
                   <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest block font-sans truncate">App Language (भाषा)</span>
                   <span className="text-xs text-slate-400 leading-relaxed block truncate">
@@ -3448,7 +3448,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
               {/* Sale & Purchase Settings */}
               <button
                 onClick={() => setActiveView('preferences2')}
-                className="w-full flex items-center justify-between p-3 rounded-xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition cursor-pointer text-left"
+                className="w-full flex items-center justify-between p-3 rounded-xl border border-[var(--border-ui)] bg-[var(--bg-card)] hover:bg-slate-50 dark:hover:bg-slate-800/50 transition cursor-pointer text-left"
               >
                 <div className="flex items-center gap-3">
                   <div className="bg-indigo-50 dark:bg-indigo-900/30 p-2 rounded-lg text-indigo-600 dark:text-indigo-400 shrink-0">
@@ -3469,7 +3469,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
               {/* Dashboard & General Preferences */}
               <button
                 onClick={() => setActiveView('preferences')}
-                className="w-full flex items-center justify-between p-3 rounded-xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition cursor-pointer text-left"
+                className="w-full flex items-center justify-between p-3 rounded-xl border border-[var(--border-ui)] bg-[var(--bg-card)] hover:bg-slate-50 dark:hover:bg-slate-800/50 transition cursor-pointer text-left"
               >
                 <div className="flex items-center gap-3">
                   <div className="bg-indigo-50 dark:bg-indigo-900/30 p-2 rounded-lg text-indigo-600 dark:text-indigo-400 shrink-0">
@@ -3569,7 +3569,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
               {/* App PIN & Password */}
               <button
                 onClick={() => setActiveView('password_settings')}
-                className="w-full flex items-center justify-between p-3 rounded-xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/85 transition cursor-pointer text-left min-w-0 gap-3"
+                className="w-full flex items-center justify-between p-3 rounded-xl border border-[var(--border-ui)] bg-[var(--bg-card)] hover:bg-slate-50 dark:hover:bg-slate-800/85 transition cursor-pointer text-left min-w-0 gap-3"
               >
                 <div className="flex items-center gap-3 flex-1 min-w-0 pr-2">
                   <div className="bg-amber-50 dark:bg-amber-900/30 p-2 rounded-lg text-amber-600 dark:text-amber-400 shrink-0">
@@ -3588,7 +3588,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
               </button>
 
               {/* Simulated Permissions Switcher */}
-              <div className="bg-white dark:bg-slate-900 p-3.5 rounded-xl border border-slate-100 dark:border-slate-800/80 shadow-sm font-sans">
+              <div className="bg-[var(--bg-card)] p-3.5 rounded-xl border shadow-sm font-sans">
                 <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest block mb-2 font-sans overflow-hidden">Simulated Permissions Mode</span>
                 <div className="grid grid-cols-2 gap-2">
                   <button 
@@ -3632,7 +3632,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                     setShowAdminPinModal(true);
                   }
                 }}
-                className="w-full flex items-center justify-between p-3 rounded-xl border border-slate-100 dark:border-slate-800/80 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/85 transition cursor-pointer text-left shadow-sm min-w-0 gap-3"
+                className="w-full flex items-center justify-between p-3 rounded-xl border bg-[var(--bg-card)] hover:bg-slate-50 dark:hover:bg-slate-800/85 transition cursor-pointer text-left shadow-sm min-w-0 gap-3"
               >
                 <div className="flex items-center gap-3 flex-1 min-w-0 pr-2">
                   <div className="bg-indigo-50 dark:bg-indigo-900/30 p-2 rounded-lg text-indigo-600 dark:text-indigo-400 shrink-0">
@@ -3681,7 +3681,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
               )}
 
               {/* Cloud Account Detail (Google Sign-In, Email Auth) */}
-              <div className="p-3.5 bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800 flex flex-col gap-2 shadow-sm">
+              <div className="p-3.5 bg-[var(--bg-card)] rounded-xl border border-[var(--border-ui)] flex flex-col gap-2 shadow-sm">
                 <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider font-sans">Cloud Account Detail</span>
                 {auth.currentUser && !auth.currentUser.isAnonymous ? (
                   <div className="flex items-center justify-between gap-3">
@@ -3694,7 +3694,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                         await auth.signOut();
                         window.location.reload();
                       }} 
-                      className="text-[10.5px] font-bold text-rose-500 hover:text-rose-600 border border-slate-200 dark:border-slate-700 px-2 py-1 rounded-md bg-white dark:bg-slate-900 shadow-sm shrink-0 font-sans cursor-pointer transition-colors"
+                      className="text-[10.5px] font-bold text-rose-500 hover:text-rose-600 border border-slate-200 dark:border-slate-700 px-2 py-1 rounded-md bg-[var(--bg-card)] shadow-sm shrink-0 font-sans cursor-pointer transition-colors"
                     >
                       Sign Out
                     </button>
@@ -3728,7 +3728,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
               </div>
 
               {/* Premium License Mode & Validation */}
-              <div className="bg-white dark:bg-slate-900 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 space-y-3.5 text-left font-sans shadow-sm">
+              <div className="bg-[var(--bg-card)] p-3.5 rounded-xl border border-[var(--border-ui)] space-y-3.5 text-left font-sans shadow-sm">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-left w-full">
                   <div className="flex items-center gap-1.5 shrink-0">
                     <div className={`w-2.5 h-2.5 rounded-full ${isPremiumLicensed ? 'bg-amber-500 animate-pulse' : 'bg-slate-300'}`}></div>
@@ -3751,7 +3751,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                 </div>
 
                 {!isPremiumLicensed && authContext.currentUser?.role === 'admin' && (
-                  <div className="border-t border-slate-100 dark:border-slate-800/80 pt-3 mt-2 flex flex-col gap-2 w-full">
+                  <div className="border-t pt-3 mt-2 flex flex-col gap-2 w-full">
                     <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
                       {currentLanguage === 'hi' ? 'प्रीमियम सक्रिय करने के लिए लाइसेंस कुंजी दर्ज करें' : 'Enter License Key to Activate Premium'}
                     </label>
@@ -3795,7 +3795,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
               {/* Time Machine Bookmarks */}
               <button
                 onClick={() => setActiveView('time_machine')}
-                className="w-full flex items-center justify-between p-3 rounded-xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/85 transition cursor-pointer text-left min-w-0 gap-3"
+                className="w-full flex items-center justify-between p-3 rounded-xl border border-[var(--border-ui)] bg-[var(--bg-card)] hover:bg-slate-50 dark:hover:bg-slate-800/85 transition cursor-pointer text-left min-w-0 gap-3"
               >
                 <div className="flex items-center gap-3 flex-1 min-w-0 pr-2">
                   <div className="bg-emerald-50 dark:bg-emerald-900/30 p-2 rounded-lg text-emerald-600 dark:text-emerald-400 shrink-0">
@@ -3816,8 +3816,8 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                   console.log("[SETTINGS] Initiate transfer financial year dialog modal triggers from button settings screen props");
                   setShowTransferDialog(true);
                 }}
-                className={`w-full flex items-center justify-between p-3 rounded-xl border border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/85 transition text-left min-w-0 gap-3 ${
-                  authContext.currentUser?.role === 'staff' ? 'opacity-[0.45] cursor-not-allowed' : 'cursor-pointer bg-white dark:bg-slate-900'
+                className={`w-full flex items-center justify-between p-3 rounded-xl border border-[var(--border-ui)] hover:bg-slate-50 dark:hover:bg-slate-800/85 transition text-left min-w-0 gap-3 ${
+                  authContext.currentUser?.role === 'staff' ? 'opacity-[0.45] cursor-not-allowed' : 'cursor-pointer bg-[var(--bg-card)]'
                 }`}
               >
                 <div className="flex items-center gap-3 flex-1 min-w-0 pr-2">
@@ -3875,7 +3875,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
               {/* System Health Check */}
               <button
                 onClick={() => setActiveView('system_health')}
-                className="w-full flex items-center justify-between p-3 rounded-xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/85 transition cursor-pointer text-left min-w-0 gap-3"
+                className="w-full flex items-center justify-between p-3 rounded-xl border border-[var(--border-ui)] bg-[var(--bg-card)] hover:bg-slate-50 dark:hover:bg-slate-800/85 transition cursor-pointer text-left min-w-0 gap-3"
               >
                 <div className="flex items-center gap-3 flex-1 min-w-0 pr-2">
                   <div className="bg-indigo-50 dark:bg-indigo-900/30 p-2 rounded-lg text-indigo-600 dark:text-indigo-400 shrink-0">
@@ -3896,7 +3896,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
               {/* Master Health Analysis */}
               <button
                 onClick={() => setActiveView('master_health')}
-                className="w-full flex items-center justify-between p-3 rounded-xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/85 transition cursor-pointer text-left min-w-0 gap-3"
+                className="w-full flex items-center justify-between p-3 rounded-xl border border-[var(--border-ui)] bg-[var(--bg-card)] hover:bg-slate-50 dark:hover:bg-slate-800/85 transition cursor-pointer text-left min-w-0 gap-3"
               >
                 <div className="flex items-center gap-3 flex-1 min-w-0 pr-2">
                   <div className="bg-amber-50 dark:bg-amber-900/30 p-2 rounded-lg text-amber-600 dark:text-amber-400 shrink-0">
@@ -3926,7 +3926,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                     setShowAdminPinModal(true);
                   }
                 }}
-                className="w-full flex items-center justify-between p-3 rounded-xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/85 transition cursor-pointer text-left min-w-0 gap-3"
+                className="w-full flex items-center justify-between p-3 rounded-xl border border-[var(--border-ui)] bg-[var(--bg-card)] hover:bg-slate-50 dark:hover:bg-slate-800/85 transition cursor-pointer text-left min-w-0 gap-3"
               >
                 <div className="flex items-center gap-3 flex-1 min-w-0 pr-2">
                   <div className="bg-rose-50 dark:bg-rose-900/30 p-2 rounded-lg text-rose-600 dark:text-rose-400 shrink-0">
@@ -3957,8 +3957,8 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
         {/* Responsive Dual-Pane Layout on Tablets & Desktops */}
         <div className="hidden md:grid md:grid-cols-12 gap-6 max-w-6xl mx-auto w-full items-start">
           {/* L.H.S Sidebar Categories Navigation Panel */}
-          <div className="md:col-span-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 p-5 shadow-sm space-y-4">
-            <div className="border-b border-slate-100 dark:border-slate-800 pb-3 mb-2">
+          <div className="md:col-span-4 bg-[var(--bg-card)] rounded-2xl border p-5 shadow-sm space-y-4">
+            <div className="border-b border-[var(--border-ui)] pb-3 mb-2">
               <h2 className="text-xs font-black text-slate-400 uppercase tracking-widest font-sans">
                 {currentLanguage === 'hi' ? 'सेटिंग्स श्रेणियां' : 'Settings Categories'}
               </h2>
@@ -3970,10 +3970,10 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
               {/* Category 1: Business Settings */}
               <button
                 onClick={() => setSelectedCategoryTab('business_identity')}
-                className={`flex items-start gap-3 p-3 rounded-xl transition text-left cursor-pointer border ${
+                className={`flex items-start gap-3 p-3 rounded-xl transition text-left cursor-pointer ${
                   selectedCategoryTab === 'business_identity'
-                    ? 'bg-indigo-50/70 dark:bg-indigo-950/40 border-indigo-200 dark:border-indigo-800/60 text-indigo-700 dark:text-indigo-400 font-bold'
-                    : 'bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800/65 border-slate-100 dark:border-slate-800/80 text-slate-700 dark:text-slate-300'
+                    ? 'bg-indigo-50/70 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-400 font-bold'
+                    : 'bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800/65 text-slate-700 dark:text-slate-300'
                 }`}
               >
                 <div className={`p-2 rounded-lg shrink-0 ${
@@ -3994,10 +3994,10 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
               {/* Category 2: Billing Preferences */}
               <button
                 onClick={() => setSelectedCategoryTab('app_preferences')}
-                className={`flex items-start gap-3 p-3 rounded-xl transition text-left cursor-pointer border ${
+                className={`flex items-start gap-3 p-3 rounded-xl transition text-left cursor-pointer ${
                   selectedCategoryTab === 'app_preferences'
-                    ? 'bg-indigo-50/70 dark:bg-indigo-950/40 border-indigo-200 dark:border-indigo-800/60 text-indigo-700 dark:text-indigo-400 font-bold'
-                    : 'bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800/65 border-slate-100 dark:border-slate-800/80 text-slate-700 dark:text-slate-300'
+                    ? 'bg-indigo-50/70 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-400 font-bold'
+                    : 'bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800/65 text-slate-700 dark:text-slate-300'
                 }`}
               >
                 <div className={`p-2 rounded-lg shrink-0 ${
@@ -4018,10 +4018,10 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
               {/* Category 3: Security & Permissions */}
               <button
                 onClick={() => setSelectedCategoryTab('security_access')}
-                className={`flex items-start gap-3 p-3 rounded-xl transition text-left cursor-pointer border ${
+                className={`flex items-start gap-3 p-3 rounded-xl transition text-left cursor-pointer ${
                   selectedCategoryTab === 'security_access'
-                    ? 'bg-indigo-50/70 dark:bg-indigo-950/40 border-indigo-200 dark:border-indigo-800/60 text-indigo-700 dark:text-indigo-400 font-bold'
-                    : 'bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800/65 border-slate-100 dark:border-slate-800/80 text-slate-700 dark:text-slate-300'
+                    ? 'bg-indigo-50/70 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-400 font-bold'
+                    : 'bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800/65 text-slate-700 dark:text-slate-300'
                 }`}
               >
                 <div className={`p-2 rounded-lg shrink-0 ${
@@ -4042,10 +4042,10 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
               {/* Category 4: Cloud & Licensing */}
               <button
                 onClick={() => setSelectedCategoryTab('premium_license')}
-                className={`flex items-start gap-3 p-3 rounded-xl transition text-left cursor-pointer border ${
+                className={`flex items-start gap-3 p-3 rounded-xl transition text-left cursor-pointer ${
                   selectedCategoryTab === 'premium_license'
-                    ? 'bg-amber-50/70 dark:bg-amber-950/40 border-amber-200 dark:border-amber-800/60 text-amber-700 dark:text-amber-400 font-bold'
-                    : 'bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800/65 border-slate-100 dark:border-slate-800/80 text-slate-700 dark:text-slate-300'
+                    ? 'bg-amber-50/70 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 font-bold'
+                    : 'bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800/65 text-slate-700 dark:text-slate-300'
                 }`}
               >
                 <div className={`p-2 rounded-lg shrink-0 ${
@@ -4066,10 +4066,10 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
               {/* Category 5: Database Tools */}
               <button
                 onClick={() => setSelectedCategoryTab('data_cloud')}
-                className={`flex items-start gap-3 p-3 rounded-xl transition text-left cursor-pointer border ${
+                className={`flex items-start gap-3 p-3 rounded-xl transition text-left cursor-pointer ${
                   selectedCategoryTab === 'data_cloud'
-                    ? 'bg-indigo-50/70 dark:bg-indigo-950/40 border-indigo-200 dark:border-indigo-800/60 text-indigo-700 dark:text-indigo-400 font-bold'
-                    : 'bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800/65 border-slate-100 dark:border-slate-800/80 text-slate-700 dark:text-slate-300'
+                    ? 'bg-indigo-50/70 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-400 font-bold'
+                    : 'bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800/65 text-slate-700 dark:text-slate-300'
                 }`}
               >
                 <div className={`p-2 rounded-lg shrink-0 ${
@@ -4090,10 +4090,10 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
               {/* Category 6: Diagnostics & Logs */}
               <button
                 onClick={() => setSelectedCategoryTab('diagnostics')}
-                className={`flex items-start gap-3 p-3 rounded-xl transition text-left cursor-pointer border ${
+                className={`flex items-start gap-3 p-3 rounded-xl transition text-left cursor-pointer ${
                   selectedCategoryTab === 'diagnostics'
-                    ? 'bg-indigo-50/70 dark:bg-indigo-950/40 border-indigo-200 dark:border-indigo-800/60 text-indigo-700 dark:text-indigo-400 font-bold'
-                    : 'bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800/65 border-slate-100 dark:border-slate-800/80 text-slate-700 dark:text-slate-300'
+                    ? 'bg-indigo-50/70 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-400 font-bold'
+                    : 'bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800/65 text-slate-700 dark:text-slate-300'
                 }`}
               >
                 <div className={`p-2 rounded-lg shrink-0 ${
@@ -4114,7 +4114,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
           </div>
 
           {/* R.H.S Panels Area */}
-          <div className="md:col-span-8 bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-sm min-h-[500px]">
+          <div className="md:col-span-8 bg-[var(--bg-card)] rounded-2xl border p-6 shadow-sm min-h-[500px]">
             <AnimatePresence mode="wait">
               {selectedCategoryTab === 'business_identity' && (
                 <motion.div
@@ -4126,7 +4126,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                   className="space-y-6 text-left"
                 >
                   <div>
-                    <h2 className="text-xl font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+                    <h2 className="text-xl font-extrabold text-[var(--text-main)] flex items-center gap-2">
                       <User className="text-indigo-600 dark:text-indigo-400" size={24} />
                       {currentLanguage === 'hi' ? 'व्यवसाय सेटअप' : 'Business Settings'}
                     </h2>
@@ -4135,9 +4135,9 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                     </p>
                   </div>
 
-                  <div className="pt-4 border-t border-slate-100 dark:border-slate-800/80 space-y-4">
+                  <div className="pt-4 border-t space-y-4">
                     {/* Store Code details */}
-                    <div className="w-full flex items-center justify-between p-4 rounded-xl border border-slate-100 dark:border-slate-800/80 bg-white dark:bg-slate-900 shadow-sm gap-4">
+                    <div className="w-full flex items-center justify-between p-4 rounded-xl border bg-[var(--bg-card)] shadow-sm gap-4">
                       <div className="flex items-center gap-3.5 flex-1 min-w-0 pr-2">
                         <div className="bg-indigo-50 dark:bg-indigo-900/30 p-2.5 rounded-xl text-indigo-600 dark:text-indigo-400 shrink-0">
                           <Hash size={20} />
@@ -4164,8 +4164,8 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                     <button
                       disabled={authContext.currentUser?.role === 'staff'}
                       onClick={() => onNavigate('companyProfile')}
-                      className={`w-full flex items-center justify-between p-4 rounded-xl border border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition text-left min-w-0 gap-4 shadow-sm ${
-                        authContext.currentUser?.role === 'staff' ? 'opacity-[0.45] cursor-not-allowed' : 'cursor-pointer bg-white dark:bg-slate-900'
+                      className={`w-full flex items-center justify-between p-4 rounded-xl border border-[var(--border-ui)] hover:bg-slate-50 dark:hover:bg-slate-800/50 transition text-left min-w-0 gap-4 shadow-sm ${
+                        authContext.currentUser?.role === 'staff' ? 'opacity-[0.45] cursor-not-allowed' : 'cursor-pointer bg-[var(--bg-card)]'
                       }`}
                     >
                       <div className="flex items-center gap-3.5 flex-1 min-w-0 pr-2">
@@ -4195,8 +4195,8 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                     <button
                       disabled={authContext.currentUser?.role === 'staff'}
                       onClick={() => setActiveView('invoice_numbering')}
-                      className={`w-full flex items-center justify-between p-4 rounded-xl border border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition text-left min-w-0 gap-4 shadow-sm ${
-                        authContext.currentUser?.role === 'staff' ? 'opacity-[0.45] cursor-not-allowed' : 'cursor-pointer bg-white dark:bg-slate-900'
+                      className={`w-full flex items-center justify-between p-4 rounded-xl border border-[var(--border-ui)] hover:bg-slate-50 dark:hover:bg-slate-800/50 transition text-left min-w-0 gap-4 shadow-sm ${
+                        authContext.currentUser?.role === 'staff' ? 'opacity-[0.45] cursor-not-allowed' : 'cursor-pointer bg-[var(--bg-card)]'
                       }`}
                     >
                       <div className="flex items-center gap-3.5 flex-1 min-w-0 pr-2">
@@ -4223,7 +4223,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                     </button>
 
                     {/* Bilingual App Language Row */}
-                    <div className="bg-slate-50/50 dark:bg-slate-900/50 p-4 rounded-xl border border-slate-100 dark:border-slate-800/65 shadow-sm flex items-center justify-between gap-4 min-w-0">
+                    <div className="bg-slate-50/50 dark:bg-slate-900/50 p-4 rounded-xl border border-[var(--border-ui)]/65 shadow-sm flex items-center justify-between gap-4 min-w-0">
                       <div className="text-left flex-1 min-w-0 pr-1 select-auto font-sans">
                         <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest block font-sans truncate">App Language (भाषा)</span>
                         <span className="text-xs text-slate-400 leading-relaxed block truncate font-sans mt-0.5">
@@ -4267,7 +4267,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                   className="space-y-6 text-left"
                 >
                   <div>
-                    <h2 className="text-xl font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+                    <h2 className="text-xl font-extrabold text-[var(--text-main)] flex items-center gap-2">
                       <SlidersHorizontal className="text-indigo-600 dark:text-indigo-400" size={24} />
                       {currentLanguage === 'hi' ? 'बिलिंग और उत्पाद' : 'Billing Preferences'}
                     </h2>
@@ -4276,9 +4276,9 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                     </p>
                   </div>
 
-                  <div className="pt-4 border-t border-slate-100 dark:border-slate-800 space-y-4">
+                  <div className="pt-4 border-t border-[var(--border-ui)] space-y-4">
                     {/* Switch Toggles */}
-                    <div className="p-4 bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800/80 shadow-sm space-y-3.5">
+                    <div className="p-4 bg-[var(--bg-card)] rounded-xl border shadow-sm space-y-3.5">
                       {/* Home QR Code inline Switcher */}
                       <div className="flex items-center justify-between py-1 border-b border-slate-100/80 dark:border-slate-800/70 gap-3 min-w-0">
                         <div className="text-left flex-1 min-w-0 font-sans">
@@ -4354,7 +4354,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                     <div className="space-y-3">
                       <button
                         onClick={() => setActiveView('preferences2')}
-                        className="w-full flex items-center justify-between p-4 rounded-xl border border-slate-100 dark:border-slate-800/80 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition cursor-pointer text-left shadow-sm gap-4"
+                        className="w-full flex items-center justify-between p-4 rounded-xl border bg-[var(--bg-card)] hover:bg-slate-50 dark:hover:bg-slate-800/50 transition cursor-pointer text-left shadow-sm gap-4"
                       >
                         <div className="flex items-center gap-3.5 pr-2">
                           <div className="bg-indigo-50 dark:bg-indigo-900/30 p-2.5 rounded-xl text-indigo-600 dark:text-indigo-400 shrink-0">
@@ -4370,7 +4370,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
 
                       <button
                         onClick={() => setActiveView('preferences')}
-                        className="w-full flex items-center justify-between p-4 rounded-xl border border-slate-100 dark:border-slate-800/80 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition cursor-pointer text-left shadow-sm gap-4"
+                        className="w-full flex items-center justify-between p-4 rounded-xl border bg-[var(--bg-card)] hover:bg-slate-50 dark:hover:bg-slate-800/50 transition cursor-pointer text-left shadow-sm gap-4"
                       >
                         <div className="flex items-center gap-3.5 pr-2">
                           <div className="bg-indigo-50 dark:bg-indigo-900/30 p-2.5 rounded-xl text-indigo-600 dark:text-indigo-400 shrink-0">
@@ -4398,7 +4398,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                   className="space-y-6 text-left"
                 >
                   <div>
-                    <h2 className="text-xl font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+                    <h2 className="text-xl font-extrabold text-[var(--text-main)] flex items-center gap-2">
                       <ShieldCheck className="text-indigo-600 dark:text-indigo-400" size={24} />
                       {currentLanguage === 'hi' ? 'सुरक्षा और पहुंच' : 'Security & Permissions'}
                     </h2>
@@ -4407,11 +4407,11 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                     </p>
                   </div>
 
-                  <div className="pt-4 border-t border-slate-100 dark:border-slate-800 space-y-4">
+                  <div className="pt-4 border-t border-[var(--border-ui)] space-y-4">
                     {/* App PIN & Password */}
                     <button
                       onClick={() => setActiveView('password_settings')}
-                      className="w-full flex items-center justify-between p-4 rounded-xl border border-slate-100 dark:border-slate-800/80 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition cursor-pointer text-left min-w-0 gap-4 shadow-sm"
+                      className="w-full flex items-center justify-between p-4 rounded-xl border bg-[var(--bg-card)] hover:bg-slate-50 dark:hover:bg-slate-800/50 transition cursor-pointer text-left min-w-0 gap-4 shadow-sm"
                     >
                       <div className="flex items-center gap-3.5 flex-1 min-w-0 pr-2">
                         <div className="bg-amber-50 dark:bg-amber-900/30 p-2.5 rounded-xl text-amber-600 dark:text-amber-400 shrink-0">
@@ -4430,7 +4430,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                     </button>
 
                     {/* Simulated Permissions Switcher */}
-                    <div className="bg-slate-50/50 dark:bg-slate-900/40 p-4 rounded-xl border border-slate-100 dark:border-slate-800/80 shadow-sm font-sans space-y-3">
+                    <div className="bg-slate-50/50 dark:bg-slate-900/40 p-4 rounded-xl border shadow-sm font-sans space-y-3">
                       <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block font-sans">Simulated Permissions Mode</span>
                       <div className="grid grid-cols-2 gap-3">
                         <button 
@@ -4474,7 +4474,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                           setShowAdminPinModal(true);
                         }
                       }}
-                      className="w-full flex items-center justify-between p-4 rounded-xl border border-slate-100 dark:border-slate-800/80 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/80 transition cursor-pointer text-left shadow-sm min-w-0 gap-4"
+                      className="w-full flex items-center justify-between p-4 rounded-xl border bg-[var(--bg-card)] hover:bg-slate-50 dark:hover:bg-slate-800/80 transition cursor-pointer text-left shadow-sm min-w-0 gap-4"
                     >
                       <div className="flex items-center gap-3.5 flex-1 min-w-0 pr-2">
                         <div className="bg-indigo-50 dark:bg-indigo-900/30 p-2.5 rounded-xl text-indigo-600 dark:text-indigo-400 shrink-0">
@@ -4514,10 +4514,10 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                     </p>
                   </div>
 
-                  <div className="pt-4 border-t border-slate-100 dark:border-slate-800/80 space-y-4">
+                  <div className="pt-4 border-t space-y-4">
                     {/* Cloud Sync & Backup Toggle [Premium 👑] */}
                     {isPremiumLicensed && (
-                      <div className="p-4 bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800 shadow-sm flex items-center justify-between gap-4 min-w-0">
+                      <div className="p-4 bg-[var(--bg-card)] rounded-xl border border-[var(--border-ui)] shadow-sm flex items-center justify-between gap-4 min-w-0">
                         <div className="text-left flex-1 min-w-0 pr-1 select-auto font-sans">
                           <span className="font-bold text-slate-800 dark:text-slate-200 text-sm block">Cloud Sync & Backup <span className="text-amber-500 font-extrabold text-xs">👑 Premium</span></span>
                           <span className="text-xs text-slate-500 dark:text-slate-400 leading-normal block font-sans mt-0.5">
@@ -4537,7 +4537,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                     )}
 
                     {/* Cloud Account Detail (Google Sign-In, Email Auth) */}
-                    <div className="p-4 bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800/80 flex flex-col gap-2.5 shadow-sm">
+                    <div className="p-4 bg-[var(--bg-card)] rounded-xl border flex flex-col gap-2.5 shadow-sm">
                       <span className="text-xs uppercase font-extrabold text-slate-500 tracking-wider font-sans">Cloud Account Detail</span>
                       {auth.currentUser && !auth.currentUser.isAnonymous ? (
                         <div className="flex items-center justify-between gap-4">
@@ -4550,7 +4550,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                               await auth.signOut();
                               window.location.reload();
                             }} 
-                            className="text-xs font-bold text-rose-500 hover:text-rose-600 border border-slate-200 dark:border-slate-700 px-3 py-1.5 rounded-lg bg-white dark:bg-slate-900 shadow-sm shrink-0 font-sans cursor-pointer transition"
+                            className="text-xs font-bold text-rose-500 hover:text-rose-600 border border-slate-200 dark:border-slate-700 px-3 py-1.5 rounded-lg bg-[var(--bg-card)] shadow-sm shrink-0 font-sans cursor-pointer transition"
                           >
                             Sign Out
                           </button>
@@ -4584,7 +4584,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                     </div>
 
                     {/* Premium License Mode & Activation */}
-                    <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-200/85 dark:border-slate-800 space-y-4">
+                    <div className="bg-[var(--bg-card)] p-6 rounded-2xl shadow-sm border border-slate-200/85 dark:border-slate-800 space-y-4">
                       <div className="flex items-center justify-between gap-3 text-left w-full">
                         <div className="flex items-center gap-1.5 shrink-0">
                           <div className={`w-2.5 h-2.5 rounded-full ${isPremiumLicensed ? 'bg-amber-500 animate-pulse' : 'bg-slate-300'}`}></div>
@@ -4607,7 +4607,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                       </div>
 
                       {!isPremiumLicensed && authContext.currentUser?.role === 'admin' && (
-                        <div className="border-t border-slate-100 dark:border-slate-800/80 pt-3 mt-2 flex flex-col gap-2 w-full">
+                        <div className="border-t pt-3 mt-2 flex flex-col gap-2 w-full">
                           <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
                             {currentLanguage === 'hi' ? 'प्रीमियम सक्रिय करने के लिए लाइसेंस कुंजी दर्ज करें' : 'Enter License Key to Activate Premium'}
                           </label>
@@ -4640,8 +4640,8 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                     </div>
 
                     {/* Premium Features Status Checklist */}
-                    <div className="p-5 bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200/85 dark:border-slate-800 space-y-4 text-left">
-                      <div className="flex items-center gap-2 border-b border-slate-100 dark:border-slate-800/80 pb-3">
+                    <div className="p-5 bg-[var(--bg-card)] rounded-2xl shadow-sm border border-slate-200/85 dark:border-slate-800 space-y-4 text-left">
+                      <div className="flex items-center gap-2 border-b pb-3">
                         <Crown className="text-amber-500 shrink-0" size={18} />
                         <span className="text-xs uppercase font-extrabold text-slate-500 tracking-wider font-sans">
                           {currentLanguage === 'hi' ? 'प्रीमियम सुविधाओं की सूची' : 'Premium Feature Checklist'}
@@ -4702,7 +4702,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                   className="space-y-6 text-left"
                 >
                   <div>
-                    <h2 className="text-xl font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+                    <h2 className="text-xl font-extrabold text-[var(--text-main)] flex items-center gap-2">
                       <HardDrive className="text-indigo-600 dark:text-indigo-400" size={24} />
                       {currentLanguage === 'hi' ? 'डेटाबेस उपकरण' : 'Database Tools'}
                     </h2>
@@ -4711,11 +4711,11 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                     </p>
                   </div>
 
-                  <div className="pt-4 border-t border-slate-100 dark:border-slate-800 space-y-3">
+                  <div className="pt-4 border-t border-[var(--border-ui)] space-y-3">
                     {/* Time Machine Link */}
                     <button
                       onClick={() => setActiveView('time_machine')}
-                      className="w-full flex items-center justify-between p-4 rounded-xl border border-slate-100 dark:border-slate-800/80 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition cursor-pointer text-left min-w-0 gap-4 shadow-sm"
+                      className="w-full flex items-center justify-between p-4 rounded-xl border hover:bg-slate-50 dark:hover:bg-slate-800/50 transition cursor-pointer text-left min-w-0 gap-4 shadow-sm"
                     >
                       <div className="flex items-center gap-3.5 flex-1 min-w-0 pr-2">
                         <div className="bg-emerald-50 dark:bg-emerald-900/30 p-2.5 rounded-xl text-emerald-600 dark:text-emerald-400 shrink-0">
@@ -4733,8 +4733,8 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                     <button
                       disabled={authContext.currentUser?.role === 'staff'}
                       onClick={() => setShowTransferDialog(true)}
-                      className={`w-full flex items-center justify-between p-4 rounded-xl border border-slate-100 dark:border-slate-800/85 hover:bg-slate-50/50 dark:hover:bg-slate-800/55 transition text-left min-w-0 gap-4 shadow-sm ${
-                        authContext.currentUser?.role === 'staff' ? 'opacity-[0.45] cursor-not-allowed' : 'cursor-pointer bg-white dark:bg-slate-900'
+                      className={`w-full flex items-center justify-between p-4 rounded-xl border border-[var(--border-ui)]/85 hover:bg-slate-50/50 dark:hover:bg-slate-800/55 transition text-left min-w-0 gap-4 shadow-sm ${
+                        authContext.currentUser?.role === 'staff' ? 'opacity-[0.45] cursor-not-allowed' : 'cursor-pointer bg-[var(--bg-card)]'
                       }`}
                     >
                       <div className="flex items-center gap-3.5 flex-1 min-w-0 pr-2">
@@ -4802,11 +4802,11 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                     </p>
                   </div>
 
-                  <div className="pt-4 border-t border-slate-100 dark:border-slate-800/80 space-y-3">
+                  <div className="pt-4 border-t space-y-3">
                     {/* System Health Check */}
                     <button
                       onClick={() => setActiveView('system_health')}
-                      className="w-full flex items-center justify-between p-4 rounded-xl border border-slate-100 dark:border-slate-800/80 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition cursor-pointer text-left min-w-0 gap-4 shadow-sm"
+                      className="w-full flex items-center justify-between p-4 rounded-xl border bg-[var(--bg-card)] hover:bg-slate-50 dark:hover:bg-slate-800/50 transition cursor-pointer text-left min-w-0 gap-4 shadow-sm"
                     >
                       <div className="flex items-center gap-3.5 flex-1 min-w-0 pr-2">
                         <div className="bg-indigo-50 dark:bg-indigo-900/30 p-2.5 rounded-xl text-indigo-600 dark:text-indigo-400 shrink-0">
@@ -4827,7 +4827,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                     {/* Master Health Analysis */}
                     <button
                       onClick={() => setActiveView('master_health')}
-                      className="w-full flex items-center justify-between p-4 rounded-xl border border-slate-100 dark:border-slate-800/80 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition cursor-pointer text-left min-w-0 gap-4 shadow-sm"
+                      className="w-full flex items-center justify-between p-4 rounded-xl border bg-[var(--bg-card)] hover:bg-slate-50 dark:hover:bg-slate-800/50 transition cursor-pointer text-left min-w-0 gap-4 shadow-sm"
                     >
                       <div className="flex items-center gap-3.5 flex-1 min-w-0 pr-2">
                         <div className="bg-amber-50 dark:bg-amber-900/30 p-2.5 rounded-xl text-amber-600 dark:text-amber-400 shrink-0">
@@ -4857,7 +4857,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                           setShowAdminPinModal(true);
                         }
                       }}
-                      className="w-full flex items-center justify-between p-4 rounded-xl border border-slate-100 dark:border-slate-800/80 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/80 transition cursor-pointer text-left shadow-sm min-w-0 gap-4"
+                      className="w-full flex items-center justify-between p-4 rounded-xl border bg-[var(--bg-card)] hover:bg-slate-50 dark:hover:bg-slate-800/80 transition cursor-pointer text-left shadow-sm min-w-0 gap-4"
                     >
                       <div className="flex items-center gap-3.5 flex-1 min-w-0 pr-2">
                         <div className="bg-rose-50 dark:bg-rose-900/30 p-2.5 rounded-xl text-rose-600 dark:text-rose-400 shrink-0">
@@ -4877,7 +4877,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
 
                     {/* Automated trade math trials */}
                     {authContext.currentUser?.role === 'admin' && (
-                      <div className="pt-6 border-t border-slate-100 dark:border-slate-800/80">
+                      <div className="pt-6 border-t border-[var(--border-ui)]/80">
                         <h3 className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-3 font-sans">Automated Test Execution</h3>
                         <TestCaseRunner />
                       </div>
@@ -4904,7 +4904,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
       {/* Cloud Syncing Overlay */}
       {(isCloudSyncing || isTransferring) && (
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-              <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 w-full max-w-sm shadow-2xl flex flex-col items-center text-center">
+              <div className="bg-[var(--bg-card)] rounded-2xl p-6 w-full max-w-sm shadow-2xl flex flex-col items-center text-center">
                   <div className="w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mb-4"></div>
                   <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-2">{isTransferring ? 'Transferring...' : 'Syncing...'}</h3>
                   <p className="text-slate-600 dark:text-slate-400">{isTransferring ? 'कृपया प्रतीक्षा करें, वित्तीय वर्ष ट्रांसफर हो रहा है...' : syncMessage}</p>
@@ -4915,7 +4915,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
       {/* Email Auth Modal */}
       {showEmailAuthModal && (
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-              <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 w-full max-w-sm shadow-2xl flex flex-col relative">
+              <div className="bg-[var(--bg-card)] rounded-2xl p-6 w-full max-w-sm shadow-2xl flex flex-col relative">
                   <button onClick={() => setShowEmailAuthModal(false)} className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-white">
                       X
                   </button>
@@ -4986,7 +4986,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
       {/* Financial Year Transfer Dialog */}
       {showTransferDialog && (
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-              <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 w-full max-w-sm shadow-2xl flex flex-col">
+              <div className="bg-[var(--bg-card)] rounded-2xl p-6 w-full max-w-sm shadow-2xl flex flex-col">
                   <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-2">
                       Financial Year Transfer
                   </h3>
@@ -5028,7 +5028,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
       {/* Custom Dialog for Confirmation */}
       {cloudAction && (
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-              <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 w-full max-w-sm shadow-2xl flex flex-col">
+              <div className="bg-[var(--bg-card)] rounded-2xl p-6 w-full max-w-sm shadow-2xl flex flex-col">
                   <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-2">
                       {cloudAction === 'upload' ? 'Upload Data' : 'Download Data'}
                   </h3>
@@ -5058,7 +5058,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
       {/* Custom Dialog for Snapshot Confirmation */}
       {snapshotConfirm && (
           <div className="fixed inset-0 bg-black/65 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-              <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 w-full max-w-sm shadow-2xl flex flex-col">
+              <div className="bg-[var(--bg-card)] rounded-2xl p-6 w-full max-w-sm shadow-2xl flex flex-col">
                   <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-2 flex items-center gap-2">
                       {snapshotConfirm.type === 'delete' ? (
                         <>
@@ -5117,7 +5117,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
       {/* Custom Dialog for Messages */}
       {dialogMessage && (
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-              <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 w-full max-w-sm shadow-2xl flex flex-col items-center text-center">
+              <div className="bg-[var(--bg-card)] rounded-2xl p-6 w-full max-w-sm shadow-2xl flex flex-col items-center text-center">
                   <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-4 ${dialogMessage.isError ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}`}>
                       {dialogMessage.isError ? <ShieldCheck size={32} /> : <ShieldCheck size={32} />}
                   </div>

@@ -3,7 +3,6 @@ import { ArrowLeft, Search } from 'lucide-react';
 import { Party, TransactionType } from '../../../core/types/';
 import { billingService } from '../../../services/billingService';
 
-
 interface PartySelectReportScreenProps {
   onBack: () => void;
   type: TransactionType;
@@ -14,6 +13,18 @@ export const PartySelectReportScreen: React.FC<PartySelectReportScreenProps> = (
   const [parties, setParties] = useState<Party[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
+
+  const lang = (localStorage.getItem('language') || 'en') as 'en' | 'hi';
+  const isHi = lang === 'hi';
+  const t = {
+    customerList: isHi ? 'ग्राहक सूची' : 'Customer List',
+    supplierList: isHi ? 'आपूर्तिकर्ता सूची' : 'Supplier List',
+    search: isHi ? 'खोजें...' : 'Search...',
+    no: isHi ? 'क्र.सं.' : 'No.',
+    name: isHi ? 'नाम' : 'Name',
+    all: isHi ? 'सभी' : 'All',
+    cash: isHi ? 'नकद' : 'Cash'
+  };
 
   useEffect(() => {
     loadData();
@@ -39,52 +50,48 @@ export const PartySelectReportScreen: React.FC<PartySelectReportScreenProps> = (
   const filtered = parties.filter(p => p.name && p.name.toLowerCase().includes(searchQuery.trim().toLowerCase()));
 
   return (
-    <div className="flex flex-col h-screen bg-white dark:bg-slate-900">
-      <header className="bg-[#3b5998] text-white flex items-center shadow-md shrink-0 p-3 pt-[max(env(safe-area-inset-top),48px)]">
-        {/* If we strictly follow the image 2, there is an arrow left, title, and search icon on the right */}
-        <button onClick={onBack} className="px-4 py-2 active:scale-95 transition-transform">
+    <div className="flex flex-col h-screen bg-[var(--bg-app)] text-[var(--text-main)] pb-[max(env(safe-area-inset-bottom),0px)]">
+      <header className="bg-[var(--bg-card)] border-b border-[var(--border-ui)] text-[var(--text-main)] flex items-center shadow-sm shrink-0 p-3 pt-[max(env(safe-area-inset-top),48px)]">
+        <button onClick={onBack} className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors mr-2">
           <ArrowLeft size={24} />
         </button>
         <div className="flex-1">
-          <h1 className="text-lg">{type.includes('Sale') ? 'Customer List' : 'Supplier List'}</h1>
-        </div>
-        <div className="px-4 py-2">
-            <Search size={22} className="text-white" />
+          <h1 className="text-lg font-black tracking-tight">{type.includes('Sale') ? t.customerList : t.supplierList}</h1>
         </div>
       </header>
       
-      {/* We can show a small search input directly */}
-      <div className="px-3 py-2 bg-[#3b5998]">
+      <div className="px-3 py-2 bg-[var(--bg-card)] border-b border-[var(--border-ui)] flex items-center relative">
+         <Search size={18} className="absolute left-6 text-[var(--text-secondary)] pointer-events-none" />
          <input 
             type="text"
-            placeholder="Search..."
+            placeholder={t.search}
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
-            className="w-full bg-white/20 text-white placeholder-white/70 px-3 py-1.5 rounded focus:outline-none"
+            className="w-full bg-[var(--bg-app)] text-[var(--text-main)] placeholder-[var(--text-secondary)] pl-10 pr-4 py-2 border border-[var(--border-ui)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)]/20 font-semibold"
          />
       </div>
 
-      <div className="flex-1 overflow-auto">
-         <table className="w-full text-left">
-            <thead className="border-b border-slate-200 dark:border-slate-800">
+      <div className="flex-1 overflow-auto bg-[var(--bg-app)]">
+         <table className="w-full text-left border-collapse">
+            <thead className="sticky top-0 bg-[var(--bg-card)] text-[var(--text-main)] z-10 border-b border-[var(--border-ui)]">
                 <tr>
-                    <th className="p-3 text-[15px] font-bold text-black dark:text-white w-16">No.</th>
-                    <th className="p-3 text-[15px] font-bold text-black dark:text-white">Name</th>
+                    <th className="p-3 text-sm font-black w-16 border-r border-[var(--border-ui)]">{t.no}</th>
+                    <th className="p-3 text-sm font-black">{t.name}</th>
                 </tr>
             </thead>
-            <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
-                <tr onClick={() => onSelect(null)} className="active:bg-slate-100 dark:active:bg-slate-800 cursor-pointer">
-                    <td className="p-3 text-[15px] text-black dark:text-white">1</td>
-                    <td className="p-3 text-[15px] text-black dark:text-white">All</td>
+            <tbody className="divide-y divide-[var(--border-ui)]">
+                <tr onClick={() => onSelect(null)} className="hover:bg-slate-100/50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer">
+                    <td className="p-3 text-sm text-[var(--text-main)] font-semibold border-r border-[var(--border-ui)]">1</td>
+                    <td className="p-3 text-sm text-[var(--text-main)] font-semibold">{t.all}</td>
                 </tr>
-                <tr onClick={() => onSelect({ id: 'cash', name: 'Cash', mobile: '', type: 'Customer' })} className="active:bg-slate-100 dark:active:bg-slate-800 cursor-pointer">
-                    <td className="p-3 text-[15px] text-black dark:text-white">2</td>
-                    <td className="p-3 text-[15px] text-black dark:text-white">Cash</td>
+                <tr onClick={() => onSelect({ id: 'cash', name: 'Cash', mobile: '', type: 'Customer' })} className="hover:bg-slate-100/50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer">
+                    <td className="p-3 text-sm text-[var(--text-main)] font-semibold border-r border-[var(--border-ui)]">2</td>
+                    <td className="p-3 text-sm text-[var(--text-main)] font-semibold">{t.cash}</td>
                 </tr>
                 {filtered.map((p, idx) => (
-                    <tr key={p.id} onClick={() => onSelect(p)} className="active:bg-slate-100 dark:active:bg-slate-800 cursor-pointer">
-                        <td className="p-3 text-[15px] text-black dark:text-white">{idx + 3}</td>
-                        <td className="p-3 text-[15px] text-black dark:text-white">{p.name}</td>
+                    <tr key={p.id} onClick={() => onSelect(p)} className="hover:bg-slate-100/50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer">
+                        <td className="p-3 text-sm text-[var(--text-main)] font-semibold border-r border-[var(--border-ui)]">{idx + 3}</td>
+                        <td className="p-3 text-sm text-[var(--text-main)] font-semibold">{p.name}</td>
                     </tr>
                 ))}
             </tbody>

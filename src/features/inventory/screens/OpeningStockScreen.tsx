@@ -34,6 +34,7 @@ export const OpeningStockScreen: React.FC<OpeningStockScreenProps> = ({ onBack, 
 
   // Custom Modal/Alert System
   const [modalMessage, setModalMessage] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   // Focus ref for transition
   const openingStockRef = useRef<HTMLInputElement>(null);
@@ -155,11 +156,13 @@ export const OpeningStockScreen: React.FC<OpeningStockScreenProps> = ({ onBack, 
   };
 
   const handleSave = async () => {
+    if (isSaving) return;
     if (addedItems.length === 0) {
       showNotification(t.emptyListErr);
       return;
     }
 
+    setIsSaving(true);
     try {
       for (const added of addedItems) {
         await billingService.saveItem(added.item);
@@ -172,6 +175,8 @@ export const OpeningStockScreen: React.FC<OpeningStockScreenProps> = ({ onBack, 
     } catch (error) {
       console.error("Failed to save opening stock", error);
       showNotification(t.failMsg);
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -287,13 +292,14 @@ export const OpeningStockScreen: React.FC<OpeningStockScreenProps> = ({ onBack, 
 
         <PermissionWrapper requiredRole="admin" fallback="hide">
           <button 
+            disabled={isSaving}
             type="button"
             onClick={handleSave} 
-            className="bg-[var(--brand-primary)] hover:bg-[var(--brand-hover)] text-white font-bold py-2 px-5 rounded-lg transition-all flex items-center gap-1.5 shadow-sm active:scale-95 min-h-[44px] cursor-pointer"
+            className="bg-[var(--brand-primary)] hover:bg-[var(--brand-hover)] text-white font-bold py-2 px-5 rounded-lg transition-all flex items-center gap-1.5 shadow-sm active:scale-95 min-h-[44px] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             id="opening-stock-save-btn"
           >
             <Check size={18} />
-            <span className="text-xs uppercase tracking-wider">{t.saveHeaderBtn}</span>
+            <span className="text-xs uppercase tracking-wider">{isSaving ? 'Saving...' : t.saveHeaderBtn}</span>
           </button>
         </PermissionWrapper>
       </header>
@@ -471,14 +477,14 @@ export const OpeningStockScreen: React.FC<OpeningStockScreenProps> = ({ onBack, 
               />
             </div>
 
-            {/* Save Button (Admin lock status check wrapper) */}
             <PermissionWrapper requiredRole="admin" fallback="lock" className="w-full flex justify-center pt-2">
               <button 
+                disabled={isSaving}
                 type="button"
                 onClick={handleSave}
-                className="w-full py-3.5 bg-[var(--brand-primary)] hover:bg-[var(--brand-hover)] text-white font-bold rounded-lg transition-all shadow-md active:scale-[0.98] cursor-pointer text-center text-xs tracking-widest uppercase min-h-[48px] flex items-center justify-center"
+                className="w-full py-3.5 bg-[var(--brand-primary)] hover:bg-[var(--brand-hover)] text-white font-bold rounded-lg transition-all shadow-md active:scale-[0.98] cursor-pointer text-center text-xs tracking-widest uppercase min-h-[48px] flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {t.saveBtn}
+                {isSaving ? 'Saving...' : t.saveBtn}
               </button>
             </PermissionWrapper>
 

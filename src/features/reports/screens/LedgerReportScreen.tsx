@@ -296,10 +296,10 @@ export const LedgerReportScreen: React.FC<LedgerReportScreenProps> = ({ onBack, 
       exit={{ x: '100%' }}
       transition={{ type: 'tween', ease: [0.25, 1, 0.5, 1], duration: 0.35 }}
       style={{ willChange: 'transform' }}
-      className="flex flex-col h-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white pb-[max(env(safe-area-inset-bottom),0px)] relative overflow-hidden transition-colors font-sans"
+      className="flex flex-col h-full bg-[var(--bg-app)] text-[var(--text-main)] pb-[max(env(safe-area-inset-bottom),0px)] relative overflow-hidden transition-colors font-sans"
     >
       {/* Premium Header */}
-      <header className="bg-white dark:bg-slate-900 p-4 flex items-center justify-between shadow-sm shrink-0 border-b border-gray-200 dark:border-slate-800 pt-[max(env(safe-area-inset-top),48px)] transition-colors">
+      <header className="bg-[var(--bg-card)] p-4 flex items-center justify-between shadow-sm shrink-0 border-b border-[var(--border-ui)] pt-[max(env(safe-area-inset-top),48px)] transition-colors">
         <div className="flex items-center gap-4">
           <button 
             onClick={onBack}
@@ -309,7 +309,7 @@ export const LedgerReportScreen: React.FC<LedgerReportScreenProps> = ({ onBack, 
             <ArrowLeft size={24} />
           </button>
           <div>
-            <h1 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white leading-tight">
+            <h1 className="text-xl font-bold tracking-tight text-[var(--text-main)] leading-tight">
               {t.title}
             </h1>
             <p className="text-[10px] font-bold text-slate-500 tracking-widest mt-0.5 opacity-80 uppercase leading-none">
@@ -328,7 +328,7 @@ export const LedgerReportScreen: React.FC<LedgerReportScreenProps> = ({ onBack, 
       </header>
 
       {/* Filters and Selection Area */}
-      <div className={`p-4 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800 space-y-3.5 ${!selectedParty ? 'pb-2 border-b-0' : ''}`}>
+      <div className={`p-4 bg-[var(--bg-card)] border-b border-[var(--border-ui)] space-y-3.5 ${!selectedParty ? 'pb-2 border-b-0' : ''}`}>
           {/* Party Search/Selector input cards */}
           {!selectedParty ? (
               <div className="relative">
@@ -338,18 +338,18 @@ export const LedgerReportScreen: React.FC<LedgerReportScreenProps> = ({ onBack, 
                      placeholder={t.searchPlaceholder}
                      value={partySearchQuery}
                      onChange={e => setPartySearchQuery(e.target.value)}
-                     className="w-full pl-11 pr-4 py-3 border border-gray-200 dark:border-slate-800 rounded-xl bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white outline-none focus:border-indigo-500 text-sm font-bold min-h-[44px]"
+                     className="w-full pl-11 pr-4 py-3 border border-[var(--border-ui)] rounded-xl bg-[var(--bg-app)] text-[var(--text-main)] outline-none focus:border-indigo-500 text-sm font-bold min-h-[44px]"
                  />
               </div>
           ) : (
-              <div className="flex justify-between items-center bg-slate-50 dark:bg-slate-950 p-3.5 rounded-xl border border-gray-200 dark:border-slate-800 transition-colors">
+              <div className="flex justify-between items-center bg-[var(--bg-app)] p-3.5 rounded-xl border border-[var(--border-ui)] transition-colors">
                   <div>
-                      <h2 className="font-extrabold text-base text-slate-900 dark:text-white">{selectedParty.name}</h2>
+                      <h2 className="font-extrabold text-base text-[var(--text-main)]">{selectedParty.name}</h2>
                       <p className="text-[10px] font-bold text-slate-450 dark:text-slate-500 uppercase tracking-wide mt-0.5">{selectedParty.city} {selectedParty.mobile ? `• ${selectedParty.mobile}` : ''}</p>
                   </div>
                   <button 
                     onClick={() => setSelectedParty(null)} 
-                    className="text-xs font-bold px-3 py-2 bg-white dark:bg-slate-900 text-rose-500 border border-gray-200 dark:border-slate-850 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all rounded-lg active:scale-95 cursor-pointer"
+                    className="text-xs font-bold px-3 py-2 bg-[var(--bg-card)] text-rose-500 border border-gray-200 dark:border-slate-850 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all rounded-lg active:scale-95 cursor-pointer"
                   >
                     {t.changeParty}
                   </button>
@@ -365,7 +365,7 @@ export const LedgerReportScreen: React.FC<LedgerReportScreenProps> = ({ onBack, 
                         type="date" 
                         value={startDate} 
                         onChange={(e) => setStartDate(e.target.value)} 
-                        className="w-full pt-4 pb-1.5 px-2.5 bg-slate-50 dark:bg-slate-950 border border-gray-200 dark:border-slate-850 rounded-lg text-xs font-bold outline-none"
+                        className="w-full pt-4 pb-1.5 px-2.5 bg-[var(--bg-app)] border border-gray-200 dark:border-slate-850 rounded-lg text-xs font-bold outline-none"
                       />
                   </div>
                   <div className="flex-1 relative">
@@ -374,7 +374,7 @@ export const LedgerReportScreen: React.FC<LedgerReportScreenProps> = ({ onBack, 
                         type="date" 
                         value={endDate} 
                         onChange={(e) => setEndDate(e.target.value)} 
-                        className="w-full pt-4 pb-1.5 px-2.5 bg-slate-50 dark:bg-slate-950 border border-gray-200 dark:border-slate-850 rounded-lg text-xs font-bold outline-none"
+                        className="w-full pt-4 pb-1.5 px-2.5 bg-[var(--bg-app)] border border-gray-200 dark:border-slate-850 rounded-lg text-xs font-bold outline-none"
                       />
                   </div>
               </div>
@@ -392,7 +392,7 @@ export const LedgerReportScreen: React.FC<LedgerReportScreenProps> = ({ onBack, 
                           <div 
                               key={party.id}
                               onClick={() => setSelectedParty(party)}
-                              className="bg-white dark:bg-slate-900 p-3.5 rounded-xl border border-gray-200 dark:border-slate-800 flex justify-between items-center active:scale-[0.98] transition-all cursor-pointer shadow-xs hover:border-indigo-500"
+                              className="bg-[var(--bg-card)] p-3.5 rounded-xl border border-[var(--border-ui)] flex justify-between items-center active:scale-[0.98] transition-all cursor-pointer shadow-xs hover:border-indigo-500"
                           >
                               <div>
                                   <h3 className="font-extrabold text-slate-950 dark:text-white text-sm">{party.name}</h3>
@@ -415,7 +415,7 @@ export const LedgerReportScreen: React.FC<LedgerReportScreenProps> = ({ onBack, 
 
       {/* Structured Ledger Table Report */}
       {selectedParty && (
-          <div className="flex-1 overflow-auto bg-white dark:bg-slate-900 flex flex-col relative custom-scrollbar">
+          <div className="flex-1 overflow-auto bg-[var(--bg-card)] flex flex-col relative custom-scrollbar">
               {loading ? (
                   <div className="flex-1 flex flex-col items-center justify-center text-slate-500 text-xs font-bold uppercase tracking-wider gap-2">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
@@ -425,7 +425,7 @@ export const LedgerReportScreen: React.FC<LedgerReportScreenProps> = ({ onBack, 
                   <div className="min-w-full inline-block align-middle flex-1">
                       <div className="overflow-x-auto w-full">
                           <table className="min-w-[700px] w-full text-left text-xs whitespace-nowrap border-collapse">
-                              <thead className="bg-slate-50 dark:bg-slate-950 text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider sticky top-0 z-10 border-b border-gray-200 dark:border-slate-800 shadow-xs">
+                              <thead className="bg-[var(--bg-app)] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider sticky top-0 z-10 border-b border-[var(--border-ui)] shadow-xs">
                                   <tr>
                                       <th className="p-3 border-r border-gray-200 dark:border-slate-800 w-24">{t.dateCol}</th>
                                       <th className="p-3 border-r border-gray-200 dark:border-slate-800">{t.particularsCol}</th>
@@ -476,10 +476,10 @@ export const LedgerReportScreen: React.FC<LedgerReportScreenProps> = ({ onBack, 
                                   })}
 
                                   {/* Summary Total Row */}
-                                  <tr className="bg-slate-50 dark:bg-slate-950 font-extrabold border-t border-gray-200 dark:border-slate-800">
+                                  <tr className="bg-[var(--bg-app)] font-extrabold border-t border-[var(--border-ui)]">
                                       <td colSpan={4} className="p-3 text-right uppercase border-r border-gray-200 dark:border-slate-850 tracking-wider text-slate-500 font-bold">{t.total}</td>
-                                      <td className="p-3 text-right border-r border-gray-200 dark:border-slate-850 text-slate-900 dark:text-white font-extrabold font-mono">₹{Number((Math.abs(openingBalance > 0 ? openingBalance : 0) + totalDebit).toFixed(2)).toLocaleString('en-IN')}</td>
-                                      <td className="p-3 text-right text-slate-900 dark:text-white font-extrabold font-mono">₹{Number((Math.abs(openingBalance < 0 ? openingBalance : 0) + totalCredit).toFixed(2)).toLocaleString('en-IN')}</td>
+                                      <td className="p-3 text-right border-r border-gray-200 dark:border-slate-850 text-[var(--text-main)] font-extrabold font-mono">₹{Number((Math.abs(openingBalance > 0 ? openingBalance : 0) + totalDebit).toFixed(2)).toLocaleString('en-IN')}</td>
+                                      <td className="p-3 text-right text-[var(--text-main)] font-extrabold font-mono">₹{Number((Math.abs(openingBalance < 0 ? openingBalance : 0) + totalCredit).toFixed(2)).toLocaleString('en-IN')}</td>
                                   </tr>
                               </tbody>
                           </table>

@@ -69,40 +69,40 @@ export const SyncStatusIcon: React.FC = () => {
       {status === 'Syncing' && (
         <button 
           onClick={handleClick}
-          className="p-1.5 rounded-lg bg-slate-800/60 text-yellow-400 hover:text-yellow-300 hover:bg-slate-800 transition-colors flex items-center justify-center shadow-sm"
+          className="p-2 rounded-xl bg-[var(--bg-app)] text-yellow-500 hover:text-yellow-400 hover:bg-slate-200 dark:hover:bg-slate-800/80 transition-all active:scale-95 flex items-center justify-center min-w-[36px] min-h-[36px]"
           title="Cloud Syncing..."
         >
-          <RefreshCw size={16} className="animate-spin" />
+          <RefreshCw size={18} className="animate-spin" />
         </button>
       )}
 
       {status === 'Offline' && (
         <button 
           onClick={handleClick}
-          className="p-1.5 rounded-lg bg-slate-800/60 text-slate-500 hover:text-slate-400 hover:bg-slate-800 transition-colors flex items-center justify-center shadow-sm"
+          className="p-2 rounded-xl bg-[var(--bg-app)] text-slate-500 hover:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800/80 transition-all active:scale-95 flex items-center justify-center min-w-[36px] min-h-[36px]"
           title="Offline Mode (Click to retry)"
         >
-          <CloudOff size={16} />
+          <CloudOff size={18} />
         </button>
       )}
 
       {isLocalMode && (
         <button 
           onClick={handleClick}
-          className="p-1.5 rounded-lg bg-slate-800/60 text-slate-400 hover:text-slate-300 hover:bg-slate-800 transition-colors flex items-center justify-center shadow-sm"
+          className="p-2 rounded-xl bg-[var(--bg-app)] text-slate-400 hover:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800/80 transition-all active:scale-95 flex items-center justify-center min-w-[36px] min-h-[36px]"
           title="Pure Local Offline Mode. Click for details."
         >
-          <CloudOff size={16} />
+          <CloudOff size={18} />
         </button>
       )}
 
       {status !== 'Syncing' && status !== 'Offline' && !isLocalMode && (
         <button 
           onClick={handleClick}
-          className="p-1.5 rounded-lg bg-slate-800/60 text-emerald-400 hover:text-emerald-300 hover:bg-slate-800 transition-all flex items-center justify-center animate-pulse shadow-sm"
+          className="p-2 rounded-xl bg-[var(--bg-app)] text-emerald-500 hover:text-emerald-400 hover:bg-slate-200 dark:hover:bg-slate-800/80 transition-all active:scale-95 flex items-center justify-center animate-pulse min-w-[36px] min-h-[36px]"
           title="Cloud Synced ✅ Click to Force Sync"
         >
-          <Cloud size={16} />
+          <Cloud size={18} />
         </button>
       )}
 

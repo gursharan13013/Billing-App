@@ -12,6 +12,17 @@ export const LockScreen: React.FC<LockScreenProps> = ({ onUnlock }) => {
   const [error, setError] = useState(false);
   const [isChecking, setIsChecking] = useState(false);
 
+  const lang = (localStorage.getItem('language') || 'en') as 'en' | 'hi';
+  const isHi = lang === 'hi';
+  const t = {
+    appLocked: isHi ? 'ऐप लॉक है' : 'App Locked',
+    enterPassword: isHi ? 'आगे बढ़ने के लिए अपना एडमिन पासवर्ड दर्ज करें।' : 'Please enter your admin password to continue.',
+    incorrectPassword: isHi ? 'गलत पासवर्ड' : 'Incorrect password',
+    verifying: isHi ? 'जाँच की जा रही है...' : 'Verifying...',
+    unlockApp: isHi ? 'अनलॉक करें' : 'Unlock App',
+    securedLocal: isHi ? 'लोकल ऑथेंटिकेशन द्वारा सुरक्षित' : 'Secured by Local Auth'
+  };
+
   // Focus effect for security input
   useEffect(() => {
     // Basic trick to trigger mobile keyboard focus without user click when it mounts
@@ -68,9 +79,9 @@ export const LockScreen: React.FC<LockScreenProps> = ({ onUnlock }) => {
           )}
         </div>
         
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-2 tracking-tight">App Locked</h1>
-        <p className="text-slate-500 dark:text-slate-400 text-center mb-8 text-sm max-w-[200px] leading-relaxed">
-          Please enter your admin password to continue.
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-2 tracking-tight">{t.appLocked}</h1>
+        <p className="text-slate-500 dark:text-slate-400 text-center mb-8 text-sm max-w-[240px] leading-relaxed">
+          {t.enterPassword}
         </p>
 
         <form onSubmit={handleSubmit} className="w-full relative">
@@ -91,7 +102,7 @@ export const LockScreen: React.FC<LockScreenProps> = ({ onUnlock }) => {
           />
           
           <div className="h-6 mt-2 flex items-center justify-center">
-              {error && <p className="text-red-500 text-xs font-bold animate-in slide-in-from-top-1">Incorrect password</p>}
+              {error && <p className="text-red-500 text-xs font-bold animate-in slide-in-from-top-1">{t.incorrectPassword}</p>}
           </div>
 
           <button 
@@ -101,14 +112,14 @@ export const LockScreen: React.FC<LockScreenProps> = ({ onUnlock }) => {
                 isChecking || !password ? 'bg-slate-400 dark:bg-slate-700 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
             }`}
           >
-            {isChecking ? 'Verifying...' : 'Unlock App'}
+            {isChecking ? t.verifying : t.unlockApp}
             {!isChecking && <ArrowRight size={20} />}
           </button>
         </form>
         
         <div className="mt-8 flex items-center gap-2 text-xs text-slate-400">
             <Info size={14} />
-            <span>Secured by Local Auth</span>
+            <span>{t.securedLocal}</span>
         </div>
       </div>
     </div>

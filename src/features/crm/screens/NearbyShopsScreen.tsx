@@ -49,6 +49,36 @@ interface NearbyShopsScreenProps {
 }
 
 export const NearbyShopsScreen: React.FC<NearbyShopsScreenProps> = ({ onBack }) => {
+  const lang = (localStorage.getItem('language') || 'en') as 'en' | 'hi';
+  const isHi = lang === 'hi';
+  const t = {
+    searchProfile: isHi ? 'आस-पास के वेंडर खोजें' : 'Search Profile',
+    gpsError: isHi ? 'जीपीएस त्रुटि:' : 'GPS Error:',
+    gpsErrorMsg: isHi ? 'आपकी सटीक स्थिति प्राप्त नहीं हो सकी। डिफ़ॉल्ट स्थान (नई दिल्ली) का उपयोग किया जा रहा है। दूरियां गलत हो सकती हैं। कृपया स्थान अनुमतियां सक्षम करें।' : 'Could not get your precise location. Using default location (New Delhi). Distances may be inaccurate. Please enable Location permissions.',
+    fetchingGps: isHi ? 'जीपीएस प्राप्त किया जा रहा है...' : 'Fetching GPS...',
+    fetchingGpsMsg: isHi ? 'सटीक दूरियों के लिए आपका स्थान प्राप्त किया जा रहा है।' : 'Getting your precise location for accurate distances.',
+    searchDistance: isHi ? 'खोज दूरी' : 'Search Distance',
+    searching: isHi ? 'खोजा जा रहा है...' : 'SEARCHING...',
+    searchingNearby: isHi ? 'आस-पास के प्रोफ़ाइल खोजे जा रहे हैं...' : 'Searching nearby profiles...',
+    distance: isHi ? 'दूरी' : 'Distance',
+    gstin: isHi ? 'जीएसटीआईएन (GSTIN)' : 'GSTIN',
+    email: isHi ? 'ईमेल' : 'EMAIL',
+    sending: isHi ? 'भेजा जा रहा है...' : 'Sending...',
+    sendRequest: isHi ? 'अनुरोध भेजें' : 'Send Request',
+    addCustomer: isHi ? 'ग्राहक जोड़ें?' : 'Add Customer?',
+    includes: isHi ? 'शामिल हैं:' : 'Includes:',
+    mobileNo: isHi ? 'मोबाइल नंबर' : 'Mobile No',
+    fullAddress: isHi ? 'पूरा पता' : 'Full Address',
+    emailId: isHi ? 'ईमेल आईडी' : 'Email ID',
+    bankDetails: isHi ? 'बैंक विवरण' : 'Bank Details',
+    cancel: isHi ? 'रद्द करें' : 'Cancel',
+    confirm: isHi ? 'पुष्टि करें' : 'Confirm',
+    searchCategory: isHi ? 'श्रेणी खोजें...' : 'Search Category...',
+    selectCategory: isHi ? 'दुकानें खोजने के लिए श्रेणी चुनें' : 'Select a category to find shops',
+    noShopsFound: (cat: string) => isHi ? `"${cat}" के लिए कोई दुकानें नहीं मिलीं।` : `No shops found for "${cat}".`,
+    connectionFailed: isHi ? 'कनेक्शन विफल या कोई दुकान नहीं मिली।' : 'Could not connect to Firebase or no shops found.'
+  };
+
   // Main State
   const [shops, setShops] = useState<Shop[]>([]);
   const [loading, setLoading] = useState(false);
@@ -389,32 +419,32 @@ export const NearbyShopsScreen: React.FC<NearbyShopsScreenProps> = ({ onBack }) 
   const THEME_BLUE = "bg-[#283593]"; 
 
   return (
-    <div className="flex flex-col h-full bg-slate-50 pb-[max(env(safe-area-inset-bottom),0px)]">
+    <div className="flex flex-col h-full bg-[var(--bg-app)] text-[var(--text-main)] pb-[max(env(safe-area-inset-bottom),0px)]">
       {/* Header */}
-      <header className={`${THEME_BLUE} text-white p-4 pt-[max(env(safe-area-inset-top),48px)] flex items-center gap-3 shadow-md shrink-0 sticky top-0 z-20`}>
-        <button onClick={onBack}><ArrowLeft size={24} /></button>
-        <h1 className="text-xl font-bold">Search Profile</h1>
+      <header className="bg-[var(--bg-card)] border-b border-[var(--border-ui)] text-[var(--text-main)] p-4 pt-[max(env(safe-area-inset-top),48px)] flex items-center gap-3 shadow-sm shrink-0 sticky top-0 z-20">
+        <button onClick={onBack} className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors"><ArrowLeft size={24} /></button>
+        <h1 className="text-lg font-black tracking-tight">{t.searchProfile}</h1>
         <button 
             onClick={getUserLocation} 
-            className="ml-auto p-2 bg-white/10 rounded-full hover:bg-white/20 transition-colors"
+            className="ml-auto p-2 bg-slate-100 dark:bg-slate-800 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
             title="Refresh Location"
         >
-            <MapPin size={20} />
+            <MapPin size={20} className="text-[var(--text-main)]" />
         </button>
       </header>
 
       <div className="flex-1 overflow-y-auto">
           {/* Controls Section */}
-          <div className="p-4 bg-white border-b border-gray-200 shadow-sm">
+          <div className="p-4 bg-[var(--bg-card)] border-b border-[var(--border-ui)] shadow-sm">
               
               {locationStatus === 'failed' && (
-                  <div className="mb-4 p-3 bg-yellow-50 text-yellow-800 border border-yellow-200 rounded-lg text-xs">
-                      <strong>GPS Error:</strong> Could not get your precise location. Using default location (New Delhi). Distances may be inaccurate. Please enable Location permissions.
+                  <div className="mb-4 p-3 bg-yellow-50 dark:bg-yellow-950/20 text-yellow-800 dark:text-yellow-400 border border-yellow-200 dark:border-yellow-900/10 rounded-xl text-xs">
+                      <strong>{t.gpsError}</strong> {t.gpsErrorMsg}
                   </div>
               )}
               {locationStatus === 'fetching' && (
-                  <div className="mb-4 p-3 bg-blue-50 text-blue-800 border border-blue-200 rounded-lg text-xs flex items-center justify-between">
-                      <span><strong>Fetching GPS...</strong> Getting your precise location for accurate distances.</span>
+                  <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-950/20 text-blue-800 dark:text-blue-400 border border-blue-200 dark:border-blue-900/10 rounded-xl text-xs flex items-center justify-between">
+                      <span><strong>{t.fetchingGps}</strong> {t.fetchingGpsMsg}</span>
                       <Loader2 size={16} className="animate-spin" />
                   </div>
               )}
@@ -422,8 +452,8 @@ export const NearbyShopsScreen: React.FC<NearbyShopsScreenProps> = ({ onBack }) 
               {/* Distance Slider */}
               <div className="mb-4">
                   <div className="flex justify-between items-center mb-2">
-                      <label className="text-sm font-bold text-slate-700">Search Distance</label>
-                      <span className="text-blue-600 font-extrabold text-lg">{searchRadius} KM</span>
+                      <label className="text-xs font-black text-[var(--text-secondary)] uppercase tracking-wider">{t.searchDistance}</label>
+                      <span className="text-[var(--brand-primary)] font-black text-lg">{searchRadius} KM</span>
                   </div>
                   <input 
                       type="range" 
@@ -431,9 +461,9 @@ export const NearbyShopsScreen: React.FC<NearbyShopsScreenProps> = ({ onBack }) 
                       max="10000" 
                       value={searchRadius} 
                       onChange={(e) => setSearchRadius(Number(e.target.value))}
-                      className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#283593]"
+                      className="w-full h-2 bg-slate-200 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer accent-[var(--brand-primary)]"
                   />
-                  <div className="flex justify-between text-xs text-slate-400 mt-1 font-medium">
+                  <div className="flex justify-between text-[10px] font-mono tracking-widest text-[var(--text-secondary)] mt-1 uppercase">
                       <span>1 KM</span>
                       <span>10000 KM</span>
                   </div>
@@ -452,16 +482,16 @@ export const NearbyShopsScreen: React.FC<NearbyShopsScreenProps> = ({ onBack }) 
                           setShowSuggestions(true);
                       }}
                       onFocus={() => setShowSuggestions(true)}
-                      className="w-full border border-blue-300 rounded-lg p-3 pl-10 text-base text-black bg-white focus:outline-none focus:ring-2 focus:ring-[#283593] transition-all font-medium"
-                      placeholder="Search Business (e.g. Dairy, Grocery)"
+                      className="w-full border border-[var(--border-ui)] rounded-xl p-3 pl-10 text-sm text-[var(--text-main)] bg-[var(--bg-app)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)]/20 transition-all font-semibold"
+                      placeholder={isHi ? 'श्रेणी खोजें (जैसे डेयरी, किराना)' : 'Search Category (e.g. Dairy, Grocery)'}
                   />
                   {/* Suggestions */}
                   {showSuggestions && categoryQuery && filteredCategories.length > 0 && (
-                      <div className="absolute z-10 w-full bg-white border border-gray-300 shadow-xl mt-1 max-h-60 overflow-y-auto rounded-md">
+                      <div className="absolute z-10 w-full bg-[var(--bg-card)] border border-[var(--border-ui)] shadow-xl mt-1 max-h-60 overflow-y-auto rounded-xl">
                           {filteredCategories.map((cat, idx) => (
                               <div 
                                   key={idx} 
-                                  className="p-3 hover:bg-gray-100 cursor-pointer text-black font-medium border-b border-gray-100 flex justify-between items-center"
+                                  className="p-3 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer text-[var(--text-main)] font-semibold border-b border-[var(--border-ui)] flex justify-between items-center"
                                   onClick={() => handleSuggestionClick(cat)}
                               >
                                   <span>{cat.hi} - {cat.en}</span>
@@ -476,40 +506,40 @@ export const NearbyShopsScreen: React.FC<NearbyShopsScreenProps> = ({ onBack }) 
               <button 
                 onClick={handleSearchClick}
                 disabled={loading}
-                className={`w-full ${THEME_BLUE} text-white py-3.5 rounded-lg text-base font-bold shadow-md hover:bg-opacity-90 active:scale-[0.98] transition-all uppercase tracking-wide disabled:opacity-70 disabled:cursor-not-allowed`}
+                className="w-full bg-[var(--brand-primary)] hover:bg-[var(--brand-hover)] text-white py-3.5 rounded-xl text-sm font-black shadow-md active:scale-[0.98] transition-all uppercase tracking-widest disabled:opacity-70 disabled:cursor-not-allowed"
               >
                   {loading ? (
                       <div className="flex items-center justify-center gap-2">
-                          <Loader2 size={20} className="animate-spin" />
-                          <span>SEARCHING...</span>
+                          <Loader2 size={18} className="animate-spin" />
+                          <span>{t.searching}</span>
                       </div>
-                  ) : 'SEARCH'}
+                  ) : (isHi ? 'खोजें' : 'SEARCH')}
               </button>
           </div>
 
           {/* Results Area */}
-          <div className="p-4 pb-20 bg-slate-50 min-h-[300px]">
+          <div className="p-4 pb-20 bg-[var(--bg-app)] min-h-[300px]">
 
               {/* Connection Status Indicator */}
               {connectionStatus && viewMode === 'shops' && (
-                  <div className={`mb-4 p-3 rounded-lg flex items-start gap-3 text-sm ${
-                      connectionStatus === 'online' ? 'bg-green-50 text-green-800 border border-green-200' :
-                      connectionStatus === 'setup_needed' ? 'bg-amber-50 text-amber-800 border border-amber-200' :
-                      'bg-blue-50 text-blue-800 border border-blue-200'
+                  <div className={`mb-4 p-3 rounded-xl flex items-start gap-3 text-xs border ${
+                      connectionStatus === 'online' ? 'bg-emerald-50 dark:bg-emerald-950/20 text-emerald-800 dark:text-emerald-400 border-emerald-200 dark:border-emerald-900/10' :
+                      connectionStatus === 'setup_needed' ? 'bg-amber-50 dark:bg-amber-950/20 text-amber-800 dark:text-amber-400 border-amber-200 dark:border-amber-900/10' :
+                      'bg-rose-50 dark:bg-rose-950/20 text-rose-800 dark:text-rose-400 border-rose-200 dark:border-rose-900/10'
                   }`}>
-                      {connectionStatus === 'online' ? <Database size={18} className="mt-0.5 shrink-0 text-green-600" /> :
-                       connectionStatus === 'setup_needed' ? <Database size={18} className="mt-0.5 shrink-0 text-amber-600" /> :
-                       <WifiOff size={18} className="mt-0.5 shrink-0 text-blue-600" />}
+                      {connectionStatus === 'online' ? <Database size={18} className="mt-0.5 shrink-0 text-emerald-600 dark:text-emerald-400" /> :
+                       connectionStatus === 'setup_needed' ? <Database size={18} className="mt-0.5 shrink-0 text-amber-600 dark:text-amber-400" /> :
+                       <WifiOff size={18} className="mt-0.5 shrink-0 text-rose-600 dark:text-rose-400" />}
                       
                       <div>
-                          <p className="font-bold">
-                              {connectionStatus === 'online' ? 'Live Database Connected' :
-                               connectionStatus === 'setup_needed' ? 'Database Setup Required' :
-                               'Connection Failed'}
+                          <p className="font-extrabold uppercase tracking-wider text-[10px]">
+                              {connectionStatus === 'online' ? (isHi ? 'लाइव डेटाबेस जुड़ा हुआ है' : 'Live Database Connected') :
+                               connectionStatus === 'setup_needed' ? (isHi ? 'डेटाबेस सेटअप आवश्यक' : 'Database Setup Required') :
+                               (isHi ? 'कनेक्शन विफल' : 'Connection Failed')}
                           </p>
-                          <p className="opacity-90 mt-0.5">
-                              {connectionStatus === 'online' ? 'Showing real-time results from Firebase.' :
-                               'Could not connect to Firebase or no shops found.'}
+                          <p className="opacity-90 mt-1 font-medium">
+                              {connectionStatus === 'online' ? (isHi ? 'फायरबेस से वास्तविक समय परिणाम दिखा रहा है।' : 'Showing real-time results from Firebase.') :
+                               t.connectionFailed}
                           </p>
                       </div>
                   </div>
@@ -517,12 +547,12 @@ export const NearbyShopsScreen: React.FC<NearbyShopsScreenProps> = ({ onBack }) 
 
               {hasSearched && !loading && (
                   <div className="flex items-center justify-between mb-3">
-                      <div className="text-xs font-bold text-slate-500 uppercase tracking-wide">
-                          {viewMode === 'categories' ? 'FOUND CATEGORIES' : `SEARCH RESULTS (${shops.length})`}
+                      <div className="text-[10px] font-black text-[var(--text-secondary)] uppercase tracking-wider">
+                          {viewMode === 'categories' ? (isHi ? 'पाई गई श्रेणियां' : 'FOUND CATEGORIES') : (isHi ? `खोज परिणाम (${shops.length})` : `SEARCH RESULTS (${shops.length})`)}
                       </div>
                       {viewMode === 'shops' && (
-                          <button onClick={() => setViewMode('categories')} className="text-xs text-blue-600 font-bold underline">
-                              Back to Categories
+                          <button onClick={() => setViewMode('categories')} className="text-xs text-[var(--brand-primary)] font-black hover:underline uppercase tracking-wider">
+                              {isHi ? 'श्रेणियों पर वापस जाएं' : 'Back to Categories'}
                           </button>
                       )}
                   </div>
@@ -531,10 +561,10 @@ export const NearbyShopsScreen: React.FC<NearbyShopsScreenProps> = ({ onBack }) 
               {/* Loading State - Center Screen */}
               {loading && (
                   <div className="flex flex-col items-center justify-center py-12 animate-in fade-in">
-                      <div className="bg-white p-4 rounded-full shadow-md mb-3">
-                          <Loader2 size={32} className="animate-spin text-[#283593]" />
+                      <div className="bg-[var(--bg-card)] p-4 rounded-full shadow-md mb-3">
+                          <Loader2 size={32} className="animate-spin text-[var(--brand-primary)]" />
                       </div>
-                      <p className="text-slate-500 font-bold text-sm">Searching nearby profiles...</p>
+                      <p className="text-[var(--text-secondary)] font-bold text-sm">{t.searchingNearby}</p>
                   </div>
               )}
 
@@ -547,19 +577,19 @@ export const NearbyShopsScreen: React.FC<NearbyShopsScreenProps> = ({ onBack }) 
                                   <div 
                                     key={idx} 
                                     onClick={() => handleCategoryResultClick(cat)}
-                                    className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm flex justify-between items-center cursor-pointer hover:border-blue-300 active:bg-blue-50 transition-all group"
+                                    className="bg-[var(--bg-card)] p-4 rounded-xl border border-[var(--border-ui)] shadow-sm flex justify-between items-center cursor-pointer hover:border-[var(--brand-primary)] hover:bg-slate-50/50 dark:hover:bg-slate-900/50 transition-all group"
                                   >
-                                      <div className="text-black font-bold text-lg group-hover:text-[#283593]">
-                                          {cat.en} - {cat.hi}
+                                      <div className="text-[var(--text-main)] font-black text-lg group-hover:text-[var(--brand-primary)]">
+                                          {lang === 'hi' ? `${cat.hi} (${cat.en})` : `${cat.en} - ${cat.hi}`}
                                       </div>
-                                      <div className="bg-gray-100 p-2 rounded-full group-hover:bg-blue-100 transition-colors">
-                                          <ChevronRight size={20} className="text-gray-500 group-hover:text-[#283593]" />
+                                      <div className="bg-[var(--bg-app)] p-2 rounded-full group-hover:bg-[var(--brand-primary)]/10 transition-colors">
+                                          <ChevronRight size={20} className="text-[var(--text-secondary)] group-hover:text-[var(--brand-primary)]" />
                                       </div>
                                   </div>
                               ))
                           ) : (
-                              <div className="text-center py-10 text-gray-500">
-                                  No categories found. Try searching by business name directly.
+                              <div className="text-center py-10 text-[var(--text-secondary)] font-medium">
+                                  {isHi ? 'कोई श्रेणियां नहीं मिलीं। सीधे व्यवसाय नाम से खोजने का प्रयास करें।' : 'No categories found. Try searching by business name directly.'}
                               </div>
                           )
                       )}
@@ -568,75 +598,75 @@ export const NearbyShopsScreen: React.FC<NearbyShopsScreenProps> = ({ onBack }) 
                       {viewMode === 'shops' && (
                           shops.length > 0 ? (
                               shops.map((shop) => (
-                                  <div key={shop.id} className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm flex flex-col gap-2 animate-in fade-in slide-in-from-bottom-2">
-                                      <div className="flex justify-between items-start border-b border-gray-100 pb-2 mb-1">
+                                  <div key={shop.id} className="bg-[var(--bg-card)] p-4 rounded-xl border border-[var(--border-ui)] shadow-sm flex flex-col gap-2 animate-in fade-in slide-in-from-bottom-2">
+                                      <div className="flex justify-between items-start border-b border-[var(--border-ui)] pb-2 mb-1">
                                           <div>
-                                              <div className="text-black font-bold text-lg">{shop.name}</div>
-                                              <div className="text-xs text-slate-500 font-medium uppercase tracking-wide bg-slate-100 px-2 py-0.5 rounded w-fit mt-1">
+                                              <div className="text-[var(--text-main)] font-black text-lg">{shop.name}</div>
+                                              <div className="text-xs text-[var(--text-secondary)] font-black uppercase tracking-wider bg-[var(--bg-app)] px-2 py-0.5 rounded w-fit mt-1 border border-[var(--border-ui)]">
                                                   {shop.category}
                                               </div>
                                           </div>
                                           <div className="flex flex-col items-end">
-                                              <span className="text-sm font-bold text-[#283593]">{shop.dist_km.toFixed(1)} KM</span>
-                                              <span className="text-[10px] text-gray-400">Distance</span>
+                                              <span className="text-sm font-black text-[var(--brand-primary)]">{shop.dist_km.toFixed(1)} KM</span>
+                                              <span className="text-[10px] text-[var(--text-secondary)] uppercase tracking-wider font-bold">{t.distance}</span>
                                           </div>
                                       </div>
                                       
-                                      <div className="text-sm text-gray-600 flex items-center gap-2">
-                                          <Phone size={14} className="text-gray-400" /> 
-                                          <span className="font-medium">{shop.mobile || 'N/A'}</span>
+                                      <div className="text-sm text-[var(--text-secondary)] flex items-center gap-2">
+                                          <Phone size={14} className="text-[var(--text-secondary)] opacity-60" /> 
+                                          <span className="font-semibold">{shop.mobile || 'N/A'}</span>
                                       </div>
                                       
-                                      <div className="text-sm text-gray-600 flex items-start gap-2 mb-2">
-                                          <MapPin size={14} className="text-gray-400 mt-0.5" /> 
-                                          <span>{shop.address || 'Address not available'}</span>
+                                      <div className="text-sm text-[var(--text-secondary)] flex items-start gap-2 mb-2">
+                                          <MapPin size={14} className="text-[var(--text-secondary)] opacity-60 mt-0.5" /> 
+                                          <span className="font-medium">{shop.address || 'Address not available'}</span>
                                       </div>
                                       
                                       {/* Show available data indicator */}
                                       <div className="flex gap-2 mb-2">
-                                          {shop.gstin && <span className="text-[10px] bg-green-50 text-green-700 px-1.5 rounded border border-green-100">GSTIN</span>}
-                                          {shop.email && <span className="text-[10px] bg-blue-50 text-blue-700 px-1.5 rounded border border-blue-100">EMAIL</span>}
-                                          {shop.city && <span className="text-[10px] bg-purple-50 text-purple-700 px-1.5 rounded border border-purple-100">{shop.city}</span>}
+                                          {shop.gstin && <span className="text-[10px] font-bold bg-green-50 dark:bg-green-950/20 text-green-700 dark:text-green-400 px-1.5 py-0.5 rounded border border-green-100 dark:border-green-900/10">GSTIN</span>}
+                                          {shop.email && <span className="text-[10px] font-bold bg-blue-50 dark:bg-blue-950/20 text-blue-700 dark:text-blue-400 px-1.5 py-0.5 rounded border border-blue-100 dark:border-blue-900/10">EMAIL</span>}
+                                          {shop.city && <span className="text-[10px] font-bold bg-purple-50 dark:bg-purple-950/20 text-purple-700 dark:text-purple-400 px-1.5 py-0.5 rounded border border-purple-100 dark:border-purple-900/10">{shop.city}</span>}
                                       </div>
 
                                       <div className="flex gap-3 pt-1">
                                           <button 
                                             onClick={() => handleAddClick(shop)}
-                                            className={`flex-1 ${THEME_BLUE} text-white py-2.5 rounded-lg text-sm font-bold shadow hover:bg-opacity-90 active:scale-95 transition-transform flex items-center justify-center gap-2`}
+                                            className="flex-1 bg-[var(--brand-primary)] hover:bg-[var(--brand-hover)] text-white py-2.5 rounded-xl text-sm font-black shadow active:scale-95 transition-all flex items-center justify-center gap-2"
                                           >
-                                              <User size={16} /> Add Customer
+                                              <User size={16} /> {isHi ? 'ग्राहक जोड़ें' : 'Add Customer'}
                                           </button>
                                           <a 
                                             href={`tel:${shop.mobile}`}
-                                            className="flex-1 bg-green-600 text-white py-2.5 rounded-lg text-sm font-bold shadow hover:bg-opacity-90 active:scale-95 transition-transform text-center flex items-center justify-center gap-2"
+                                            className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-xl text-sm font-black shadow active:scale-95 transition-all text-center flex items-center justify-center gap-2"
                                           >
-                                              <Phone size={16} /> Call
+                                              <Phone size={16} /> {isHi ? 'कॉल करें' : 'Call'}
                                           </a>
                                       </div>
                                       <button 
                                           onClick={() => !sendingShopId && handleSendRequest(shop)}
                                           disabled={sendingShopId === shop.id}
-                                          className={`w-full mt-1 bg-purple-600 text-white py-2.5 rounded-lg text-sm font-bold shadow transition-transform flex items-center justify-center gap-2 ${sendingShopId === shop.id ? 'opacity-70 cursor-not-allowed' : 'hover:bg-opacity-90 active:scale-95'}`}
+                                          className={`w-full mt-1 bg-purple-600 hover:bg-purple-700 text-white py-2.5 rounded-xl text-sm font-black shadow transition-all flex items-center justify-center gap-2 ${sendingShopId === shop.id ? 'opacity-70 cursor-not-allowed' : 'active:scale-95'}`}
                                       >
                                           {sendingShopId === shop.id ? (
-                                              <><Loader2 size={16} className="animate-spin" /> Sending...</>
+                                              <><Loader2 size={16} className="animate-spin" /> {t.sending}</>
                                           ) : (
-                                              <><Send size={16} /> Send Request</>
+                                              <><Send size={16} /> {t.sendRequest}</>
                                           )}
                                       </button>
                                   </div>
                               ))
                           ) : (
-                              <div className="flex flex-col items-center justify-center py-10 text-gray-500 text-center">
-                                  <div className="bg-gray-100 p-4 rounded-full mb-3">
-                                      <Search size={32} className="text-gray-400" />
+                              <div className="flex flex-col items-center justify-center py-10 text-[var(--text-secondary)] text-center">
+                                  <div className="bg-[var(--bg-card)] border border-[var(--border-ui)] p-4 rounded-full mb-3">
+                                      <Search size={32} className="text-[var(--text-secondary)] opacity-50" />
                                   </div>
-                                  <p className="font-medium">No shops found for "{categoryQuery}".</p>
-                                  <p className="text-xs mt-2 max-w-[200px]">
-                                      Try increasing the search distance slider above.
+                                  <p className="font-bold text-sm">{t.noShopsFound(categoryQuery)}</p>
+                                  <p className="text-xs mt-2 max-w-[200px] opacity-80">
+                                      {isHi ? 'कृपया ऊपर खोज दूरी बढ़ाने का प्रयास करें।' : 'Try increasing the search distance slider above.'}
                                   </p>
-                                  <button onClick={() => setViewMode('categories')} className="mt-4 text-[#283593] font-bold underline text-sm">
-                                      Try a different category
+                                  <button onClick={() => setViewMode('categories')} className="mt-4 text-[var(--brand-primary)] font-black hover:underline text-sm uppercase tracking-wider">
+                                      {isHi ? 'दूसरी श्रेणी आज़माएं' : 'Try a different category'}
                                   </button>
                               </div>
                           )
@@ -649,37 +679,41 @@ export const NearbyShopsScreen: React.FC<NearbyShopsScreenProps> = ({ onBack }) 
       {/* Confirmation Modal */}
       {showConfirmModal && selectedShop && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-              <div className="bg-white rounded-xl shadow-2xl w-full max-w-xs overflow-hidden transform transition-all scale-100">
-                  <div className="p-4 border-b border-gray-100 bg-gray-50">
-                      <h3 className="font-bold text-lg text-black">Add Customer?</h3>
+              <div className="bg-[var(--bg-card)] border border-[var(--border-ui)] rounded-2xl shadow-2xl w-full max-w-xs overflow-hidden transform transition-all scale-100">
+                  <div className="p-4 border-b border-[var(--border-ui)] bg-[var(--bg-app)]">
+                      <h3 className="font-black text-base text-[var(--text-main)]">{t.addCustomer}</h3>
                   </div>
                   <div className="p-5">
-                      <p className="text-gray-600 text-base mb-2">
-                          Do you want to add <span className="font-bold text-black">{selectedShop.name}</span> to your customer list?
+                      <p className="text-[var(--text-secondary)] text-sm mb-2">
+                          {isHi ? (
+                            <>क्या आप <span className="font-black text-[var(--text-main)]">{selectedShop.name}</span> को अपने ग्राहक सूची में जोड़ना चाहते हैं?</>
+                          ) : (
+                            <>Do you want to add <span className="font-bold text-[var(--text-main)]">{selectedShop.name}</span> to your customer list?</>
+                          )}
                       </p>
-                      <div className="text-xs text-slate-500 bg-slate-50 p-2 rounded border border-slate-100">
-                          <strong>Includes:</strong>
-                          <ul className="list-disc pl-4 mt-1 space-y-0.5">
-                              {selectedShop.mobile && <li>Mobile No</li>}
-                              {selectedShop.gstin && <li>GSTIN & PAN</li>}
-                              {selectedShop.address && <li>Full Address</li>}
-                              {selectedShop.email && <li>Email ID</li>}
-                              {selectedShop.bankDetails && <li>Bank Details</li>}
+                      <div className="text-xs text-[var(--text-secondary)] bg-[var(--bg-app)] p-3 rounded-xl border border-[var(--border-ui)] font-medium">
+                          <strong>{t.includes}</strong>
+                          <ul className="list-disc pl-4 mt-1 space-y-0.5 font-semibold text-[var(--text-main)]">
+                              {selectedShop.mobile && <li>{t.mobileNo}</li>}
+                              {selectedShop.gstin && <li>{t.gstin}</li>}
+                              {selectedShop.address && <li>{t.fullAddress}</li>}
+                              {selectedShop.email && <li>{t.emailId}</li>}
+                              {selectedShop.bankDetails && <li>{t.bankDetails}</li>}
                           </ul>
                       </div>
                   </div>
-                  <div className="flex justify-end gap-4 p-4 pt-0">
+                  <div className="flex justify-end gap-3 p-4 pt-0">
                       <button 
                           onClick={() => setShowConfirmModal(false)}
-                          className="px-4 py-2 rounded-lg font-bold text-gray-600 hover:bg-gray-100 transition-colors"
+                          className="px-4 py-2 rounded-xl font-bold text-xs text-[var(--text-secondary)] hover:bg-[var(--bg-app)] transition-colors uppercase tracking-wider"
                       >
-                          CANCEL
+                          {t.cancel}
                       </button>
                       <button 
                           onClick={confirmAddCustomer}
-                          className={`px-4 py-2 rounded-lg font-bold text-white ${THEME_BLUE} shadow-md hover:opacity-90`}
+                          className="px-5 py-2.5 rounded-xl font-black text-xs text-white bg-[var(--brand-primary)] hover:bg-[var(--brand-hover)] shadow-md transition-colors uppercase tracking-wider"
                       >
-                          ADD
+                          {isHi ? 'जोड़ें' : 'ADD'}
                       </button>
                   </div>
               </div>

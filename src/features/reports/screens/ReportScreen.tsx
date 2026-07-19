@@ -131,11 +131,11 @@ export const ReportScreen: React.FC<ReportScreenProps> = ({
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.2 }}
-      className="flex flex-col h-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white overflow-hidden relative pb-[max(env(safe-area-inset-bottom),0px)]"
+      className="flex flex-col h-full bg-[var(--bg-app)] text-[var(--text-main)] overflow-hidden relative pb-[max(env(safe-area-inset-bottom),0px)]"
       onClick={() => isMenuOpen && setIsMenuOpen(false)}
     >
       {/* Dynamic Header */}
-      <div className="p-5 pt-[max(env(safe-area-inset-top),36px)] bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 text-slate-800 dark:text-white pb-4 relative shrink-0 shadow-sm transition-colors">
+      <div className="p-5 pt-[max(env(safe-area-inset-top),36px)] bg-[var(--bg-card)] border-b border-[var(--border-ui)] text-slate-800 dark:text-white pb-4 relative shrink-0 shadow-sm transition-colors">
         <div className="flex items-center justify-between max-w-5xl mx-auto w-full">
           <div className="flex items-center gap-2">
             {view === 'accounting' && (
@@ -158,7 +158,7 @@ export const ReportScreen: React.FC<ReportScreenProps> = ({
               <span className="text-[9px] uppercase font-bold tracking-widest text-slate-500 dark:text-indigo-400 font-mono">
                 {view === 'accounting' ? t.accountingDesk : t.auditorConsole}
               </span>
-              <h1 className="text-lg font-extrabold tracking-tight text-slate-900 dark:text-white line-clamp-1">
+              <h1 className="text-lg font-extrabold tracking-tight text-[var(--text-main)] line-clamp-1">
                 {view === 'accounting' ? t.accountingFinancials : (companyProfile?.name || t.myBusiness)}
               </h1>
             </div>
@@ -166,12 +166,12 @@ export const ReportScreen: React.FC<ReportScreenProps> = ({
 
           <div className="flex items-center gap-1.5">
             {/* Notification Button */}
-            <button onClick={onNotification} className="p-2 rounded-lg bg-slate-100 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center relative active:scale-95">
+            <button onClick={onNotification} className="p-2 rounded-xl bg-[var(--bg-app)] text-[var(--text-secondary)] hover:text-[var(--text-main)] hover:bg-slate-200 dark:hover:bg-slate-800/80 transition-all active:scale-95 flex items-center justify-center min-w-[36px] min-h-[36px] relative">
               <Bell size={18} />
-              <span className="absolute top-2.5 right-2.5 w-1.5 h-1.5 bg-rose-500 rounded-full"></span>
+              <span className="absolute top-1 right-1 w-1.5 h-1.5 bg-rose-500 rounded-full"></span>
             </button>
             
-            <button onClick={(e) => { e.stopPropagation(); setIsMenuOpen(!isMenuOpen); }} className="p-2 rounded-lg bg-slate-100 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center active:scale-95 relative">
+            <button onClick={(e) => { e.stopPropagation(); setIsMenuOpen(!isMenuOpen); }} className="p-2 rounded-xl bg-[var(--bg-app)] text-[var(--text-secondary)] hover:text-[var(--text-main)] hover:bg-slate-200 dark:hover:bg-slate-800/80 transition-all active:scale-95 flex items-center justify-center min-w-[36px] min-h-[36px] relative">
               <MoreVertical size={18} />
             </button>
             
@@ -183,7 +183,7 @@ export const ReportScreen: React.FC<ReportScreenProps> = ({
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95, y: -10 }}
                   transition={{ duration: 0.15 }}
-                  className="absolute top-16 right-5 w-48 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-2xl z-50 overflow-hidden divide-y divide-slate-100 dark:divide-slate-800/60 text-slate-800 dark:text-white"
+                  className="absolute top-16 right-5 w-48 bg-[var(--bg-card)] border border-[var(--border-ui)] rounded-xl shadow-2xl z-50 overflow-hidden divide-y divide-slate-100 dark:divide-slate-800/60 text-slate-800 dark:text-white"
                 >
                   <button onClick={onOpenSettings} className="w-full text-left px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-bold flex items-center gap-2"><Settings size={14}/> {t.setting}</button>
                   <button onClick={() => onNavigate && onNavigate('helpLegal' as any)} className="w-full text-left px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-bold flex items-center gap-2"><Info size={14}/> {t.aboutUs}</button>
@@ -193,7 +193,7 @@ export const ReportScreen: React.FC<ReportScreenProps> = ({
                     localStorage.setItem('showDashboardQR', next);
                     window.dispatchEvent(new Event('storage'));
                   }} className="w-full text-left px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-bold flex items-center gap-2"><QrCode size={14}/> {t.qrCode}</button>
-                  <div className="px-4 py-2.5 text-[10px] text-center text-slate-400 dark:text-slate-500 font-bold bg-slate-50 dark:bg-slate-950/40">
+                  <div className="px-4 py-2.5 text-[10px] text-center text-slate-400 dark:text-slate-500 font-bold bg-[var(--bg-app)]/40">
                     v{APP_VERSION}
                   </div>
                 </motion.div>
@@ -202,7 +202,7 @@ export const ReportScreen: React.FC<ReportScreenProps> = ({
           </div>
         </div>
 
-        <div className="mt-3 flex items-center gap-2 bg-slate-100 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 px-3 py-1.5 rounded-full w-fit">
+        <div className="mt-3 flex items-center gap-2 bg-[var(--bg-app)]/60 border border-slate-200 dark:border-slate-700/60 px-3 py-1.5 rounded-full w-fit">
           <Calendar size={13} className="text-teal-600 dark:text-teal-400" />
           <input 
             type="date" 
@@ -234,7 +234,7 @@ export const ReportScreen: React.FC<ReportScreenProps> = ({
                 key={index} 
                 onClick={item.action}
                 type="button"
-                className="flex items-center gap-3 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/80 border border-slate-100 dark:border-slate-850 rounded-xl p-3.5 shadow-xs text-slate-800 dark:text-slate-200 active:scale-[0.98] transition-all duration-150 text-left w-full h-[62px]"
+                className="flex items-center gap-3 bg-[var(--bg-card)] hover:bg-slate-50 dark:hover:bg-slate-800/80 border border-slate-100 dark:border-slate-850 rounded-xl p-3.5 shadow-xs text-slate-800 dark:text-slate-200 active:scale-[0.98] transition-all duration-150 text-left w-full h-[62px]"
               >
                 <div className={`p-2.5 rounded-xl shrink-0 ${item.bgColor} flex items-center justify-center`}>
                   {item.icon}
@@ -252,7 +252,7 @@ export const ReportScreen: React.FC<ReportScreenProps> = ({
 
       {/* Bottom Tab Navigation */}
       {!hideFooter && (
-        <footer className="bg-white dark:bg-slate-900 border-t border-gray-200 dark:border-slate-800 shrink-0 z-40 pt-2 pb-6" style={{ paddingBottom: 'max(1.5rem, env(safe-area-inset-bottom))' }}>
+        <footer className="bg-[var(--bg-card)] border-t border-[var(--border-ui)] shrink-0 z-40 pt-2 pb-6" style={{ paddingBottom: 'max(1.5rem, env(safe-area-inset-bottom))' }}>
           <div className="max-w-5xl mx-auto w-full flex items-center justify-between px-8">
             <button onClick={() => onSwitchTab('dashboard')} className="flex flex-col items-center gap-0.5 text-gray-400 hover:text-[#1e293b] dark:hover:text-white min-w-[44px]">
               <Home size={22} />

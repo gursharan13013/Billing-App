@@ -53,6 +53,7 @@ export const InvoiceScreen: React.FC<InvoiceScreenProps> = ({
   // USE INITIAL DATE if provided (New Entry), otherwise use today. 
   const [today, setToday] = useState(initialDate || new Date());
   const [loading, setLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
   const [linkedPayments, setLinkedPayments] = useState<PaymentRecord[]>([]);
   const [companyProfile, setCompanyProfile] = useState<CompanyProfile | null>(null);
   
@@ -850,6 +851,7 @@ export const InvoiceScreen: React.FC<InvoiceScreenProps> = ({
   };
 
   const handleSave = async (share: boolean) => {
+    if (isSaving) return;
     if (isOnlineImported) {
         alert(language === 'hi' ? 'प्राप्त बिल को बदला नहीं जा सकता' : 'Imported bills cannot be modified');
         return;
@@ -898,6 +900,7 @@ export const InvoiceScreen: React.FC<InvoiceScreenProps> = ({
   };
 
   const processSave = async (datesToSave: Date[], share: boolean) => {
+    setIsSaving(true);
     try {
         let lastInvoiceId = '';
         let wasNewlySynced = false;
@@ -1086,6 +1089,8 @@ export const InvoiceScreen: React.FC<InvoiceScreenProps> = ({
     } catch (error) {
         console.error(error);
         alert('Error saving invoice');
+    } finally {
+        setIsSaving(false);
     }
   };
 
@@ -1115,10 +1120,10 @@ export const InvoiceScreen: React.FC<InvoiceScreenProps> = ({
         });
   };
 
-  if (loading) return <div className="flex items-center justify-center h-full bg-slate-50 dark:bg-slate-950 text-slate-500">Loading...</div>;
+  if (loading) return <div className="flex items-center justify-center h-full bg-[var(--bg-app)] text-slate-500">Loading...</div>;
 
   return (
-    <div className="flex flex-col h-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white transition-colors pb-[max(env(safe-area-inset-bottom),0px)]">
+    <div className="flex flex-col h-full bg-[var(--bg-app)] text-[var(--text-main)] transition-colors pb-[max(env(safe-area-inset-bottom),0px)]">
       {/* Header */}
       <header className={`${invoiceId ? 'bg-orange-600 dark:bg-amber-950/45 dark:border-amber-900/30' : 'bg-[#4f46e5] dark:bg-[#131b2e] dark:border-slate-800'} text-white dark:text-slate-100 p-3 pt-[max(env(safe-area-inset-top),48px)] flex justify-between items-center shadow-md dark:shadow-none z-20 border-b border-white/10 dark:border-slate-800 transition-all`}>
         <div className="flex items-center gap-3">
@@ -1207,11 +1212,11 @@ export const InvoiceScreen: React.FC<InvoiceScreenProps> = ({
       )}
 
       {/* Scrollable Content */}
-      <div className="flex-1 overflow-y-auto pb-44 bg-[var(--bg-app)] dark:bg-[var(--bg-app)] text-slate-900 dark:text-white transition-colors">
+      <div className="flex-1 overflow-y-auto pb-44 bg-[var(--bg-app)] dark:bg-[var(--bg-app)] text-[var(--text-main)] transition-colors">
         <div className="p-3 space-y-4 max-w-4xl mx-auto">
 
           {/* Card 1: General Info & Party / Customer Selection */}
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800/60 rounded-xl p-4 shadow-sm relative transition-all">
+          <div className="bg-[var(--bg-card)] border border-[var(--border-ui)]/60 rounded-xl p-4 shadow-sm relative transition-all">
             <div className="grid grid-cols-12 gap-3 relative">
                {/* Row 1: No & Customer Selector */}
                <div className="col-span-12 md:col-span-4 relative z-[60]">
@@ -1221,7 +1226,7 @@ export const InvoiceScreen: React.FC<InvoiceScreenProps> = ({
                    value={saleNo} 
                    onChange={(e) => setSaleNo(e.target.value)}
                    readOnly={isOnlineImported || !['Purchase', 'Purchase Return'].includes(transactionType)} 
-                   className={`w-full h-[42px] px-3 border border-slate-200 dark:border-slate-800 rounded-lg text-sm bg-slate-50/50 dark:bg-slate-900 font-bold text-slate-900 dark:text-white focus:outline-none transition-all ${isOnlineImported || !['Purchase', 'Purchase Return'].includes(transactionType) ? 'cursor-not-allowed opacity-80' : 'focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10'}`}
+                   className={`w-full h-[42px] px-3 border border-[var(--border-ui)] rounded-lg text-sm bg-slate-50/50 dark:bg-slate-900 font-bold text-[var(--text-main)] focus:outline-none transition-all ${isOnlineImported || !['Purchase', 'Purchase Return'].includes(transactionType) ? 'cursor-not-allowed opacity-80' : 'focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10'}`}
                  />
                </div>
                <div className="col-span-12 md:col-span-8 relative z-[60]">
@@ -1249,8 +1254,8 @@ export const InvoiceScreen: React.FC<InvoiceScreenProps> = ({
 
           {/* Card 2: Item Add & Edit Panel (Only when not online-imported read-only) */}
           {!isOnlineImported && (
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 shadow-sm relative transition-all">
-              <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 border-b border-slate-100 dark:border-slate-800 pb-2.5 mb-4 flex items-center gap-2">
+            <div className="bg-[var(--bg-card)] border border-[var(--border-ui)] rounded-xl p-4 shadow-sm relative transition-all">
+              <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 border-b border-[var(--border-ui)] pb-2.5 mb-4 flex items-center gap-2">
                 <Receipt size={16} className="text-indigo-600 dark:text-indigo-400" />
                 {editingItemId ? (language === 'hi' ? 'आइटम संशोधित करें' : 'Edit Item Details') : (language === 'hi' ? 'आइटम प्रविष्ट करें' : 'Enter Item Details')}
               </h3>
@@ -1264,7 +1269,7 @@ export const InvoiceScreen: React.FC<InvoiceScreenProps> = ({
                     value={entryItem.code}
                     onChange={e => handleCodeChange(e.target.value)}
                     onFocus={handleFocus}
-                    className="w-full h-[42px] px-3 border border-slate-200 dark:border-slate-800 rounded-lg text-sm bg-white dark:bg-slate-950 font-semibold text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:focus:ring-indigo-500/20 transition-all duration-200 shadow-sm placeholder-slate-400 dark:placeholder-slate-600"
+                    className="w-full h-[42px] px-3 border border-[var(--border-ui)] rounded-lg text-sm bg-white dark:bg-slate-950 font-semibold text-[var(--text-main)] focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:focus:ring-indigo-500/20 transition-all duration-200 shadow-sm placeholder-slate-400 dark:placeholder-slate-600"
                   />
                 </div>
                 
@@ -1276,7 +1281,7 @@ export const InvoiceScreen: React.FC<InvoiceScreenProps> = ({
                       value={entryItem.name}
                       onChange={e => setEntryItem({...entryItem, name: e.target.value, itemRef: null})}
                       onFocus={handleFocus}
-                      className={`w-full h-[42px] pl-3 ${localStorage.getItem('showBarcodeScanner') !== 'false' ? 'pr-10' : 'pr-3'} border border-slate-200 dark:border-slate-800 rounded-lg text-sm bg-white dark:bg-slate-950 font-semibold text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:focus:ring-indigo-500/20 transition-all duration-200 shadow-sm placeholder-slate-400 dark:placeholder-slate-605`}
+                      className={`w-full h-[42px] pl-3 ${localStorage.getItem('showBarcodeScanner') !== 'false' ? 'pr-10' : 'pr-3'} border border-[var(--border-ui)] rounded-lg text-sm bg-white dark:bg-slate-950 font-semibold text-[var(--text-main)] focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:focus:ring-indigo-500/20 transition-all duration-200 shadow-sm placeholder-slate-400 dark:placeholder-slate-605`}
                       placeholder={labels.searchPlaceholder}
                     />
                     {localStorage.getItem('showBarcodeScanner') !== 'false' && (
@@ -1300,7 +1305,7 @@ export const InvoiceScreen: React.FC<InvoiceScreenProps> = ({
                             className="p-3 hover:bg-slate-50 dark:hover:bg-slate-700 cursor-pointer text-base border-b last:border-0 border-slate-100 dark:border-slate-700"
                             onClick={() => handleSelectItem(item)}
                           >
-                            <div className="font-bold text-slate-900 dark:text-white text-base">{item.name}</div>
+                            <div className="font-bold text-[var(--text-main)] text-base">{item.name}</div>
                             <div className="text-xs text-slate-500 dark:text-slate-400 flex justify-between font-medium mt-1">
                               <span>Code: {item.id}</span>
                               <span className="text-indigo-600 dark:text-indigo-400 font-bold">Rate: ₹{item.saleRate}</span>
@@ -1319,7 +1324,7 @@ export const InvoiceScreen: React.FC<InvoiceScreenProps> = ({
                       value={entryItem.mrp}
                       onChange={e => setEntryItem({...entryItem, mrp: parseFloat(e.target.value) || 0})}
                       onFocus={handleFocus}
-                      className="w-full h-[42px] px-3 border border-slate-200 dark:border-slate-800 rounded-lg text-sm bg-white dark:bg-slate-950 font-semibold text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:focus:ring-indigo-500/20 transition-all duration-200 shadow-sm"
+                      className="w-full h-[42px] px-3 border border-[var(--border-ui)] rounded-lg text-sm bg-white dark:bg-slate-950 font-semibold text-[var(--text-main)] focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:focus:ring-indigo-500/20 transition-all duration-200 shadow-sm"
                     />
                 </div>
                 <div className={`${mrpRateQtyColSpan.mrpRate} relative z-[45]`}>
@@ -1329,7 +1334,7 @@ export const InvoiceScreen: React.FC<InvoiceScreenProps> = ({
                       value={entryItem.rate}
                       onChange={e => setEntryItem({...entryItem, rate: parseFloat(e.target.value) || 0})}
                       onFocus={handleFocus}
-                      className="w-full h-[42px] px-3 border border-slate-200 dark:border-slate-800 rounded-lg text-sm bg-white dark:bg-slate-955 font-bold text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:focus:ring-indigo-500/20 transition-all duration-200 shadow-sm"
+                      className="w-full h-[42px] px-3 border border-[var(--border-ui)] rounded-lg text-sm bg-white dark:bg-slate-955 font-bold text-[var(--text-main)] focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:focus:ring-indigo-500/20 transition-all duration-200 shadow-sm"
                     />
                 </div>
                 <div className={`${mrpRateQtyColSpan.qty} relative z-[40]`}>
@@ -1340,7 +1345,7 @@ export const InvoiceScreen: React.FC<InvoiceScreenProps> = ({
                       value={entryItem.qty}
                       onChange={e => setEntryItem({...entryItem, qty: parseFloat(e.target.value) || 0})}
                       onFocus={handleFocus}
-                      className="w-full h-[42px] px-2 border border-slate-200 dark:border-slate-800 rounded-lg text-sm text-center bg-white dark:bg-slate-950 font-bold text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:focus:ring-indigo-500/20 transition-all duration-200 shadow-sm"
+                      className="w-full h-[42px] px-2 border border-[var(--border-ui)] rounded-lg text-sm text-center bg-white dark:bg-slate-950 font-bold text-[var(--text-main)] focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:focus:ring-indigo-500/20 transition-all duration-200 shadow-sm"
                     />
                 </div>
                 {activeSettings?.itemWiseDiscount !== false && (
@@ -1358,7 +1363,7 @@ export const InvoiceScreen: React.FC<InvoiceScreenProps> = ({
                           value={entryItem.discPercent}
                           onChange={e => setEntryItem({...entryItem, discPercent: parseFloat(e.target.value) || 0})}
                           onFocus={handleFocus}
-                          className="w-full h-[42px] px-3 border border-slate-200 dark:border-slate-800 rounded-lg text-sm bg-white dark:bg-slate-950 font-semibold text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:focus:ring-indigo-500/20 transition-all duration-200 shadow-sm"
+                          className="w-full h-[42px] px-3 border border-[var(--border-ui)] rounded-lg text-sm bg-white dark:bg-slate-950 font-semibold text-[var(--text-main)] focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:focus:ring-indigo-500/20 transition-all duration-200 shadow-sm"
                         />
                     </div>
                 )}
@@ -1372,7 +1377,7 @@ export const InvoiceScreen: React.FC<InvoiceScreenProps> = ({
                                <select 
                                  value={entryItem.taxType}
                                  onChange={e => setEntryItem({...entryItem, taxType: e.target.value as any})}
-                                 className="w-full h-[42px] pl-3 pr-8 border border-slate-200 dark:border-slate-800 rounded-lg text-sm appearance-none bg-white dark:bg-slate-955 font-semibold text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:focus:ring-indigo-500/20 transition-all duration-200 shadow-sm"
+                                 className="w-full h-[42px] pl-3 pr-8 border border-[var(--border-ui)] rounded-lg text-sm appearance-none bg-white dark:bg-slate-955 font-semibold text-[var(--text-main)] focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:focus:ring-indigo-500/20 transition-all duration-200 shadow-sm"
                                >
                                  <option value="Excluded">{labels.excluded}</option>
                                  <option value="Included">{labels.included}</option>
@@ -1387,7 +1392,7 @@ export const InvoiceScreen: React.FC<InvoiceScreenProps> = ({
                               value={entryItem.purchaseRate || ''}
                               onChange={e => setEntryItem({...entryItem, purchaseRate: parseFloat(e.target.value) || 0})}
                               onFocus={handleFocus}
-                              className="w-full h-[42px] px-3 border border-slate-200 dark:border-slate-800 rounded-lg text-sm bg-white dark:bg-slate-950 font-semibold text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:focus:ring-indigo-500/20 transition-all duration-200 shadow-sm"
+                              className="w-full h-[42px] px-3 border border-[var(--border-ui)] rounded-lg text-sm bg-white dark:bg-slate-950 font-semibold text-[var(--text-main)] focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:focus:ring-indigo-500/20 transition-all duration-200 shadow-sm"
                             />
                          </div>
                          <div className="col-span-12 md:col-span-4 relative z-[30] flex items-end">
@@ -1456,7 +1461,7 @@ export const InvoiceScreen: React.FC<InvoiceScreenProps> = ({
           )}
 
           {/* Real-time banner with stats & live totals calculations */}
-          <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center p-4 bg-white dark:bg-slate-900 border border-slate-205 dark:border-slate-800/60 rounded-xl gap-3 shadow-inner">
+          <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center p-4 bg-[var(--bg-card)] border border-slate-205 dark:border-slate-800/60 rounded-xl gap-3 shadow-inner">
              <div className="flex flex-wrap gap-2 items-center">
                  {/* Stock badge */}
                  <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border transition-colors shadow-sm ${
@@ -1485,9 +1490,9 @@ export const InvoiceScreen: React.FC<InvoiceScreenProps> = ({
              </div>
              
              {/* Big Display Display Line Total */}
-             <div className="flex items-center justify-between sm:justify-end gap-2 border-t sm:border-t-0 pt-2.5 sm:pt-0 border-slate-200 dark:border-slate-800/60">
+             <div className="flex items-center justify-between sm:justify-end gap-2 border-t sm:border-t-0 pt-2.5 sm:pt-0 border-[var(--border-ui)]/60">
                  <span className="text-xs font-bold text-slate-400 uppercase tracking-widest sm:hidden">{labels.lineTotal}</span>
-                 <span className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white flex items-center gap-1.5">
+                 <span className="text-xl sm:text-2xl font-black text-[var(--text-main)] flex items-center gap-1.5">
                      <span className="text-sm font-bold text-slate-400 hidden sm:inline">{labels.lineTotal}:</span>
                      <span className="text-indigo-600 dark:text-indigo-400 font-extrabold">₹{lineTotal.toFixed(2)}</span>
                  </span>
@@ -1496,10 +1501,10 @@ export const InvoiceScreen: React.FC<InvoiceScreenProps> = ({
 
 
         {/* Item List Table - Theme Aware */}
-        <div className="mt-2 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 w-full overflow-x-auto">
+        <div className="mt-2 bg-[var(--bg-card)] border-t border-[var(--border-ui)] w-full overflow-x-auto">
             <table className="w-full text-left border-collapse min-w-[600px]">
                 <thead>
-                    <tr className="bg-slate-100 dark:bg-slate-800 text-sm font-bold text-slate-600 dark:text-slate-300 border-b border-slate-200 dark:border-slate-700">
+                    <tr className="bg-[var(--bg-app)] text-sm font-bold text-slate-600 dark:text-slate-300 border-b border-slate-200 dark:border-slate-700">
                         <th className="p-2 pl-3 w-[30%]">{labels.item}</th>
                         <th className="p-2 text-center w-[10%]">{labels.qty}</th>
                         <th className="p-2 text-right w-[15%]">{labels.rate}</th>
@@ -1537,7 +1542,7 @@ export const InvoiceScreen: React.FC<InvoiceScreenProps> = ({
                                     className={`hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors ${!isOnlineImported ? 'cursor-pointer' : ''} ${editingItemId === item.id ? 'bg-blue-100 dark:bg-blue-900/40 border-l-4 border-blue-500' : ''}`}
                                 >
                                     <td className="p-2 pl-3 align-top pt-3">
-                                        <div className="font-bold text-base text-slate-900 dark:text-white line-clamp-2">
+                                        <div className="font-bold text-base text-[var(--text-main)] line-clamp-2">
                                             {itemName}
                                         </div>
                                         {item.item && (
@@ -1555,10 +1560,10 @@ export const InvoiceScreen: React.FC<InvoiceScreenProps> = ({
                                             </div>
                                         )}
                                     </td>
-                                    <td className="p-2 text-center font-bold text-base text-slate-900 dark:text-white align-top pt-3">
+                                    <td className="p-2 text-center font-bold text-base text-[var(--text-main)] align-top pt-3">
                                         {item.qty}
                                     </td>
-                                    <td className="p-2 text-right text-base text-slate-900 dark:text-white align-top pt-3">
+                                    <td className="p-2 text-right text-base text-[var(--text-main)] align-top pt-3">
                                         ₹{item.rate}
                                     </td>
                                     {activeSettings?.itemWiseDiscount !== false && (
@@ -1571,7 +1576,7 @@ export const InvoiceScreen: React.FC<InvoiceScreenProps> = ({
                                             {item.taxPercent > 0 ? `${item.taxPercent}%` : '-'}
                                         </td>
                                     )}
-                                    <td className="p-2 text-right align-top pt-3 font-bold text-base text-slate-900 dark:text-white">
+                                    <td className="p-2 text-right align-top pt-3 font-bold text-base text-[var(--text-main)]">
                                         ₹{formatNumber(itemTotal)}
                                     </td>
                                     <td className="p-2 pr-3 align-top pt-2.5 text-right">
@@ -1591,8 +1596,8 @@ export const InvoiceScreen: React.FC<InvoiceScreenProps> = ({
 
         {/* --- PAYMENT HISTORY SECTION (Only in Edit Mode) --- */}
         {invoiceId && (
-            <div className="mt-4 bg-white dark:bg-slate-900 border-t border-b border-slate-200 dark:border-slate-800 mb-4">
-                <div className="p-3 bg-slate-100 dark:bg-slate-800 flex justify-between items-center">
+            <div className="mt-4 bg-[var(--bg-card)] border-t border-b border-[var(--border-ui)] mb-4">
+                <div className="p-3 bg-[var(--bg-app)] flex justify-between items-center">
                     <h3 className="font-bold text-slate-700 dark:text-slate-200 flex items-center gap-2">
                         <Receipt size={18} /> {labels.payments}
                     </h3>
@@ -1641,11 +1646,11 @@ export const InvoiceScreen: React.FC<InvoiceScreenProps> = ({
     </div>
 
       {/* Footer Actions */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 shadow-[0_-2px_10px_rgba(0,0,0,0.1)] dark:shadow-[0_-2px_10px_rgba(0,0,0,0.5)] z-30 transition-colors">
+      <div className="fixed bottom-0 left-0 right-0 bg-[var(--bg-card)] border-t border-[var(--border-ui)] shadow-[0_-2px_10px_rgba(0,0,0,0.1)] dark:shadow-[0_-2px_10px_rgba(0,0,0,0.5)] z-30 transition-colors">
         
         {/* Discount & Charges Inputs (if enabled in settings) */}
         {((activeSettings?.billDiscount) || (activeSettings?.additionalCharges)) && (
-            <div className="px-4 py-2 bg-slate-50 dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 text-xs flex gap-4">
+            <div className="px-4 py-2 bg-[var(--bg-app)] border-b border-[var(--border-ui)] text-xs flex gap-4">
                 {activeSettings?.billDiscount && (
                     <div className="flex-1 flex items-center gap-2">
                         <span className="text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider">
@@ -1656,7 +1661,7 @@ export const InvoiceScreen: React.FC<InvoiceScreenProps> = ({
                             value={billDiscountAmount || ''}
                             placeholder="0"
                             onChange={e => setBillDiscountAmount(parseFloat(e.target.value) || 0)}
-                            className="w-20 px-2 py-1 border border-slate-200 dark:border-slate-800 rounded-md text-xs bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500"
+                            className="w-20 px-2 py-1 border border-[var(--border-ui)] rounded-md text-xs bg-[var(--bg-card)] text-[var(--text-main)] focus:outline-none focus:border-indigo-500"
                         />
                     </div>
                 )}
@@ -1670,7 +1675,7 @@ export const InvoiceScreen: React.FC<InvoiceScreenProps> = ({
                             value={additionalChargesAmount || ''}
                             placeholder="0"
                             onChange={e => setAdditionalChargesAmount(parseFloat(e.target.value) || 0)}
-                            className="w-20 px-2 py-1 border border-slate-200 dark:border-slate-800 rounded-md text-xs bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500"
+                            className="w-20 px-2 py-1 border border-[var(--border-ui)] rounded-md text-xs bg-[var(--bg-card)] text-[var(--text-main)] focus:outline-none focus:border-indigo-500"
                         />
                     </div>
                 )}
@@ -1678,10 +1683,10 @@ export const InvoiceScreen: React.FC<InvoiceScreenProps> = ({
         )}
 
         {/* Total Summary Row */}
-        <div className="px-4 py-2 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 text-sm">
+        <div className="px-4 py-2 bg-[var(--bg-card)] border-b border-[var(--border-ui)] text-sm">
             <div className="flex justify-between items-center mb-1">
                 <span className="text-slate-500 dark:text-slate-400 font-bold">{labels.total}</span>
-                <span className="text-slate-900 dark:text-white font-bold text-xl">₹{formatNumber(totalAmount)}</span>
+                <span className="text-[var(--text-main)] font-bold text-xl">₹{formatNumber(totalAmount)}</span>
             </div>
             {invoiceId && (
                 <div className="flex justify-between items-center">
@@ -1695,20 +1700,22 @@ export const InvoiceScreen: React.FC<InvoiceScreenProps> = ({
 
         {/* Action Buttons - Adjusted for mobile */}
         {!isOnlineImported && (
-        <div className="flex p-2 gap-2 pb-[max(0.75rem,env(safe-area-inset-bottom))] bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800/40">
+        <div className="flex p-2 gap-2 pb-[max(0.75rem,env(safe-area-inset-bottom))] bg-[var(--bg-card)] border-t border-[var(--border-ui)]/40">
            <button 
+                disabled={isSaving}
                 onClick={() => handleSave(true)}
-                className="flex-1 bg-emerald-600 dark:bg-emerald-600/15 dark:text-emerald-400 dark:border dark:border-emerald-500/30 hover:bg-emerald-700 dark:hover:bg-emerald-600/25 text-white py-3 sm:py-2.5 rounded-lg font-bold text-sm flex items-center justify-center gap-1.5 shadow-sm transition-all active:scale-95"
+                className="flex-1 bg-emerald-600 dark:bg-emerald-600/15 dark:text-emerald-400 dark:border dark:border-emerald-500/30 hover:bg-emerald-700 dark:hover:bg-emerald-600/25 text-white py-3 sm:py-2.5 rounded-lg font-bold text-sm flex items-center justify-center gap-1.5 shadow-sm transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
            >
               <Share2 size={18} />
-              {labels.saveAndShare}
+              {isSaving ? 'Saving...' : labels.saveAndShare}
            </button>
            <button 
+                disabled={isSaving}
                 onClick={() => handleSave(false)}
-                className="flex-1 bg-[#4f46e5] dark:bg-indigo-600/15 dark:text-indigo-400 dark:border dark:border-indigo-500/30 hover:bg-[#4338ca] dark:hover:bg-indigo-600/25 text-white py-3 sm:py-2.5 rounded-lg font-bold text-sm flex items-center justify-center gap-1.5 shadow-sm transition-all active:scale-95"
+                className="flex-1 bg-[#4f46e5] dark:bg-indigo-600/15 dark:text-indigo-400 dark:border dark:border-indigo-500/30 hover:bg-[#4338ca] dark:hover:bg-indigo-600/25 text-white py-3 sm:py-2.5 rounded-lg font-bold text-sm flex items-center justify-center gap-1.5 shadow-sm transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
            >
               <Save size={18} />
-              {invoiceId ? 'Update' : labels.save}
+              {isSaving ? 'Saving...' : (invoiceId ? 'Update' : labels.save)}
            </button>
         </div>
         )}
@@ -1717,8 +1724,8 @@ export const InvoiceScreen: React.FC<InvoiceScreenProps> = ({
       {/* Add Payment Modal */}
       {showPaymentModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-              <div className="bg-white dark:bg-slate-900 rounded-xl shadow-2xl w-full max-w-sm overflow-hidden p-6 animate-in fade-in zoom-in duration-200 border border-slate-200 dark:border-slate-800">
-                  <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">Add Payment</h3>
+              <div className="bg-[var(--bg-card)] rounded-xl shadow-2xl w-full max-w-sm overflow-hidden p-6 animate-in fade-in zoom-in duration-200 border border-[var(--border-ui)]">
+                  <h3 className="text-lg font-bold text-[var(--text-main)] mb-4">Add Payment</h3>
                   
                   <div className="mb-4">
                       <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Amount</label>
@@ -1748,7 +1755,7 @@ export const InvoiceScreen: React.FC<InvoiceScreenProps> = ({
                   </div>
 
                   <div className="flex gap-3">
-                      <button onClick={() => setShowPaymentModal(false)} className="flex-1 py-3 rounded-xl font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">Cancel</button>
+                      <button onClick={() => setShowPaymentModal(false)} className="flex-1 py-3 rounded-xl font-bold bg-[var(--bg-app)] text-slate-700 dark:text-slate-300">Cancel</button>
                       <button onClick={handleAddPayment} className="flex-1 py-3 rounded-xl font-bold bg-green-600 text-white hover:bg-green-700 shadow-lg">Save</button>
                   </div>
               </div>
@@ -1757,7 +1764,7 @@ export const InvoiceScreen: React.FC<InvoiceScreenProps> = ({
 
       {/* Date Selection Modal for Multi-Date Orders */}
       {showDateModal && (
-          <div className="fixed inset-0 z-[60] flex flex-col bg-white dark:bg-slate-900 animate-in slide-in-from-right pb-[max(env(safe-area-inset-bottom),0px)]">
+          <div className="fixed inset-0 z-[60] flex flex-col bg-[var(--bg-card)] animate-in slide-in-from-right pb-[max(env(safe-area-inset-bottom),0px)]">
               {/* Modal Header */}
               <header className="bg-[#3b5998] text-white p-4 flex items-center justify-between shadow-md shrink-0 pt-[max(env(safe-area-inset-top),48px)]">
                   <div className="flex items-center gap-3">
@@ -1780,7 +1787,7 @@ export const InvoiceScreen: React.FC<InvoiceScreenProps> = ({
               </header>
 
               {/* Month Navigation */}
-              <div className="flex justify-between items-center p-4 bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 shrink-0">
+              <div className="flex justify-between items-center p-4 bg-slate-50 dark:bg-slate-900 border-b border-[var(--border-ui)] shrink-0">
                   <button 
                       onClick={() => setCalendarMonth(new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() - 1, 1))}
                       className="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800"
@@ -1841,7 +1848,7 @@ export const InvoiceScreen: React.FC<InvoiceScreenProps> = ({
 
       {shareDetails && (
         <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in zoom-in duration-200">
-            <div className="bg-white dark:bg-slate-900 rounded-xl max-w-sm w-full p-6 text-center shadow-2xl relative overflow-hidden">
+            <div className="bg-[var(--bg-card)] rounded-xl max-w-sm w-full p-6 text-center shadow-2xl relative overflow-hidden">
                 <div className="text-4xl mb-4 p-4 bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded-full inline-block">
                     <Check size={48} />
                 </div>
@@ -1858,7 +1865,7 @@ export const InvoiceScreen: React.FC<InvoiceScreenProps> = ({
                                 else onNavigate('businessReport', transactionType);
                             } else onBack();
                         }} 
-                        className="flex-1 py-3 rounded-xl font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300"
+                        className="flex-1 py-3 rounded-xl font-bold bg-[var(--bg-app)] text-slate-600 dark:text-slate-300"
                     >
                         Skip
                     </button>

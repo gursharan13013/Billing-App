@@ -404,7 +404,7 @@ export const AuditLogScreen: React.FC<AuditLogScreenProps> = ({ onBack, currentL
   };
 
   return (
-    <div className="flex flex-col h-full bg-slate-50 dark:bg-[#090D16] text-slate-800 dark:text-slate-100 font-sans pb-[max(env(safe-area-inset-bottom),0px)]">
+    <div className="flex flex-col h-full bg-[var(--bg-app)] text-[var(--text-main)] font-sans pb-[max(env(safe-area-inset-bottom),0px)]">
       
       {/* 1. STICKY TOP PREMIUM HEADER */}
       <header className="bg-white/80 dark:bg-[#131B2E]/80 backdrop-blur-md border-b border-slate-200/60 dark:border-slate-800/80 text-slate-800 dark:text-white p-4 shrink-0 shadow-sm pt-[max(env(safe-area-inset-top),48px)] flex items-center justify-between animate-in fade-in ease-out duration-200">
@@ -438,7 +438,7 @@ export const AuditLogScreen: React.FC<AuditLogScreenProps> = ({ onBack, currentL
       </header>
 
       {/* 2. STICKY ADVANCED FILTER ENGINE */}
-      <div className="sticky top-0 z-30 p-4 bg-white/70 dark:bg-[#131B2E]/40 backdrop-blur-md border-b border-slate-200/60 dark:border-slate-850 shadow-sm space-y-3 shrink-0">
+      <div className="sticky top-0 z-30 p-4 bg-white/70 dark:bg-[#131B2E]/40 backdrop-blur-md border-b border-slate-200/60 dark:border-[var(--border-ui)] shadow-sm space-y-3 shrink-0">
         
         {/* Toggleable Filter Layout with Persistent Search */}
         <div className="flex items-center gap-2">
@@ -447,7 +447,7 @@ export const AuditLogScreen: React.FC<AuditLogScreenProps> = ({ onBack, currentL
             <Search size={14} className="absolute left-3.5 top-3.5 text-slate-400 dark:text-slate-500" />
             <input
               type="text"
-              className="w-full text-xs font-semibold pl-10 pr-10 py-2.5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/60 dark:bg-[#090D16]/60 focus:border-indigo-500 dark:focus:border-indigo-400 focus:bg-white dark:focus:bg-[#090D16] focus:ring-4 focus:ring-indigo-500/10 transition-all outline-none"
+              className="w-full text-xs font-semibold pl-10 pr-10 py-2.5 rounded-2xl border border-[var(--border-ui)] bg-white/60 dark:bg-[#090D16]/60 focus:border-indigo-500 dark:focus:border-indigo-400 focus:bg-white dark:focus:bg-[#090D16] focus:ring-4 focus:ring-indigo-500/10 transition-all outline-none"
               placeholder={t.searchPlaceholder}
               value={searchQuery}
               onChange={(e) => {
@@ -473,7 +473,7 @@ export const AuditLogScreen: React.FC<AuditLogScreenProps> = ({ onBack, currentL
                 ? 'bg-slate-900 border-slate-900 text-white dark:bg-[#182239] dark:border-slate-800 shadow-inner' 
                 : activeFiltersCount > 0
                   ? 'bg-indigo-50 border-indigo-200 text-indigo-650 dark:bg-indigo-950/20 dark:border-indigo-900/40 dark:text-indigo-400'
-                  : 'bg-white hover:bg-slate-50 text-slate-700 border-slate-200/80 dark:bg-[#131B2E] dark:text-slate-300 dark:border-slate-800'
+                  : 'bg-[var(--bg-card)] hover:bg-slate-50/50 text-slate-700 border-[var(--border-ui)] dark:bg-[#131B2E] dark:text-slate-300 dark:border-slate-800'
             }`}
             title={isHi ? 'विवरण फ़िल्टर' : 'Toggle Filters'}
           >
@@ -508,7 +508,7 @@ export const AuditLogScreen: React.FC<AuditLogScreenProps> = ({ onBack, currentL
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
               transition={{ duration: 0.2, ease: "easeInOut" }}
-              className="overflow-hidden space-y-3.5 pt-1 border-t border-slate-100 dark:border-slate-850"
+              className="overflow-hidden space-y-3.5 pt-1 border-t border-slate-100 dark:border-[var(--border-ui)]"
             >
               {/* Action Type Filter Toggle Chips */}
               <div className="space-y-1 block mt-2 text-left">
@@ -580,7 +580,7 @@ export const AuditLogScreen: React.FC<AuditLogScreenProps> = ({ onBack, currentL
                         setSelectedUser(e.target.value);
                         setCurrentPage(1);
                       }}
-                      className="w-full text-xs font-bold pl-2.5 pr-8 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#131B2E] text-slate-700 dark:text-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 appearance-none outline-none transition"
+                      className="w-full text-xs font-bold pl-2.5 pr-8 py-2 rounded-xl border border-[var(--border-ui)] bg-[var(--bg-card)] text-slate-700 dark:text-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 appearance-none outline-none transition"
                     >
                       <option value="all">👥 {t.allUsers}</option>
                       {operators.map(op => (
@@ -605,7 +605,7 @@ export const AuditLogScreen: React.FC<AuditLogScreenProps> = ({ onBack, currentL
                         setSelectedModule(e.target.value);
                         setCurrentPage(1);
                       }}
-                      className="w-full text-xs font-bold pl-2.5 pr-8 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#131B2E] text-slate-700 dark:text-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 appearance-none outline-none transition"
+                      className="w-full text-xs font-bold pl-2.5 pr-8 py-2 rounded-xl border border-[var(--border-ui)] bg-[var(--bg-card)] text-slate-700 dark:text-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 appearance-none outline-none transition"
                     >
                       <option value="all">📦 {t.allModules}</option>
                       <option value="billing" className="dark:bg-[#131B2E]">💸 Billing System</option>
@@ -632,7 +632,7 @@ export const AuditLogScreen: React.FC<AuditLogScreenProps> = ({ onBack, currentL
                         setStartDate(e.target.value);
                         setCurrentPage(1);
                       }}
-                      className="w-1/2 text-[10px] font-extrabold px-2 py-2 rounded-xl border border-slate-205 dark:border-slate-800 bg-white dark:bg-[#131B2E] text-slate-700 dark:text-slate-200 outline-none block focus:border-indigo-500"
+                      className="w-1/2 text-[10px] font-extrabold px-2 py-2 rounded-xl border border-slate-205 dark:border-slate-800 bg-[var(--bg-card)] text-slate-700 dark:text-slate-200 outline-none block focus:border-indigo-500"
                     />
                     <span className="text-[9px] font-bold text-slate-400">to</span>
                     <input
@@ -642,7 +642,7 @@ export const AuditLogScreen: React.FC<AuditLogScreenProps> = ({ onBack, currentL
                         setEndDate(e.target.value);
                         setCurrentPage(1);
                       }}
-                      className="w-1/2 text-[10px] font-extrabold px-2 py-2 rounded-xl border border-slate-205 dark:border-slate-800 bg-white dark:bg-[#131B2E] text-slate-700 dark:text-slate-200 outline-none block focus:border-indigo-500"
+                      className="w-1/2 text-[10px] font-extrabold px-2 py-2 rounded-xl border border-slate-205 dark:border-slate-800 bg-[var(--bg-card)] text-slate-700 dark:text-slate-200 outline-none block focus:border-indigo-500"
                     />
                   </div>
                 </div>
@@ -670,7 +670,7 @@ export const AuditLogScreen: React.FC<AuditLogScreenProps> = ({ onBack, currentL
             <span className="text-xs font-black tracking-wider uppercase text-slate-500 font-mono">{t.loading}</span>
           </div>
         ) : filteredLogsList.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 text-slate-400 text-center space-y-2.5 border border-dashed border-slate-200 dark:border-slate-850 rounded-3xl bg-white dark:bg-[#131B2E]/20 p-6 mx-2 shadow-sm select-none">
+          <div className="flex flex-col items-center justify-center py-20 text-slate-400 text-center space-y-2.5 border border-dashed border-slate-200 dark:border-[var(--border-ui)] rounded-3xl bg-[var(--bg-card)]/20 p-6 mx-2 shadow-sm select-none">
             <SlidersHorizontal size={32} className="text-slate-350" />
             <span className="text-xs font-black text-slate-650 dark:text-slate-400">{t.noLogs}</span>
             <span className="text-[10px] max-w-xs font-medium text-slate-400 font-sans">
@@ -685,9 +685,9 @@ export const AuditLogScreen: React.FC<AuditLogScreenProps> = ({ onBack, currentL
               <div key={groupDateTitle} className="space-y-4">
                 
                 {/* TIMELINE DATE HEADER */}
-                <div className="sticky top-[-1px] z-20 -ml-6 pl-6 py-2 bg-slate-50/95 dark:bg-[#090D16]/95 backdrop-blur-sm flex items-center gap-2">
+                <div className="sticky top-[-1px] z-20 -ml-6 pl-6 py-2 bg-[var(--bg-app)]/95 backdrop-blur-sm flex items-center gap-2">
                   <div className="absolute -left-[4.5px] top-4.5 h-2 w-2 rounded-full border border-indigo-500 bg-white dark:bg-[#090D16] shadow-sm z-30" />
-                  <span className="text-[10px] font-black tracking-wider uppercase text-slate-500 dark:text-slate-400 font-mono flex items-center gap-1.5 bg-white dark:bg-[#131B2E] border border-slate-200/60 dark:border-slate-800/80 px-3.5 py-1.5 rounded-full shadow-xs">
+                  <span className="text-[10px] font-black tracking-wider uppercase text-slate-500 dark:text-slate-400 font-mono flex items-center gap-1.5 bg-[var(--bg-card)] border border-slate-200/60 dark:border-slate-800/80 px-3.5 py-1.5 rounded-full shadow-xs">
                     <Sparkles size={10} className="text-yellow-500 animate-pulse" />
                     {groupDateTitle}
                   </span>
@@ -717,7 +717,7 @@ export const AuditLogScreen: React.FC<AuditLogScreenProps> = ({ onBack, currentL
                         className="group relative flex items-start gap-3 transition-all pb-1 text-left"
                       >
                         {/* Interactive Circle on Timeline */}
-                        <div className="absolute -left-[30px] top-4 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-white dark:bg-[#131B2E] z-10 border border-slate-300 dark:border-slate-800 shadow-xs">
+                        <div className="absolute -left-[30px] top-4 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-[var(--bg-card)] z-10 border border-slate-300 dark:border-slate-800 shadow-xs">
                           <span className={`h-1.5 w-1.5 rounded-full ${style.dot}`} />
                         </div>
 
@@ -730,7 +730,7 @@ export const AuditLogScreen: React.FC<AuditLogScreenProps> = ({ onBack, currentL
                         <div className="flex-1 min-w-0">
                            <div 
                             onClick={() => { if(hasMetadataChanges) toggleLogExpand(log.id); }}
-                            className={`p-4 rounded-2xl border-y border-r border-l-4 bg-white dark:bg-[#131B2E] transition-all duration-200 ${
+                            className={`p-4 rounded-2xl border-y border-r border-l-4 bg-[var(--bg-card)] transition-all duration-200 ${
                               normAction.includes('delete') 
                                 ? 'border-l-rose-500' 
                                 : normAction.includes('create')
@@ -745,7 +745,7 @@ export const AuditLogScreen: React.FC<AuditLogScreenProps> = ({ onBack, currentL
                             }`}
                           >
                             {/* Card Item Header Context Info */}
-                            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-dashed border-slate-100 dark:border-slate-850 pb-2 mb-2">
+                            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-dashed border-slate-100 dark:border-[var(--border-ui)] pb-2 mb-2">
                               <div className="flex items-center gap-1.5 flex-wrap">
                                 <span className="font-extrabold text-xs text-slate-850 dark:text-slate-150 truncate max-w-[130px]">
                                   {operatorName}
@@ -806,7 +806,7 @@ export const AuditLogScreen: React.FC<AuditLogScreenProps> = ({ onBack, currentL
                                     e.stopPropagation();
                                     toggleLogExpand(log.id);
                                   }}
-                                  className="text-[9px] font-bold uppercase text-indigo-500 dark:text-indigo-400 hover:text-indigo-650 flex items-center gap-1 bg-indigo-50/50 dark:bg-slate-950 hover:bg-indigo-50 border border-indigo-100/40 dark:border-slate-850 rounded-lg px-2 py-1 cursor-pointer transition active:scale-95"
+                                  className="text-[9px] font-bold uppercase text-indigo-500 dark:text-indigo-400 hover:text-indigo-650 flex items-center gap-1 bg-indigo-50/50 dark:bg-slate-950 hover:bg-indigo-50 border border-indigo-100/40 dark:border-[var(--border-ui)] rounded-lg px-2 py-1 cursor-pointer transition active:scale-95"
                                 >
                                   {isExpanded ? <EyeOff size={10} /> : <Eye size={10} />}
                                   {isExpanded ? t.hideChanges : t.viewChanges}
@@ -825,7 +825,7 @@ export const AuditLogScreen: React.FC<AuditLogScreenProps> = ({ onBack, currentL
                                   transition={{ duration: 0.2, ease: "easeInOut" }}
                                   className="overflow-hidden border-t border-slate-100 dark:border-slate-800/80 pt-3"
                                 >
-                                  <div className="rounded-xl bg-slate-50 dark:bg-[#090D16] p-2.5 border border-slate-150 dark:border-slate-850 max-h-[250px] overflow-y-auto">
+                                  <div className="rounded-xl bg-[var(--bg-app)] p-2.5 border border-[var(--border-ui)] dark:border-[var(--border-ui)] max-h-[250px] overflow-y-auto">
                                     <div className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wilder mb-2 flex items-center gap-1 font-mono">
                                       <Database size={10} className="text-emerald-500" />
                                       {t.changesTitle}
@@ -844,7 +844,7 @@ export const AuditLogScreen: React.FC<AuditLogScreenProps> = ({ onBack, currentL
                                         }
 
                                         return (
-                                          <div key={field} className="border-b border-slate-200/40 dark:border-slate-850 pb-2 last:border-0 text-left">
+                                          <div key={field} className="border-b border-slate-200/40 dark:border-[var(--border-ui)] pb-2 last:border-0 text-left">
                                             <span className="text-[9px] font-bold text-indigo-500 dark:text-indigo-400 font-mono block mb-1">
                                               {field}
                                             </span>
@@ -888,7 +888,7 @@ export const AuditLogScreen: React.FC<AuditLogScreenProps> = ({ onBack, currentL
             <button
               onClick={handleLoadMoreFromCloud}
               disabled={refreshing}
-              className="bg-white dark:bg-[#131B2E] border border-slate-200 dark:border-slate-800 hover:bg-slate-50 text-indigo-500 dark:text-indigo-400 px-5 py-2.5 rounded-2xl text-xs font-black shadow-sm inline-flex items-center gap-1.5 cursor-pointer hover:shadow transition active:scale-95"
+              className="bg-[var(--bg-card)] border border-[var(--border-ui)] hover:bg-slate-50 text-indigo-500 dark:text-indigo-400 px-5 py-2.5 rounded-2xl text-xs font-black shadow-sm inline-flex items-center gap-1.5 cursor-pointer hover:shadow transition active:scale-95"
             >
               <Database size={12} className="text-emerald-500" />
               {t.loadMore}
@@ -899,7 +899,7 @@ export const AuditLogScreen: React.FC<AuditLogScreenProps> = ({ onBack, currentL
       </div>
 
       {/* 4. PREMIUM COMPACT PAGINATION FOOTER */}
-      <footer className="bg-white dark:bg-[#131B2E] border-t border-slate-205 dark:border-slate-800 p-3.5 flex items-center justify-between shrink-0 h-[60px] select-none shadow animate-none">
+      <footer className="bg-[var(--bg-card)] border-t border-slate-205 dark:border-slate-800 p-3.5 flex items-center justify-between shrink-0 h-[60px] select-none shadow animate-none">
         <button
           onClick={handlePrevPage}
           disabled={currentPage === 1 || loading}

@@ -130,6 +130,7 @@ export const ItemListScreen: React.FC<ItemListScreenProps> = ({ onBack, initialE
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState<Partial<Item>>({});
+  const [isSaving, setIsSaving] = useState(false);
 
   // Delete Confirmation State
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -371,6 +372,7 @@ export const ItemListScreen: React.FC<ItemListScreenProps> = ({ onBack, initialE
 
   const handleSave = async (e: React.FormEvent) => {
       e.preventDefault();
+      if (isSaving) return;
       if (!formData.name) return;
 
       const item: Item = {
@@ -388,15 +390,23 @@ export const ItemListScreen: React.FC<ItemListScreenProps> = ({ onBack, initialE
           category: formData.category
       };
 
-      await InventoryService.addItem(item);
-      setIsModalOpen(false);
-      
-      if (returnScreen) {
-          onBack();
-          return;
+      setIsSaving(true);
+      try {
+        await InventoryService.addItem(item);
+        setIsModalOpen(false);
+        
+        if (returnScreen) {
+            onBack();
+            return;
+        }
+        
+        loadData();
+      } catch (err) {
+        console.error("Failed to save item", err);
+        alert("Error saving item");
+      } finally {
+        setIsSaving(false);
       }
-      
-      loadData();
   };
 
   const handleShareClick = async () => {
@@ -450,7 +460,7 @@ export const ItemListScreen: React.FC<ItemListScreenProps> = ({ onBack, initialE
 
   return (
     <div className="flex flex-col h-full bg-[var(--bg-app)] text-[var(--text-main)] transition-colors pb-[max(env(safe-area-inset-bottom),0px)]">
-      <header className="bg-[var(--bg-card)] text-[var(--text-main)] p-4 flex items-center justify-between border-b border-slate-200 dark:border-slate-800 shadow-sm shrink-0 z-20 pt-[max(env(safe-area-inset-top),48px)] transition-colors">
+      <header className="bg-[var(--bg-card)] text-[var(--text-main)] p-4 flex items-center justify-between border-b border-[var(--border-ui)] shadow-sm shrink-0 z-20 pt-[max(env(safe-area-inset-top),48px)] transition-colors">
         <div className="flex items-center gap-3 max-w-7xl mx-auto w-full justify-between">
           <div className="flex items-center gap-3">
             <button 
@@ -523,7 +533,7 @@ export const ItemListScreen: React.FC<ItemListScreenProps> = ({ onBack, initialE
             <input
               type="text"
               placeholder={t.searchPlaceholder}
-              className="block w-full h-12 pl-10 pr-4 py-3 border border-slate-200 dark:border-slate-800 rounded-xl bg-[var(--bg-card)] text-[var(--text-main)] placeholder-[var(--text-secondary)]/50 focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)]/25 focus:border-[var(--brand-primary)] transition-all shadow-3xs text-sm"
+              className="block w-full h-12 pl-10 pr-4 py-3 border border-[var(--border-ui)] rounded-xl bg-[var(--bg-card)] text-[var(--text-main)] placeholder-[var(--text-secondary)]/50 focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)]/25 focus:border-[var(--brand-primary)] transition-all shadow-3xs text-sm"
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
             />
@@ -531,7 +541,7 @@ export const ItemListScreen: React.FC<ItemListScreenProps> = ({ onBack, initialE
         {filteredItems.length > 0 && (
             <button 
                 onClick={selectAll} 
-                className={`h-12 px-4 rounded-xl font-black text-xs tracking-wider uppercase border transition-all duration-150 flex items-center justify-center gap-2 shrink-0 cursor-pointer ${selectedItems.size === filteredItems.length && filteredItems.length > 0 ? "bg-[var(--brand-primary)] text-white border-[var(--brand-primary)] shadow-md active:scale-95" : "bg-[var(--bg-card)] text-[var(--text-secondary)] border-slate-200 dark:border-slate-800 hover:bg-[var(--brand-light)] hover:text-[var(--brand-primary)] active:scale-95"}`}
+                className={`h-12 px-4 rounded-xl font-black text-xs tracking-wider uppercase border transition-all duration-150 flex items-center justify-center gap-2 shrink-0 cursor-pointer ${selectedItems.size === filteredItems.length && filteredItems.length > 0 ? "bg-[var(--brand-primary)] text-white border-[var(--brand-primary)] shadow-md active:scale-95" : "bg-[var(--bg-card)] text-[var(--text-secondary)] border-[var(--border-ui)] hover:bg-[var(--brand-light)] hover:text-[var(--brand-primary)] active:scale-95"}`}
             >
                 {selectedItems.size === filteredItems.length && filteredItems.length > 0 ? (
                      <><Check size={14} strokeWidth={3} /> {t.all}</>
@@ -566,7 +576,7 @@ export const ItemListScreen: React.FC<ItemListScreenProps> = ({ onBack, initialE
                             className={`bg-[var(--bg-card)] p-4 rounded-2xl shadow-3xs flex flex-col sm:flex-row sm:justify-between sm:items-center group transition-all duration-150 border ${
                                 selectedItems.has(item.id) 
                                     ? 'border-[var(--brand-primary)] bg-[var(--brand-light)] dark:bg-indigo-950/20 shadow-2xs pl-3 border-l-4' 
-                                    : 'border-slate-200 dark:border-slate-800 hover:border-[var(--brand-primary)]/80 hover:shadow-2xs'
+                                    : 'border-[var(--border-ui)] hover:border-[var(--brand-primary)]/80 hover:shadow-2xs'
                             } ${isSelectionMode ? 'cursor-pointer' : ''}`}
                         >
                             <div className="flex items-start gap-3.5 w-full">
@@ -581,10 +591,10 @@ export const ItemListScreen: React.FC<ItemListScreenProps> = ({ onBack, initialE
                                 </div>
 
                                 <div className="flex-1 min-w-0">
-                                    <h3 className="font-bold text-slate-900 dark:text-white text-base md:text-lg leading-tight transition-colors group-hover:text-[var(--brand-primary)]">{item.name}</h3>
+                                    <h3 className="font-bold text-[var(--text-main)] text-base md:text-lg leading-tight transition-colors group-hover:text-[var(--brand-primary)]">{item.name}</h3>
                                     <div className="flex flex-wrap gap-2 mt-2">
                                         {item.code && (
-                                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[var(--bg-app)] text-[var(--text-main)] border border-slate-200 dark:border-slate-800 shadow-4xs">
+                                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[var(--bg-app)] text-[var(--text-main)] border border-[var(--border-ui)] shadow-4xs">
                                                 <ScanBarcode size={12} className="text-[var(--text-secondary)]/70" />
                                                 <span className="text-[10px] uppercase text-[var(--text-secondary)]/70 font-bold mr-0.5">{t.code}:</span>
                                                 {item.code}
@@ -641,7 +651,7 @@ export const ItemListScreen: React.FC<ItemListScreenProps> = ({ onBack, initialE
                                     <div className="flex gap-1.5 pt-0.5">
                                         <button 
                                             onClick={(e) => { e.stopPropagation(); handleEdit(item); }} 
-                                            className="p-2 text-[var(--text-secondary)] hover:text-[var(--brand-primary)] hover:bg-[var(--brand-light)] bg-[var(--bg-app)] rounded-xl border border-slate-200 dark:border-slate-800 transition-all duration-150 active:scale-95 min-w-[36px] min-h-[36px] flex items-center justify-center cursor-pointer" 
+                                            className="p-2 text-[var(--text-secondary)] hover:text-[var(--brand-primary)] hover:bg-[var(--brand-light)] bg-[var(--bg-app)] rounded-xl border border-[var(--border-ui)] transition-all duration-150 active:scale-95 min-w-[36px] min-h-[36px] flex items-center justify-center cursor-pointer" 
                                             title={t.editItem}
                                         >
                                             <Edit2 size={15} />
@@ -649,7 +659,7 @@ export const ItemListScreen: React.FC<ItemListScreenProps> = ({ onBack, initialE
                                         <PermissionWrapper requiredRole="admin" fallback="hide">
                                             <button 
                                                 onClick={(e) => { e.stopPropagation(); setDeleteId(item.id); }} 
-                                                className="p-2 text-[var(--text-secondary)] hover:text-[var(--money-out)] hover:bg-red-500/10 bg-[var(--bg-app)] rounded-xl border border-slate-200 dark:border-slate-800 transition-all duration-150 active:scale-95 min-w-[36px] min-h-[36px] flex items-center justify-center cursor-pointer" 
+                                                className="p-2 text-[var(--text-secondary)] hover:text-[var(--money-out)] hover:bg-red-500/10 bg-[var(--bg-app)] rounded-xl border border-[var(--border-ui)] transition-all duration-150 active:scale-95 min-w-[36px] min-h-[36px] flex items-center justify-center cursor-pointer" 
                                                 title={t.delete}
                                             >
                                                 <Trash2 size={15} />
@@ -668,7 +678,7 @@ export const ItemListScreen: React.FC<ItemListScreenProps> = ({ onBack, initialE
       {/* Delete Confirmation Modal */}
       {deleteId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 dark:bg-black/80 backdrop-blur-3xs">
-            <div className="bg-[var(--bg-card)] rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden p-6 text-center border border-slate-200 dark:border-slate-800 animate-in fade-in zoom-in-95 duration-150">
+            <div className="bg-[var(--bg-card)] rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden p-6 text-center border border-[var(--border-ui)] animate-in fade-in zoom-in-95 duration-150">
                 <div className="w-14 h-14 bg-red-500/10 text-[var(--money-out)] rounded-2xl flex items-center justify-center mx-auto mb-4 border border-red-500/20 shadow-4xs">
                     <Trash2 size={26} />
                 </div>
@@ -680,7 +690,7 @@ export const ItemListScreen: React.FC<ItemListScreenProps> = ({ onBack, initialE
                     <button 
                         type="button"
                         onClick={() => setDeleteId(null)} 
-                        className="flex-1 py-3 bg-[var(--bg-app)] hover:bg-slate-100 dark:hover:bg-slate-800/50 text-[var(--text-secondary)] font-black text-xs tracking-wider uppercase rounded-2xl transition-all shadow-4xs active:scale-[0.97] cursor-pointer text-center border border-slate-200 dark:border-slate-800"
+                        className="flex-1 py-3 bg-[var(--bg-app)] hover:bg-slate-100/50 dark:hover:bg-slate-800/50 text-[var(--text-secondary)] font-black text-xs tracking-wider uppercase rounded-2xl transition-all shadow-4xs active:scale-[0.97] cursor-pointer text-center border border-[var(--border-ui)]"
                     >
                         {t.cancel}
                     </button>
@@ -699,7 +709,7 @@ export const ItemListScreen: React.FC<ItemListScreenProps> = ({ onBack, initialE
       {/* Delete Multiple Confirmation Modal */}
       {deleteSelectedModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 dark:bg-black/80 backdrop-blur-3xs">
-            <div className="bg-[var(--bg-card)] rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden p-6 text-center border border-slate-200 dark:border-slate-800 animate-in fade-in zoom-in-95 duration-150">
+            <div className="bg-[var(--bg-card)] rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden p-6 text-center border border-[var(--border-ui)] animate-in fade-in zoom-in-95 duration-150">
                 <div className="w-14 h-14 bg-red-500/10 text-[var(--money-out)] rounded-2xl flex items-center justify-center mx-auto mb-4 border border-red-500/20 shadow-4xs">
                     <Trash2 size={26} />
                 </div>
@@ -711,7 +721,7 @@ export const ItemListScreen: React.FC<ItemListScreenProps> = ({ onBack, initialE
                     <button 
                         type="button"
                         onClick={() => setDeleteSelectedModal(false)} 
-                        className="flex-1 py-3 bg-[var(--bg-app)] hover:bg-slate-100 dark:hover:bg-slate-800/50 text-[var(--text-secondary)] font-black text-xs tracking-wider uppercase rounded-2xl transition-all shadow-4xs active:scale-[0.97] cursor-pointer text-center border border-slate-200 dark:border-slate-800"
+                        className="flex-1 py-3 bg-[var(--bg-app)] hover:bg-slate-100/50 dark:hover:bg-slate-800/50 text-[var(--text-secondary)] font-black text-xs tracking-wider uppercase rounded-2xl transition-all shadow-4xs active:scale-[0.97] cursor-pointer text-center border border-[var(--border-ui)]"
                     >
                         {t.cancel}
                     </button>
@@ -752,14 +762,21 @@ export const ItemListScreen: React.FC<ItemListScreenProps> = ({ onBack, initialE
                       </button>
                   </div>
               ) : (
-                <div className="bg-[var(--bg-card)] rounded-t-3xl sm:rounded-3xl shadow-2xl w-full max-w-lg relative z-10 overflow-hidden max-h-[90vh] flex flex-col border border-slate-200 dark:border-slate-800">
-                  <div className="bg-[var(--bg-app)] p-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center shrink-0">
+                <div className="bg-[var(--bg-card)] rounded-t-3xl sm:rounded-3xl shadow-2xl w-full max-w-lg relative z-10 overflow-hidden max-h-[90vh] flex flex-col border border-[var(--border-ui)]">
+                  <div className="bg-[var(--bg-app)] p-4 border-b border-[var(--border-ui)] flex justify-between items-center shrink-0">
                       <h3 className="text-base font-black text-[var(--text-main)]">{editingId ? t.editItem : t.addNewItem}</h3>
                       <div className="flex items-center gap-1">
-                          <button type="button" onClick={handleSave} className="text-green-600 dark:text-green-500 hover:bg-green-100 dark:hover:bg-green-900/40 p-2 rounded-full transition-all cursor-pointer" title="Save" aria-label="Save Item">
-                              <Check size={22} strokeWidth={3} />
+                          <button 
+                              disabled={isSaving}
+                              type="button" 
+                              onClick={handleSave} 
+                              className="text-green-600 dark:text-green-500 hover:bg-green-100 dark:hover:bg-green-900/40 p-2 rounded-full transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed" 
+                              title="Save" 
+                              aria-label="Save Item"
+                          >
+                              {isSaving ? <span className="animate-spin h-5 w-5 border-2 border-green-600 border-t-transparent rounded-full" /> : <Check size={22} strokeWidth={3} />}
                           </button>
-                          <button type="button" onClick={() => setIsModalOpen(false)} className="text-[var(--text-secondary)] hover:bg-slate-100 dark:hover:bg-slate-800/50 p-2 rounded-full transition-all cursor-pointer" title="Close" aria-label="Close">
+                          <button type="button" onClick={() => setIsModalOpen(false)} className="text-[var(--text-secondary)] hover:bg-slate-100/50 dark:hover:bg-slate-800/50 p-2 rounded-full transition-all cursor-pointer" title="Close" aria-label="Close">
                               <X size={18} />
                           </button>
                       </div>
@@ -768,13 +785,13 @@ export const ItemListScreen: React.FC<ItemListScreenProps> = ({ onBack, initialE
                   <form onSubmit={handleSave} className="p-5 space-y-4 overflow-y-auto custom-scrollbar">
                       <div className="space-y-1.5">
                           <label className="block text-[10px] font-black text-[var(--text-secondary)] uppercase tracking-wider">{t.itemName}</label>
-                          <input type="text" required className="block w-full h-11 px-3 border border-slate-200 dark:border-slate-800 rounded-xl bg-[var(--bg-app)] text-[var(--text-main)] placeholder-[var(--text-secondary)]/40 focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)]/25 focus:border-[var(--brand-primary)] transition-all font-sans font-semibold text-xs text-center" value={formData.name || ''} onChange={e => setFormData({...formData, name: e.target.value})} onFocus={handleFocus} placeholder={t.productNamePlaceholder} />
+                          <input type="text" required className="block w-full h-11 px-3 border border-[var(--border-ui)] rounded-xl bg-[var(--bg-app)] text-[var(--text-main)] placeholder-[var(--text-secondary)]/40 focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)]/25 focus:border-[var(--brand-primary)] transition-all font-sans font-semibold text-xs text-center" value={formData.name || ''} onChange={e => setFormData({...formData, name: e.target.value})} onFocus={handleFocus} placeholder={t.productNamePlaceholder} />
                       </div>
                       
                       <div className="space-y-1.5">
                           <label className="block text-[10px] font-black text-[var(--text-secondary)] uppercase tracking-wider">{t.itemCode}</label>
                           <div className="relative">
-                              <input type="text" className={`block w-full h-11 px-3 border border-slate-200 dark:border-slate-800 rounded-xl bg-[var(--bg-app)] text-[var(--text-main)] placeholder-[var(--text-secondary)]/40 focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)]/25 focus:border-[var(--brand-primary)] transition-all font-sans font-semibold text-xs text-center ${localStorage.getItem('showBarcodeScanner') !== 'false' ? 'pr-10' : ''}`} value={formData.code || ''} onChange={e => setFormData({...formData, code: e.target.value})} onFocus={handleFocus} placeholder={t.scanOrType} />
+                              <input type="text" className={`block w-full h-11 px-3 border border-[var(--border-ui)] rounded-xl bg-[var(--bg-app)] text-[var(--text-main)] placeholder-[var(--text-secondary)]/40 focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)]/25 focus:border-[var(--brand-primary)] transition-all font-sans font-semibold text-xs text-center ${localStorage.getItem('showBarcodeScanner') !== 'false' ? 'pr-10' : ''}`} value={formData.code || ''} onChange={e => setFormData({...formData, code: e.target.value})} onFocus={handleFocus} placeholder={t.scanOrType} />
                               {localStorage.getItem('showBarcodeScanner') !== 'false' && (
                                   <button type="button" onClick={startScanner} className="absolute right-2 top-1.5 p-1 text-[var(--text-secondary)] hover:text-[var(--brand-primary)] hover:bg-[var(--brand-light)] rounded-lg transition-all" title="Open Camera Scanner">
                                       <ScanBarcode size={20} />
@@ -786,15 +803,15 @@ export const ItemListScreen: React.FC<ItemListScreenProps> = ({ onBack, initialE
                       <div className="grid grid-cols-3 gap-3">
                           <div className="space-y-1.5">
                             <label className="block text-[10px] font-black text-[var(--text-secondary)] uppercase tracking-wider">{t.saleRate}</label>
-                            <input type="number" required className="block w-full h-11 px-3 border border-slate-200 dark:border-slate-800 rounded-xl bg-[var(--bg-app)] text-[var(--text-main)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)]/25 focus:border-[var(--brand-primary)] transition-all font-sans font-bold text-xs text-center" value={formData.saleRate || ''} onChange={e => setFormData({...formData, saleRate: Number(e.target.value)})} onFocus={handleFocus} />
+                            <input type="number" required className="block w-full h-11 px-3 border border-[var(--border-ui)] rounded-xl bg-[var(--bg-app)] text-[var(--text-main)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)]/25 focus:border-[var(--brand-primary)] transition-all font-sans font-bold text-xs text-center" value={formData.saleRate || ''} onChange={e => setFormData({...formData, saleRate: Number(e.target.value)})} onFocus={handleFocus} />
                           </div>
                           <div className="space-y-1.5">
                             <label className="block text-[10px] font-black text-[var(--text-secondary)] uppercase tracking-wider">{t.purchaseRate}</label>
-                            <input type="number" className="block w-full h-11 px-3 border border-slate-200 dark:border-slate-800 rounded-xl bg-[var(--bg-app)] text-[var(--text-main)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)]/25 focus:border-[var(--brand-primary)] transition-all font-sans font-semibold text-xs text-center" value={formData.purchaseRate || ''} onChange={e => setFormData({...formData, purchaseRate: Number(e.target.value)})} onFocus={handleFocus} />
+                            <input type="number" className="block w-full h-11 px-3 border border-[var(--border-ui)] rounded-xl bg-[var(--bg-app)] text-[var(--text-main)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)]/25 focus:border-[var(--brand-primary)] transition-all font-sans font-semibold text-xs text-center" value={formData.purchaseRate || ''} onChange={e => setFormData({...formData, purchaseRate: Number(e.target.value)})} onFocus={handleFocus} />
                           </div>
                            <div className="space-y-1.5">
                             <label className="block text-[10px] font-black text-[var(--text-secondary)] uppercase tracking-wider">{t.mrp}</label>
-                            <input type="number" className="block w-full h-11 px-3 border border-slate-200 dark:border-slate-800 rounded-xl bg-[var(--bg-app)] text-[var(--text-main)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)]/25 focus:border-[var(--brand-primary)] transition-all font-sans font-semibold text-xs text-center" value={formData.mrp || ''} onChange={e => setFormData({...formData, mrp: Number(e.target.value)})} onFocus={handleFocus} />
+                            <input type="number" className="block w-full h-11 px-3 border border-[var(--border-ui)] rounded-xl bg-[var(--bg-app)] text-[var(--text-main)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)]/25 focus:border-[var(--brand-primary)] transition-all font-sans font-semibold text-xs text-center" value={formData.mrp || ''} onChange={e => setFormData({...formData, mrp: Number(e.target.value)})} onFocus={handleFocus} />
                           </div>
                       </div>
 
@@ -802,7 +819,7 @@ export const ItemListScreen: React.FC<ItemListScreenProps> = ({ onBack, initialE
                           <div className="space-y-1.5">
                              <label className="block text-[10px] font-black text-[var(--text-secondary)] uppercase tracking-wider">{t.taxGst}</label>
                              <select 
-                                className="block w-full h-11 px-3 border border-slate-200 dark:border-slate-800 rounded-xl bg-[var(--bg-app)] text-[var(--text-main)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)]/25 focus:border-[var(--brand-primary)] transition-all font-sans font-semibold text-xs text-center appearance-none cursor-pointer" 
+                                className="block w-full h-11 px-3 border border-[var(--border-ui)] rounded-xl bg-[var(--bg-app)] text-[var(--text-main)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)]/25 focus:border-[var(--brand-primary)] transition-all font-sans font-semibold text-xs text-center appearance-none cursor-pointer" 
                                 value={formData.taxPercent || 0} 
                                 onChange={e => setFormData({...formData, taxPercent: Number(e.target.value)})}
                              >
@@ -812,7 +829,7 @@ export const ItemListScreen: React.FC<ItemListScreenProps> = ({ onBack, initialE
                           </div>
                            <div className="space-y-1.5">
                              <label className="block text-[10px] font-black text-[var(--text-secondary)] uppercase tracking-wider">{t.taxType}</label>
-                             <select className="block w-full h-11 px-3 border border-slate-200 dark:border-slate-800 rounded-xl bg-[var(--bg-app)] text-[var(--text-main)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)]/25 focus:border-[var(--brand-primary)] transition-all font-sans font-semibold text-xs text-center appearance-none cursor-pointer" value={formData.taxType || 'Excluded'} onChange={e => setFormData({...formData, taxType: e.target.value as any})}>
+                             <select className="block w-full h-11 px-3 border border-[var(--border-ui)] rounded-xl bg-[var(--bg-app)] text-[var(--text-main)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)]/25 focus:border-[var(--brand-primary)] transition-all font-sans font-semibold text-xs text-center appearance-none cursor-pointer" value={formData.taxType || 'Excluded'} onChange={e => setFormData({...formData, taxType: e.target.value as any})}>
                                 <option value="Excluded">{t.taxExcluded}</option>
                                 <option value="Included">{t.taxIncluded}</option>
                              </select>
@@ -827,7 +844,7 @@ export const ItemListScreen: React.FC<ItemListScreenProps> = ({ onBack, initialE
                              <input 
                                 type="number" 
                                 disabled={authContext.currentUser?.role !== 'admin'}
-                                className="block w-full h-11 px-3 border border-slate-200 dark:border-slate-800 rounded-xl bg-[var(--bg-app)] text-[var(--text-main)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)]/25 focus:border-[var(--brand-primary)] transition-all font-sans font-semibold text-xs text-center disabled:opacity-50 disabled:bg-[var(--bg-app)] cursor-not-allowed" 
+                                className="block w-full h-11 px-3 border border-[var(--border-ui)] rounded-xl bg-[var(--bg-app)] text-[var(--text-main)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)]/25 focus:border-[var(--brand-primary)] transition-all font-sans font-semibold text-xs text-center disabled:opacity-50 disabled:bg-[var(--bg-app)] cursor-not-allowed" 
                                 value={formData.openingStock || ''} 
                                 onChange={e => setFormData({...formData, openingStock: Number(e.target.value)})} 
                                 onFocus={handleFocus} 
@@ -835,7 +852,7 @@ export const ItemListScreen: React.FC<ItemListScreenProps> = ({ onBack, initialE
                           </div>
                           <div className="space-y-1.5">
                              <label className="block text-[10px] font-black text-[var(--text-secondary)] uppercase tracking-wider">{t.unit}</label>
-                             <select className="block w-full h-11 px-3 border border-slate-200 dark:border-slate-800 rounded-xl bg-[var(--bg-app)] text-[var(--text-main)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)]/25 focus:border-[var(--brand-primary)] transition-all font-sans font-semibold text-xs text-center appearance-none cursor-pointer" value={formData.unit || ''} onChange={e => setFormData({...formData, unit: e.target.value})}>
+                             <select className="block w-full h-11 px-3 border border-[var(--border-ui)] rounded-xl bg-[var(--bg-app)] text-[var(--text-main)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)]/25 focus:border-[var(--brand-primary)] transition-all font-sans font-semibold text-xs text-center appearance-none cursor-pointer" value={formData.unit || ''} onChange={e => setFormData({...formData, unit: e.target.value})}>
                                 <option value="">-</option>
                                 {units.map(u => <option key={u.id} value={u.code}>{u.code}</option>)}
                              </select>
@@ -843,7 +860,7 @@ export const ItemListScreen: React.FC<ItemListScreenProps> = ({ onBack, initialE
                            <div className="space-y-1.5">
                              <label className="block text-[10px] font-black text-[var(--text-secondary)] uppercase tracking-wider">{t.hsnCode}</label>
                              <select 
-                                className="block w-full h-11 px-3 border border-slate-200 dark:border-slate-800 rounded-xl bg-[var(--bg-app)] text-[var(--text-main)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)]/25 focus:border-[var(--brand-primary)] transition-all font-sans font-semibold text-xs text-center appearance-none cursor-pointer" 
+                                className="block w-full h-11 px-3 border border-[var(--border-ui)] rounded-xl bg-[var(--bg-app)] text-[var(--text-main)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)]/25 focus:border-[var(--brand-primary)] transition-all font-sans font-semibold text-xs text-center appearance-none cursor-pointer" 
                                 value={formData.hsnCode || ''} 
                                 onChange={handleHSNChange}
                              >
@@ -854,10 +871,11 @@ export const ItemListScreen: React.FC<ItemListScreenProps> = ({ onBack, initialE
                       </div>
 
                       <button 
+                        disabled={isSaving}
                         type="submit" 
-                        className="w-full h-12 bg-[var(--brand-primary)] hover:bg-[var(--brand-hover)] text-white font-black text-xs tracking-wider uppercase rounded-2xl transition-all shadow-md hover:shadow-lg active:scale-[0.98] cursor-pointer mt-2 flex justify-center items-center gap-2"
+                        className="w-full h-12 bg-[var(--brand-primary)] hover:bg-[var(--brand-hover)] text-white font-black text-xs tracking-wider uppercase rounded-2xl transition-all shadow-md hover:shadow-lg active:scale-[0.98] cursor-pointer mt-2 flex justify-center items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        <Save size={16} /> {t.saveItem}
+                        <Save size={16} /> {isSaving ? (appLang === 'hi' ? 'सुरक्षित किया जा रहा है...' : 'Saving...') : t.saveItem}
                       </button>
                   </form>
                 </div>
@@ -869,10 +887,10 @@ export const ItemListScreen: React.FC<ItemListScreenProps> = ({ onBack, initialE
       {showShareModal && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4 bg-black/60 dark:bg-black/80 backdrop-blur-3xs">
             <div className="absolute inset-0" onClick={() => !isSharing && setShowShareModal(false)}></div>
-            <div className="bg-[var(--bg-card)] rounded-t-3xl sm:rounded-3xl shadow-2xl w-full max-w-lg relative z-10 overflow-hidden max-h-[90vh] flex flex-col border border-slate-200 dark:border-slate-800">
-                <div className="bg-[var(--bg-app)] p-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center shrink-0">
+            <div className="bg-[var(--bg-card)] rounded-t-3xl sm:rounded-3xl shadow-2xl w-full max-w-lg relative z-10 overflow-hidden max-h-[90vh] flex flex-col border border-[var(--border-ui)]">
+                <div className="bg-[var(--bg-app)] p-4 border-b border-[var(--border-ui)] flex justify-between items-center shrink-0">
                     <h3 className="text-base font-black text-[var(--text-main)]">{t.selectClientTitle}</h3>
-                    <button onClick={() => setShowShareModal(false)} className="hover:bg-slate-100 dark:hover:bg-slate-800/50 text-[var(--text-secondary)] p-1.5 rounded-full transition-all cursor-pointer"><X size={18} /></button>
+                    <button onClick={() => setShowShareModal(false)} className="hover:bg-slate-100/50 dark:hover:bg-slate-800/50 text-[var(--text-secondary)] p-1.5 rounded-full transition-all cursor-pointer"><X size={18} /></button>
                 </div>
                 <div className="p-4 overflow-y-auto max-h-[60vh] custom-scrollbar">
                     {isSharing ? (
@@ -888,7 +906,7 @@ export const ItemListScreen: React.FC<ItemListScreenProps> = ({ onBack, initialE
                                 <button
                                     key={party.id}
                                     onClick={() => handlePartySelectToShare(party)}
-                                    className="w-full text-left p-4 bg-[var(--bg-app)] hover:bg-[var(--brand-light)] hover:text-[var(--brand-primary)] rounded-2xl border border-slate-200 dark:border-slate-800 transition-all flex justify-between items-center cursor-pointer group active:scale-[0.99]"
+                                    className="w-full text-left p-4 bg-[var(--bg-app)] hover:bg-[var(--brand-light)] hover:text-[var(--brand-primary)] rounded-2xl border border-[var(--border-ui)] transition-all flex justify-between items-center cursor-pointer group active:scale-[0.99]"
                                 >
                                     <div>
                                         <h4 className="font-bold text-[var(--text-main)] text-sm group-hover:text-[var(--brand-primary)]">{party.name}</h4>

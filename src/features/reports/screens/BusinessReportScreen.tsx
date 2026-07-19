@@ -609,9 +609,9 @@ export const BusinessReportScreen: React.FC<BusinessReportScreenProps> = ({
   const tabsArray: TransactionType[] = ['Sale', 'Purchase', 'Sale Return', 'Purchase Return'];
 
   return (
-    <div lang={lang} className={`flex flex-col h-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white transition-all duration-200 pb-[max(env(safe-area-inset-bottom),0px)] ${lang === 'hi' ? 'leading-relaxed' : ''}`}>
+    <div lang={lang} className={`flex flex-col h-full bg-[var(--bg-app)] text-[var(--text-main)] transition-all duration-200 pb-[max(env(safe-area-inset-bottom),0px)] ${lang === 'hi' ? 'leading-relaxed' : ''}`}>
       {/* Header */}
-      <header className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-4 px-5 pt-[max(env(safe-area-inset-top),48px)] pb-3 flex items-center justify-between border-b border-gray-200 dark:border-slate-800 shrink-0 relative transition-all duration-200 shadow-sm">
+      <header className="bg-[var(--bg-card)] text-[var(--text-main)] p-4 px-5 pt-[max(env(safe-area-inset-top),48px)] pb-3 flex items-center justify-between border-b border-[var(--border-ui)] shrink-0 relative transition-all duration-200 shadow-sm">
         <div className="flex items-center gap-3">
           <button 
             onClick={onBack} 
@@ -621,7 +621,7 @@ export const BusinessReportScreen: React.FC<BusinessReportScreenProps> = ({
             <ArrowLeft size={24} />
           </button>
           <div>
-            <h1 className="text-lg font-extrabold uppercase tracking-tight leading-tight text-slate-900 dark:text-white">{loc.businessReports}</h1>
+            <h1 className="text-lg font-extrabold uppercase tracking-tight leading-tight text-[var(--text-main)]">{loc.businessReports}</h1>
             <p className="text-xs text-slate-500 dark:text-slate-400 leading-tight">{loc.detailedView}</p>
           </div>
         </div>
@@ -670,7 +670,7 @@ export const BusinessReportScreen: React.FC<BusinessReportScreenProps> = ({
       </header>
 
       {/* Tabs */}
-      <div className="bg-white dark:bg-slate-900 py-3.5 px-4 overflow-x-auto hide-scrollbar border-b border-gray-200 dark:border-slate-805 transition-all duration-200 shrink-0 shadow-sm">
+      <div className="bg-[var(--bg-card)] py-3.5 px-4 overflow-x-auto hide-scrollbar border-b border-gray-200 dark:border-slate-805 transition-all duration-200 shrink-0 shadow-sm">
           <div className="flex gap-2 min-w-max max-w-7xl mx-auto">
               {tabsArray.map((t: TransactionType) => {
                   const isActive = activeTab === t;
@@ -706,7 +706,7 @@ export const BusinessReportScreen: React.FC<BusinessReportScreenProps> = ({
       >
           
           {/* Filters Area styled as interactive card block */}
-          <div className="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm p-4 transition-all duration-200 shrink-0">
+          <div className="bg-[var(--bg-card)] rounded-xl border border-[var(--border-ui)] shadow-sm p-4 transition-all duration-200 shrink-0">
               <div className="flex gap-1.5 mb-3">
                   {[
                       { id: 'Today', label: loc.today },
@@ -739,7 +739,7 @@ export const BusinessReportScreen: React.FC<BusinessReportScreenProps> = ({
                   <input
                     type="text"
                     placeholder={loc.searchPlaceholder}
-                    className="block w-full pl-9 pr-3 py-2.5 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white border border-gray-200 dark:border-slate-800 rounded-lg outline-none transition-all placeholder-slate-400 focus:border-indigo-500 focus-active-light dark:focus-active-dark text-sm min-h-[44px]"
+                    className="block w-full pl-9 pr-3 py-2.5 bg-[var(--bg-app)] text-[var(--text-main)] border border-[var(--border-ui)] rounded-lg outline-none transition-all placeholder-slate-400 focus:border-indigo-500 focus-active-light dark:focus-active-dark text-sm min-h-[44px]"
                     value={searchQuery}
                     onChange={e => setSearchQuery(e.target.value)}
                   />
@@ -772,7 +772,7 @@ export const BusinessReportScreen: React.FC<BusinessReportScreenProps> = ({
                     stiffness: 300,
                     damping: 32,
                 }}
-                className="absolute inset-0 bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm flex flex-col overflow-auto custom-scrollbar"
+                className="absolute inset-0 bg-[var(--bg-card)] rounded-xl border border-[var(--border-ui)] shadow-sm flex flex-col overflow-auto custom-scrollbar"
               >
               {loading ? (
                   <div className="flex-1 flex flex-col items-center justify-center py-10 text-slate-400 text-sm font-medium gap-2">
@@ -783,14 +783,14 @@ export const BusinessReportScreen: React.FC<BusinessReportScreenProps> = ({
                   <div className="min-w-full inline-block align-middle flex-1">
                       <div className="overflow-x-auto overflow-y-visible w-full">
                           <table className="min-w-max w-full text-left text-sm whitespace-nowrap">
-                              <thead className="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-white font-semibold sticky top-0 z-10 border-b border-gray-200 dark:border-slate-800">
+                              <thead className="bg-[var(--bg-app)] text-slate-800 dark:text-white font-semibold sticky top-0 z-10 border-b border-[var(--border-ui)]">
                                   <tr>
-                                      <th className="p-3 border-r border-gray-200 dark:border-slate-800 sticky left-0 z-20 bg-slate-50 dark:bg-slate-950 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] text-indigo-600 dark:text-indigo-400 font-bold">{loc.monthCol}</th>
-                                      <th className="p-3 border-r border-gray-200 dark:border-slate-800 text-slate-900 dark:text-white">{loc.billsCol}</th>
-                                      <th className="p-3 border-r border-gray-200 dark:border-slate-800 text-right text-slate-900 dark:text-white">{loc.totalQtyCol}</th>
-                                      <th className="p-3 border-r border-gray-200 dark:border-slate-800 text-right text-slate-900 dark:text-white">{loc.billTotalCol}</th>
-                                      <th className="p-3 border-r border-gray-200 dark:border-slate-800 text-right text-slate-900 dark:text-white">{loc.paymentCol}</th>
-                                      <th className="p-3 border-r border-gray-200 dark:border-slate-800 text-right text-slate-900 dark:text-white">{loc.balanceCol}</th>
+                                      <th className="p-3 border-r border-gray-200 dark:border-slate-800 sticky left-0 z-20 bg-[var(--bg-app)] shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] text-indigo-600 dark:text-indigo-400 font-bold">{loc.monthCol}</th>
+                                      <th className="p-3 border-r border-gray-200 dark:border-slate-800 text-[var(--text-main)]">{loc.billsCol}</th>
+                                      <th className="p-3 border-r border-gray-200 dark:border-slate-800 text-right text-[var(--text-main)]">{loc.totalQtyCol}</th>
+                                      <th className="p-3 border-r border-gray-200 dark:border-slate-800 text-right text-[var(--text-main)]">{loc.billTotalCol}</th>
+                                      <th className="p-3 border-r border-gray-200 dark:border-slate-800 text-right text-[var(--text-main)]">{loc.paymentCol}</th>
+                                      <th className="p-3 border-r border-gray-200 dark:border-slate-800 text-right text-[var(--text-main)]">{loc.balanceCol}</th>
                                       <th className="p-3 text-right text-amber-650 font-bold">{loc.advanceCol}</th>
                                   </tr>
                               </thead>
@@ -802,9 +802,9 @@ export const BusinessReportScreen: React.FC<BusinessReportScreenProps> = ({
                                               setSelectedSummaryMonth(m.monthStr);
                                               setDateFilter('Month');
                                           }}
-                                          className="cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/65 transition-colors bg-white dark:bg-slate-900 text-slate-900 dark:text-white group relative"
+                                          className="cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/65 transition-colors bg-[var(--bg-card)] text-[var(--text-main)] group relative"
                                       >
-                                          <td className="p-3 border-r border-gray-200 dark:border-slate-800 sticky left-0 z-10 bg-white dark:bg-slate-900 group-hover:bg-slate-50 dark:group-hover:bg-slate-800/65 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)] transition-colors text-indigo-600 dark:text-indigo-400 font-bold">
+                                          <td className="p-3 border-r border-gray-200 dark:border-slate-800 sticky left-0 z-10 bg-[var(--bg-card)] group-hover:bg-slate-50 dark:group-hover:bg-slate-800/65 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)] transition-colors text-indigo-600 dark:text-indigo-400 font-bold">
                                             <div className="flex items-center justify-between">
                                               <span>{getTranslatedMonthName(m.name)}</span>
                                               <span className="text-slate-400 text-xs font-normal ml-2">{m.monthStr.split('-')[0]}</span>
@@ -819,9 +819,9 @@ export const BusinessReportScreen: React.FC<BusinessReportScreenProps> = ({
                                       </tr>
                                   ))}
                               </tbody>
-                              <tfoot className="bg-slate-50 dark:bg-slate-950 border-t-2 border-gray-200 dark:border-slate-800 text-slate-900 dark:text-white sticky bottom-0 z-30 shadow-[0_-2px_10px_rgba(0,0,0,0.08)] font-extrabold">
-                                  <tr className="bg-slate-50 dark:bg-slate-950">
-                                      <td className="p-3 sticky left-0 bg-slate-50 dark:bg-slate-950 z-40 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] text-slate-900 dark:text-white font-extrabold">{loc.monthsCount}</td>
+                              <tfoot className="bg-[var(--bg-app)] border-t-2 border-gray-200 dark:border-slate-800 text-[var(--text-main)] sticky bottom-0 z-30 shadow-[0_-2px_10px_rgba(0,0,0,0.08)] font-extrabold">
+                                  <tr className="bg-[var(--bg-app)]">
+                                      <td className="p-3 sticky left-0 bg-[var(--bg-app)] z-40 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] text-[var(--text-main)] font-extrabold">{loc.monthsCount}</td>
                                       <td className="p-3 text-indigo-600 dark:text-indigo-400 font-extrabold">{monthlySummary.reduce((acc, curr) => acc + curr.bills, 0)}</td>
                                       <td className="p-3 text-right font-medium">{monthlySummary.reduce((acc, curr) => acc + curr.totalQty, 0).toFixed(2)}</td>
                                       <td className="p-3 text-right text-indigo-600 dark:text-indigo-400 font-extrabold">₹{formatNumber(monthlySummary.reduce((acc, curr) => acc + curr.totalAmount, 0))}</td>
@@ -844,9 +844,9 @@ export const BusinessReportScreen: React.FC<BusinessReportScreenProps> = ({
                   <div className="min-w-full inline-block align-middle flex-1">
                       <div className="overflow-x-auto w-full">
                           <table className="min-w-[850px] w-full text-left text-sm whitespace-nowrap">
-                              <thead className="bg-slate-50 dark:bg-slate-950 text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider sticky top-0 z-10 text-xs border-b border-gray-200 dark:border-slate-850 shadow-sm">
+                              <thead className="bg-[var(--bg-app)] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider sticky top-0 z-10 text-xs border-b border-gray-200 dark:border-slate-850 shadow-sm">
                                   <tr>
-                                      <th className="p-3 w-8 text-center sticky left-0 bg-slate-50 dark:bg-slate-950 z-20 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] border-r border-gray-200 dark:border-slate-800">
+                                      <th className="p-3 w-8 text-center sticky left-0 bg-[var(--bg-app)] z-20 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] border-r border-gray-200 dark:border-slate-800">
                                           <button onClick={handleSelectAll} className="cursor-pointer">
                                               {selectedIds.length === processedInvoices.length && processedInvoices.length > 0 ? (
                                                   <CheckSquare size={20} className="text-indigo-600" />
@@ -871,12 +871,12 @@ export const BusinessReportScreen: React.FC<BusinessReportScreenProps> = ({
                                       const isSelected = selectedIds.includes(inv.id);
                                       const isSynced = inv.isSyncedToCloud && (inv.type === 'Sale' || inv.type === 'Purchase Return');
                                       
-                                      let rowBg = 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white';
+                                      let rowBg = 'bg-[var(--bg-card)] text-[var(--text-main)]';
                                       if (isSynced) {
-                                          rowBg = 'bg-emerald-500/5 dark:bg-emerald-500/10 text-slate-900 dark:text-white';
+                                          rowBg = 'bg-emerald-500/5 dark:bg-emerald-500/10 text-[var(--text-main)]';
                                       }
                                       if (isSelected) {
-                                          rowBg = 'bg-indigo-50 dark:bg-indigo-950/40 text-slate-900 dark:text-white';
+                                          rowBg = 'bg-indigo-50 dark:bg-indigo-950/40 text-[var(--text-main)]';
                                       }
 
                                       return (
@@ -925,9 +925,9 @@ export const BusinessReportScreen: React.FC<BusinessReportScreenProps> = ({
                                       );
                                   })}
                               </tbody>
-                              <tfoot className="bg-slate-50 dark:bg-slate-950 font-extrabold text-slate-900 dark:text-white sticky bottom-0 z-20 border-t-2 border-gray-200 dark:border-slate-800 text-sm shadow-[0_-2px_8px_rgba(0,0,0,0.06)]">
-                                  <tr className="bg-slate-50 dark:bg-slate-950">
-                                      <td className="p-3 sticky left-0 bg-slate-50 dark:bg-slate-950 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] border-r border-gray-200 dark:border-slate-800"></td>
+                              <tfoot className="bg-[var(--bg-app)] font-extrabold text-[var(--text-main)] sticky bottom-0 z-20 border-t-2 border-gray-200 dark:border-slate-800 text-sm shadow-[0_-2px_8px_rgba(0,0,0,0.06)]">
+                                  <tr className="bg-[var(--bg-app)]">
+                                      <td className="p-3 sticky left-0 bg-[var(--bg-app)] shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] border-r border-gray-200 dark:border-slate-800"></td>
                                       <td colSpan={3} className="p-3 text-right border-r border-gray-200 dark:border-slate-800 uppercase text-slate-500 dark:text-slate-400 text-xs tracking-wider">
                                           {loc.grandTotal}
                                       </td>
@@ -970,19 +970,19 @@ export const BusinessReportScreen: React.FC<BusinessReportScreenProps> = ({
                      initial={{ opacity: 0, scale: 0.9 }}
                      animate={{ opacity: 1, scale: 1 }}
                      exit={{ opacity: 0, scale: 0.9 }}
-                     className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden p-6 text-center border border-gray-200 dark:border-slate-800"
+                     className="bg-[var(--bg-card)] rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden p-6 text-center border border-[var(--border-ui)]"
                   >
                       <div className="w-16 h-16 bg-red-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
                           <Trash2 size={32} />
                       </div>
-                      <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">{loc.confirmDeleteTitle}</h3>
+                      <h3 className="text-xl font-bold text-[var(--text-main)] mb-2">{loc.confirmDeleteTitle}</h3>
                       <p className="text-slate-500 dark:text-slate-400 mb-6 font-medium text-sm">
                           {loc.confirmDeleteMsg.replace('{count}', selectedIds.length.toString())}
                       </p>
                       <div className="flex gap-3">
                           <button 
                               onClick={() => setDeleteConfirmOpen(false)} 
-                              className="flex-1 py-3 rounded-xl font-bold bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-205 border border-gray-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-850 transition-colors cursor-pointer"
+                              className="flex-1 py-3 rounded-xl font-bold bg-[var(--bg-app)] text-slate-800 dark:text-slate-205 border border-[var(--border-ui)] hover:bg-slate-100 dark:hover:bg-slate-850 transition-colors cursor-pointer"
                           >
                               {loc.cancel}
                           </button>
@@ -1004,7 +1004,7 @@ export const BusinessReportScreen: React.FC<BusinessReportScreenProps> = ({
                      initial={{ opacity: 0, scale: 0.9 }}
                      animate={{ opacity: 1, scale: 1 }}
                      exit={{ opacity: 0, scale: 0.9 }}
-                     className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden p-6 text-center border border-gray-200 dark:border-slate-800"
+                     className="bg-[var(--bg-card)] rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden p-6 text-center border border-[var(--border-ui)]"
                   >
                       <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 border ${
                           alertModal.type === 'success' 
@@ -1015,7 +1015,7 @@ export const BusinessReportScreen: React.FC<BusinessReportScreenProps> = ({
                       }`}>
                           {alertModal.type === 'success' ? <Check size={32} /> : <AlertCircle size={32} />}
                       </div>
-                      <h3 className="text-xl font-extrabold text-slate-900 dark:text-white mb-2">{alertModal.title}</h3>
+                      <h3 className="text-xl font-extrabold text-[var(--text-main)] mb-2">{alertModal.title}</h3>
                       <p className="text-slate-500 dark:text-slate-400 mb-6 font-medium text-sm sm:text-base">
                           {alertModal.message}
                       </p>

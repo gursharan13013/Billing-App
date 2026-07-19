@@ -309,44 +309,44 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
   };
 
   return (
-    <div className="flex flex-col h-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white overflow-hidden relative pb-[max(env(safe-area-inset-bottom),0px)]" onClick={() => isMenuOpen && setIsMenuOpen(false)}>
+    <div className="flex flex-col h-full bg-[var(--bg-app)] text-[var(--text-main)] overflow-hidden relative pb-[max(env(safe-area-inset-bottom),0px)]" onClick={() => isMenuOpen && setIsMenuOpen(false)}>
       
       {/* Header Section Redesigned for Premium Slate/Theme Look */}
-      <div className="p-5 pt-[max(env(safe-area-inset-top),36px)] bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 text-slate-800 dark:text-white pb-4 relative shrink-0 shadow-sm dark:shadow-lg">
+      <div className="p-5 pt-[max(env(safe-area-inset-top),36px)] bg-[var(--bg-card)] border-b border-[var(--border-ui)] text-slate-800 dark:text-white pb-4 relative shrink-0 shadow-sm dark:shadow-lg">
           <div className="flex items-center justify-between max-w-5xl mx-auto w-full">
               <div className="flex flex-col gap-0.5">
                   <span className="text-[9px] uppercase font-bold tracking-widest text-slate-500 dark:text-slate-400 font-mono">Workspace App</span>
-                  <h1 className="text-lg font-extrabold tracking-tight text-slate-900 dark:text-white line-clamp-1">{profile?.name || 'My Business'}</h1>
+                  <h1 className="text-lg font-extrabold tracking-tight text-[var(--text-main)] line-clamp-1">{profile?.name || 'My Business'}</h1>
               </div>
 
               <div className="flex items-center gap-1">
                   <SyncStatusIcon />
                   <button 
                     onClick={() => setShowImportModal(true)} 
-                    className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
+                    className="p-2 rounded-xl bg-[var(--bg-app)] text-[var(--text-secondary)] hover:text-[var(--text-main)] hover:bg-slate-200 dark:hover:bg-slate-800/80 transition-all active:scale-95 flex items-center justify-center min-w-[36px] min-h-[36px]"
                     title="Import Transaction"
                   >
-                      <ClipboardPaste size={16} />
+                      <ClipboardPaste size={18} />
                   </button>
                   <button 
                     onClick={() => onNavigate('ledgerReport')}
-                    className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
+                    className="p-2 rounded-xl bg-[var(--bg-app)] text-[var(--text-secondary)] hover:text-[var(--text-main)] hover:bg-slate-200 dark:hover:bg-slate-800/80 transition-all active:scale-95 flex items-center justify-center min-w-[36px] min-h-[36px]"
                     title="Ledger Report"
                   >
-                      <BookOpen size={16} />
+                      <BookOpen size={18} />
                   </button>
                   {/* NOTIFICATION BUTTON */}
-                  <button onClick={onNotification} className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors relative">
-                      <Bell size={16} />
+                  <button onClick={onNotification} className="p-2 rounded-xl bg-[var(--bg-app)] text-[var(--text-secondary)] hover:text-[var(--text-main)] hover:bg-slate-200 dark:hover:bg-slate-800/80 transition-all active:scale-95 flex items-center justify-center min-w-[36px] min-h-[36px] relative">
+                      <Bell size={18} />
                       <span className="absolute top-1 right-1 w-1.5 h-1.5 bg-rose-500 rounded-full"></span>
                   </button>
-                  <button onClick={(e) => { e.stopPropagation(); setIsMenuOpen(!isMenuOpen); }} className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors relative">
-                      <MoreVertical size={16} />
+                  <button onClick={(e) => { e.stopPropagation(); setIsMenuOpen(!isMenuOpen); }} className="p-2 rounded-xl bg-[var(--bg-app)] text-[var(--text-secondary)] hover:text-[var(--text-main)] hover:bg-slate-200 dark:hover:bg-slate-800/80 transition-all active:scale-95 flex items-center justify-center min-w-[36px] min-h-[36px] relative">
+                      <MoreVertical size={18} />
                   </button>
                   
                   {/* Dropdown Menu Overlay */}
                   {isMenuOpen && (
-                    <div className="absolute top-16 right-5 w-48 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-2xl z-50 overflow-hidden divide-y divide-slate-100 dark:divide-slate-800/60 text-slate-800 dark:text-white">
+                    <div className="absolute top-16 right-5 w-48 bg-[var(--bg-card)] border border-[var(--border-ui)] rounded-xl shadow-2xl z-50 overflow-hidden divide-y divide-slate-100 dark:divide-slate-800/60 text-slate-800 dark:text-white">
                         <button onClick={onOpenSettings} className="w-full text-left px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-bold flex items-center gap-2"><Settings size={14}/> {t.setting || 'Settings'}</button>
                         <button onClick={() => onNavigate('helpLegal')} className="w-full text-left px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-bold flex items-center gap-2"><Info size={14}/> {t.aboutUs || 'About Us'}</button>
                         <button className="w-full text-left px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-bold flex items-center gap-2"><Phone size={14}/> {t.contactUs || 'Contact Us'}</button>
@@ -355,7 +355,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
                             localStorage.setItem('showDashboardQR', next);
                             window.dispatchEvent(new Event('storage'));
                         }} className="w-full text-left px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-bold flex items-center gap-2"><QrCode size={14}/> {t.qrCode || 'QR Code'}</button>
-                        <div className="px-4 py-2.5 text-[10px] text-center text-slate-400 dark:text-slate-500 font-bold bg-slate-50 dark:bg-slate-950/40">
+                        <div className="px-4 py-2.5 text-[10px] text-center text-slate-400 dark:text-slate-500 font-bold bg-[var(--bg-app)]/40">
                             v{APP_VERSION}
                         </div>
                     </div>
@@ -426,7 +426,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
                   )}
 
                   {/* Category Filter Pills segment */}
-                  <div className="flex items-center gap-1.5 my-1 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 p-1.5 rounded-xl shrink-0 shadow-xs">
+                  <div className="flex items-center gap-1.5 my-1 bg-[var(--bg-card)] border border-[var(--border-ui)]/80 p-1.5 rounded-xl shrink-0 shadow-xs">
                       <button 
                         type="button"
                         onClick={() => setMenuFilter('all')}
@@ -484,7 +484,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
                                     key={index} 
                                     onClick={() => handleMenuClick(item)}
                                     type="button"
-                                    className={`flex items-center gap-3 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/80 border border-slate-100 dark:border-slate-850 rounded-xl p-3.5 shadow-xs text-slate-800 dark:text-slate-200 active:scale-[0.98] transition-all duration-150 text-left w-full h-[62px] cursor-pointer ${
+                                    className={`flex items-center gap-3 bg-[var(--bg-card)] hover:bg-slate-50/50 dark:hover:bg-slate-800/80 border border-[var(--border-ui)] rounded-xl p-3.5 shadow-xs text-slate-800 dark:text-slate-200 active:scale-[0.98] transition-all duration-150 text-left w-full h-[62px] cursor-pointer ${
                                         isSaleBill ? 'ring-2 ring-emerald-500/30 dark:ring-emerald-400/20 bg-emerald-50/20 dark:bg-emerald-950/20 border-emerald-100 dark:border-emerald-900/30' : ''
                                     }`}
                                   >
@@ -552,19 +552,19 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
 
       {/* Bottom Navigation */}
       {!hideFooter && (
-        <footer className="bg-white dark:bg-slate-900 border-t border-gray-200 dark:border-slate-800 shrink-0 z-40 pt-2 pb-6" style={{ paddingBottom: 'max(1.5rem, env(safe-area-inset-bottom))' }}>
+        <footer className="bg-[var(--bg-card)] border-t border-[var(--border-ui)] shrink-0 z-40 pt-2 pb-6" style={{ paddingBottom: 'max(1.5rem, env(safe-area-inset-bottom))' }}>
             <div className="max-w-5xl mx-auto w-full flex items-center justify-between px-8">
                 <button className="flex flex-col items-center gap-0.5 text-[#1e293b] dark:text-white">
                     <Home size={22} fill="currentColor" />
-                    <span className="text-[10px] font-bold">Home</span>
+                    <span className="text-[10px] font-bold">{language === "hi" ? "होम" : "Home"}</span>
                 </button>
                 <button onClick={() => onSwitchTab('master')} className="flex flex-col items-center gap-0.5 text-gray-400 hover:text-[#1e293b] dark:hover:text-white">
                     <LayoutGrid size={22} />
-                    <span className="text-[10px] font-bold">Master</span>
+                    <span className="text-[10px] font-bold">{language === "hi" ? "मास्टर" : "Master"}</span>
                 </button>
                 <button onClick={() => onSwitchTab('report')} className="flex flex-col items-center gap-0.5 text-gray-400 hover:text-[#1e293b] dark:hover:text-white">
                     <FileBarChart size={22} />
-                    <span className="text-[10px] font-bold">Report</span>
+                    <span className="text-[10px] font-bold">{language === "hi" ? "रिपोर्ट" : "Report"}</span>
                 </button>
             </div>
         </footer>
@@ -583,7 +583,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
       {/* Import Modal */}
       {showImportModal && (
           <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
-              <div className="bg-white dark:bg-slate-900 rounded-xl shadow-2xl w-full max-w-md overflow-hidden p-6 relative border border-gray-200 dark:border-slate-700">
+              <div className="bg-[var(--bg-card)] rounded-xl shadow-2xl w-full max-w-md overflow-hidden p-6 relative border border-gray-200 dark:border-slate-700">
                   <button onClick={() => setShowImportModal(false)} className="absolute top-4 right-4 text-gray-500 hover:text-black dark:text-gray-400 dark:hover:text-white"><X size={24} /></button>
                   <h3 className="text-xl font-bold mb-2 text-slate-800 dark:text-white">Import Transaction</h3>
                   <p className="text-xs text-slate-500 mb-3">Paste the text/JSON copied from a bill shared via WhatsApp.</p>

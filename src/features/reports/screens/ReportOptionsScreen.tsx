@@ -28,10 +28,10 @@ export const ReportOptionsScreen: React.FC<ReportOptionsScreenProps> = ({ onBack
       exit={{ x: '100%' }}
       transition={{ type: 'tween', ease: [0.25, 1, 0.5, 1], duration: 0.35 }}
       style={{ willChange: 'transform' }}
-      className="flex flex-col h-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white pb-[max(env(safe-area-inset-bottom),0px)] relative overflow-hidden transition-colors font-sans"
+      className="flex flex-col h-full bg-[var(--bg-app)] text-[var(--text-main)] pb-[max(env(safe-area-inset-bottom),0px)] relative overflow-hidden transition-colors font-sans"
     >
       {/* Premium Top Header */}
-      <header className="bg-white dark:bg-slate-900 p-4 flex items-center justify-between shadow-sm shrink-0 border-b border-gray-200 dark:border-slate-800 pt-[max(env(safe-area-inset-top),48px)] transition-colors">
+      <header className="bg-[var(--bg-card)] p-4 flex items-center justify-between shadow-sm shrink-0 border-b border-[var(--border-ui)] pt-[max(env(safe-area-inset-top),48px)] transition-colors">
         <div className="flex items-center gap-4">
           <button 
             onClick={onBack}
@@ -40,18 +40,18 @@ export const ReportOptionsScreen: React.FC<ReportOptionsScreenProps> = ({ onBack
           >
             <ArrowLeft size={24} />
           </button>
-          <h1 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white leading-tight">
+          <h1 className="text-xl font-bold tracking-tight text-[var(--text-main)] leading-tight">
             {t.title}
           </h1>
         </div>
       </header>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col justify-center items-center bg-slate-50 dark:bg-slate-950 p-4 border-b border-gray-200 dark:border-slate-800">
+      <div className="flex-1 flex flex-col justify-center items-center bg-[var(--bg-app)] p-4 border-b border-[var(--border-ui)]">
         {/* Card wrapper matching Stock Summary visual patterns */}
-        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-200 dark:border-slate-800 shadow-sm w-72 h-72 flex flex-col justify-center items-center overflow-hidden mb-4 p-6 transition-colors">
+        <div className="bg-[var(--bg-card)] rounded-2xl border border-[var(--border-ui)] shadow-sm w-72 h-72 flex flex-col justify-center items-center overflow-hidden mb-4 p-6 transition-colors">
           <div 
-            className="w-48 h-48 bg-slate-50 dark:bg-slate-950 flex justify-center items-center overflow-hidden shadow-inner border border-gray-200 dark:border-slate-800 rounded-2xl" 
+            className="w-48 h-48 bg-[var(--bg-app)] flex justify-center items-center overflow-hidden shadow-inner border border-[var(--border-ui)] rounded-2xl" 
             style={{ 
               backgroundImage: 'radial-gradient(circle, #333 1.5px, transparent 1.5px)', 
               backgroundSize: '8px 8px' 
@@ -63,7 +63,7 @@ export const ReportOptionsScreen: React.FC<ReportOptionsScreenProps> = ({ onBack
       </div>
 
       {/* Bottom Buttons */}
-      <div className="p-4 flex flex-col gap-3 bg-white dark:bg-slate-900 shrink-0 shadow-sm pb-[max(env(safe-area-inset-bottom),24px)] pt-6 border-t border-gray-200 dark:border-slate-800">
+      <div className="p-4 flex flex-col gap-3 bg-[var(--bg-card)] shrink-0 shadow-sm pb-[max(env(safe-area-inset-bottom),24px)] pt-6 border-t border-[var(--border-ui)]">
          <div className="flex gap-3">
             <button 
                onClick={() => onSelectOption('By Party')}

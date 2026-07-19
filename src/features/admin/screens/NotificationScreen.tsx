@@ -15,6 +15,27 @@ export const NotificationScreen: React.FC<NotificationScreenProps> = ({ onBack }
   const [lowStockItems, setLowStockItems] = useState<Item[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const lang = (localStorage.getItem('language') || 'en') as 'en' | 'hi';
+  const isHi = lang === 'hi';
+  const t = {
+    title: isHi ? 'अधिसूचना केंद्र' : 'Notification Center',
+    subtitle: isHi ? 'अलर्ट और अनुस्मारक' : 'Alerts & Reminders',
+    paymentDues: isHi ? 'भुगतान बकाया' : 'Payment Dues',
+    lowStock: isHi ? 'कम स्टॉक' : 'Low Stock',
+    loading: isHi ? 'डेटा स्कैन किया जा रहा है...' : 'Scanning data...',
+    noDues: isHi ? 'कोई बकाया भुगतान नहीं है!' : 'No pending payments!',
+    allStocked: isHi ? 'सभी आइटम अच्छी मात्रा में स्टॉक हैं!' : 'All items are well stocked!',
+    noMobile: isHi ? 'मोबाइल नहीं' : 'No Mobile',
+    remindBtn: isHi ? 'रिमाइंडर' : 'Remind',
+    mobileNotFound: isHi ? 'इस ग्राहक के लिए मोबाइल नंबर नहीं मिला।' : 'Mobile number not found for this customer.',
+    whatsappMessage: (name: string, amt: string) => isHi 
+      ? `नमस्ते ${name},\nआपका ₹${amt} का भुगतान लंबित है। कृपया इसे जल्द से जल्द चुकाने का प्रयास करें।\n\n- क्विकबिल के माध्यम से भेजा गया`
+      : `Namaste ${name},\nYour payment of ₹${amt} is pending. Please clear it at your earliest convenience.\n\n- Sent via QuickBill`,
+    unit: isHi ? 'इकाई' : 'Unit',
+    code: isHi ? 'कोड' : 'Code',
+    stock: isHi ? 'स्टॉक' : 'Stock'
+  };
+
   useEffect(() => {
     loadNotifications();
   }, []);
@@ -44,11 +65,12 @@ export const NotificationScreen: React.FC<NotificationScreenProps> = ({ onBack }
 
   const sendPaymentReminder = (party: Party) => {
       if (!party.mobile) {
-          alert("Mobile number not found for this customer.");
+          alert(t.mobileNotFound);
           return;
       }
 
-      const message = `Namaste ${party.name},\nYour payment of ₹${Number(party.currentBalance.toFixed(2)).toLocaleString('en-IN')} is pending. Please clear it at your earliest convenience.\n\n- Sent via QuickBill`;
+      const balanceStr = Number(party.currentBalance.toFixed(2)).toLocaleString('en-IN');
+      const message = t.whatsappMessage(party.name, balanceStr);
       
       let cleanNumber = party.mobile.replace(/\D/g, '');
       if (cleanNumber.length === 10) cleanNumber = '91' + cleanNumber;
@@ -58,61 +80,61 @@ export const NotificationScreen: React.FC<NotificationScreenProps> = ({ onBack }
   };
 
   return (
-    <div className="flex flex-col h-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white transition-colors pb-[max(env(safe-area-inset-bottom),0px)]">
-      <header className="bg-orange-600 text-white p-4 flex items-center gap-3 shadow-md shrink-0 pt-[max(env(safe-area-inset-top),48px)]">
-        <button onClick={onBack}><ArrowLeft size={24} /></button>
+    <div className="flex flex-col h-full bg-[var(--bg-app)] text-[var(--text-main)] transition-colors pb-[max(env(safe-area-inset-bottom),0px)]">
+      <header className="bg-[var(--bg-card)] border-b border-[var(--border-ui)] text-[var(--text-main)] p-4 flex items-center gap-3 shadow-sm shrink-0 pt-[max(env(safe-area-inset-top),48px)]">
+        <button onClick={onBack} className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors"><ArrowLeft size={24} /></button>
         <div>
-            <h1 className="text-xl font-bold">Notification Center</h1>
-            <p className="text-xs opacity-90">Alerts & Reminders</p>
+            <h1 className="text-lg font-black tracking-tight">{t.title}</h1>
+            <p className="text-xs text-[var(--text-secondary)] font-bold uppercase tracking-wider">{t.subtitle}</p>
         </div>
       </header>
 
       {/* Tabs */}
-      <div className="flex bg-white dark:bg-slate-900 shadow-sm border-b border-gray-200 dark:border-slate-800">
+      <div className="flex bg-[var(--bg-card)] shadow-sm border-b border-[var(--border-ui)]">
           <button 
             onClick={() => setActiveTab('payments')}
-            className={`flex-1 py-3 text-sm font-bold flex items-center justify-center gap-2 border-b-4 transition-all ${activeTab === 'payments' ? 'border-orange-500 text-orange-600 dark:text-orange-400' : 'border-transparent text-gray-500'}`}
+            className={`flex-1 py-3.5 text-xs font-black tracking-wider uppercase flex items-center justify-center gap-2 border-b-4 transition-all ${activeTab === 'payments' ? 'border-[var(--brand-primary)] text-[var(--brand-primary)]' : 'border-transparent text-[var(--text-secondary)] opacity-60'}`}
           >
-              <IndianRupee size={18} /> 
-              Payment Dues
-              <span className="bg-red-100 text-red-600 text-[10px] px-1.5 rounded-full ml-1">{dues.length}</span>
+              <IndianRupee size={16} /> 
+              <span>{t.paymentDues}</span>
+              <span className="bg-red-100 dark:bg-red-950/40 text-red-600 dark:text-red-400 text-[10px] font-mono px-2 py-0.5 rounded-full ml-1 font-black">{dues.length}</span>
           </button>
           <button 
             onClick={() => setActiveTab('stock')}
-            className={`flex-1 py-3 text-sm font-bold flex items-center justify-center gap-2 border-b-4 transition-all ${activeTab === 'stock' ? 'border-orange-500 text-orange-600 dark:text-orange-400' : 'border-transparent text-gray-500'}`}
+            className={`flex-1 py-3.5 text-xs font-black tracking-wider uppercase flex items-center justify-center gap-2 border-b-4 transition-all ${activeTab === 'stock' ? 'border-[var(--brand-primary)] text-[var(--brand-primary)]' : 'border-transparent text-[var(--text-secondary)] opacity-60'}`}
           >
-              <Package size={18} /> 
-              Low Stock
-              <span className="bg-red-100 text-red-600 text-[10px] px-1.5 rounded-full ml-1">{lowStockItems.length}</span>
+              <Package size={16} /> 
+              <span>{t.lowStock}</span>
+              <span className="bg-red-100 dark:bg-red-950/40 text-red-600 dark:text-red-400 text-[10px] font-mono px-2 py-0.5 rounded-full ml-1 font-black">{lowStockItems.length}</span>
           </button>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-slate-100 dark:bg-slate-950">
+      <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-[var(--bg-app)]">
           {loading ? (
-              <div className="text-center py-10 text-slate-500">Scanning data...</div>
+              <div className="text-center py-10 text-[var(--text-secondary)] font-bold text-xs uppercase tracking-widest">{t.loading}</div>
           ) : (
               <>
                 {/* PAYMENT DUES TAB */}
                 {activeTab === 'payments' && (
                     dues.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center py-20 text-slate-400">
-                            <CheckCircle2 size={48} className="mb-2 text-green-500 opacity-50" />
-                            <p>No pending payments!</p>
+                        <div className="flex flex-col items-center justify-center py-20 text-[var(--text-secondary)] opacity-60">
+                            <CheckCircle2 size={48} className="mb-2 text-emerald-500 opacity-60" />
+                            <p className="text-sm font-bold uppercase tracking-wider">{t.noDues}</p>
                         </div>
                     ) : (
                         dues.map(party => (
-                            <div key={party.id} className="bg-white dark:bg-slate-900 p-4 rounded-xl shadow-sm border-l-4 border-red-500 flex justify-between items-center">
+                            <div key={party.id} className="bg-[var(--bg-card)] p-4 rounded-2xl shadow-xs border border-[var(--border-ui)] border-l-4 border-l-rose-500 flex justify-between items-center">
                                 <div>
-                                    <h3 className="font-bold text-slate-800 dark:text-white text-lg">{party.name}</h3>
-                                    <p className="text-xs text-slate-500 font-medium">{party.mobile || 'No Mobile'}</p>
+                                    <h3 className="font-extrabold text-[var(--text-main)] text-sm">{party.name}</h3>
+                                    <p className="text-xs text-[var(--text-secondary)] font-semibold mt-0.5">{party.mobile || t.noMobile}</p>
                                 </div>
                                 <div className="text-right">
-                                    <p className="font-bold text-red-600 text-lg">₹{Number(party.currentBalance.toFixed(2)).toLocaleString('en-IN')}</p>
+                                    <p className="font-black text-rose-500 text-base">₹{Number(party.currentBalance.toFixed(2)).toLocaleString('en-IN')}</p>
                                     <button 
                                         onClick={() => sendPaymentReminder(party)}
-                                        className="mt-1 flex items-center gap-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-green-200 transition-colors"
+                                        className="mt-1.5 flex items-center gap-1.5 bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider transition-colors active:scale-95 shadow-sm"
                                     >
-                                        <MessageCircle size={14} /> Remind
+                                        <MessageCircle size={13} /> {t.remindBtn}
                                     </button>
                                 </div>
                             </div>
@@ -123,23 +145,23 @@ export const NotificationScreen: React.FC<NotificationScreenProps> = ({ onBack }
                 {/* LOW STOCK TAB */}
                 {activeTab === 'stock' && (
                     lowStockItems.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center py-20 text-slate-400">
-                            <CheckCircle2 size={48} className="mb-2 text-green-500 opacity-50" />
-                            <p>All items are well stocked!</p>
+                        <div className="flex flex-col items-center justify-center py-20 text-[var(--text-secondary)] opacity-60">
+                            <CheckCircle2 size={48} className="mb-2 text-emerald-500 opacity-60" />
+                            <p className="text-sm font-bold uppercase tracking-wider">{t.allStocked}</p>
                         </div>
                     ) : (
                         lowStockItems.map(item => (
-                            <div key={item.id} className="bg-white dark:bg-slate-900 p-4 rounded-xl shadow-sm border-l-4 border-orange-500 flex justify-between items-center">
+                            <div key={item.id} className="bg-[var(--bg-card)] p-4 rounded-2xl shadow-xs border border-[var(--border-ui)] border-l-4 border-l-amber-500 flex justify-between items-center">
                                 <div>
-                                    <h3 className="font-bold text-slate-800 dark:text-white">{item.name}</h3>
-                                    <div className="flex gap-2 mt-1">
-                                        <span className="text-xs bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-slate-600 dark:text-slate-400">Unit: {item.unit}</span>
-                                        {item.code && <span className="text-xs bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-slate-600 dark:text-slate-400">Code: {item.code}</span>}
+                                    <h3 className="font-extrabold text-[var(--text-main)] text-sm">{item.name}</h3>
+                                    <div className="flex gap-2 mt-1.5">
+                                        <span className="text-[10px] font-bold uppercase bg-slate-100 dark:bg-slate-800 text-[var(--text-secondary)] px-2 py-0.5 rounded-lg">{t.unit}: {item.unit}</span>
+                                        {item.code && <span className="text-[10px] font-bold uppercase bg-slate-100 dark:bg-slate-800 text-[var(--text-secondary)] px-2 py-0.5 rounded-lg">{t.code}: {item.code}</span>}
                                     </div>
                                 </div>
-                                <div className="text-center bg-red-50 dark:bg-red-900/20 p-2 rounded-lg min-w-[70px]">
-                                    <p className="text-[10px] text-red-500 font-bold uppercase">Stock</p>
-                                    <p className="font-extrabold text-red-700 dark:text-red-400 text-xl">{item.openingStock || 0}</p>
+                                <div className="text-center bg-rose-50 dark:bg-rose-950/20 border border-rose-100/50 dark:border-rose-900/10 p-2 rounded-xl min-w-[75px]">
+                                    <p className="text-[9px] text-rose-500 font-extrabold uppercase tracking-wider">{t.stock}</p>
+                                    <p className="font-black text-rose-600 dark:text-rose-400 text-lg">{item.openingStock || 0}</p>
                                 </div>
                             </div>
                         ))

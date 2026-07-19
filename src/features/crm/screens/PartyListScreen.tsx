@@ -143,6 +143,7 @@ export const PartyListScreen: React.FC<PartyListScreenProps> = ({ onBack, initia
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState<Partial<Party>>({});
   const [openingBalanceType, setOpeningBalanceType] = useState<'Dr' | 'Cr'>('Dr');
+  const [isSaving, setIsSaving] = useState(false);
 
   // Delete State
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -220,6 +221,7 @@ export const PartyListScreen: React.FC<PartyListScreenProps> = ({ onBack, initia
 
   const handleSave = async (e: React.FormEvent) => {
       e.preventDefault();
+      if (isSaving) return;
       if (!formData.name) return;
       
       const absBalance = Math.abs(Number(formData.currentBalance) || 0);
@@ -244,9 +246,17 @@ export const PartyListScreen: React.FC<PartyListScreenProps> = ({ onBack, initia
           bankDetails: formData.bankDetails
       };
 
-      await billingService.saveParty(party);
-      setIsModalOpen(false);
-      loadData();
+      setIsSaving(true);
+      try {
+        await billingService.saveParty(party);
+        setIsModalOpen(false);
+        loadData();
+      } catch (err) {
+        console.error("Failed to save party details", err);
+        alert("Error saving party details");
+      } finally {
+        setIsSaving(false);
+      }
   };
 
   const filteredParties = parties.filter(p => 
@@ -696,8 +706,14 @@ export const PartyListScreen: React.FC<PartyListScreenProps> = ({ onBack, initia
               
               {/* Save Footer Button */}
               <div className="p-4 sm:p-5 bg-[var(--bg-card)] border-t border-[var(--border-ui)] shadow-sm shrink-0">
-                <button type="submit" form="ledgerForm" className="w-full bg-[var(--brand-primary)] hover:bg-[var(--brand-hover)] text-white font-bold py-3.5 rounded-xl shadow-md hover:-translate-y-0.5 transition-all active:scale-[0.98] flex justify-center items-center gap-2 text-base min-h-[48px] uppercase tracking-wider">
-                  <Save size={20} /> <span>{initialMode === 'customer' ? t.save : t.saveLedger}</span>
+                <button 
+                  disabled={isSaving}
+                  type="submit" 
+                  form="ledgerForm" 
+                  className="w-full bg-[var(--brand-primary)] hover:bg-[var(--brand-hover)] text-white font-bold py-3.5 rounded-xl shadow-md hover:-translate-y-0.5 transition-all active:scale-[0.98] flex justify-center items-center gap-2 text-base min-h-[48px] uppercase tracking-wider disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Save size={20} /> 
+                  <span>{isSaving ? (currentLanguage === 'hi' ? 'सुरक्षित किया जा रहा है...' : 'Saving...') : (initialMode === 'customer' ? t.save : t.saveLedger)}</span>
                 </button>
               </div>
             </motion.div>

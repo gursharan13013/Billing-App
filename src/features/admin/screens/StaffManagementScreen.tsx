@@ -210,7 +210,7 @@ export const StaffManagementScreen: React.FC<StaffManagementScreenProps> = ({
     <div className="flex flex-col h-full bg-slate-50 dark:bg-[#090D16] text-slate-950 dark:text-slate-100 overflow-y-auto">
       
       {/* Header Panel */}
-      <div className="bg-white/80 dark:bg-[#131B2E]/80 backdrop-blur-md border-b border-slate-150/80 dark:border-slate-800/60 p-4 sticky top-0 z-10 flex items-center justify-between shadow-sm">
+      <div className="bg-[var(--bg-card)]/80 backdrop-blur-md border-b border-[var(--border-ui)] p-4 sticky top-0 z-10 flex items-center justify-between shadow-sm">
         <div className="flex items-center gap-3">
           <button 
             type="button"
@@ -221,7 +221,7 @@ export const StaffManagementScreen: React.FC<StaffManagementScreenProps> = ({
           </button>
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-base font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight">{t.title}</h2>
+              <h2 className="text-base font-extrabold tracking-tight text-[var(--text-main)] leading-tight">{t.title}</h2>
               <span className="flex items-center gap-1 bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[8.5px] font-black uppercase px-2 py-0.5 rounded-full border border-emerald-500/20 tracking-wider select-none shrink-0">
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
                 {isHi ? 'सिंक सक्रिय' : 'Sync Active'}
@@ -344,7 +344,7 @@ export const StaffManagementScreen: React.FC<StaffManagementScreenProps> = ({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder={t.searchPlaceholder}
-            className="w-full bg-white/60 dark:bg-[#131B2E]/60 backdrop-blur-sm border border-slate-200/80 dark:border-slate-800/80 rounded-2xl pl-11 pr-10 py-3 placeholder:text-slate-400 dark:placeholder:text-slate-500 text-xs outline-none focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/10 transition-all duration-300 text-slate-900 dark:text-white font-medium"
+            className="w-full bg-[var(--bg-card)]/60 backdrop-blur-sm border border-[var(--border-ui)] rounded-2xl pl-11 pr-10 py-3 placeholder:text-slate-400 dark:placeholder:text-slate-500 text-xs outline-none focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/10 transition-all duration-300 text-[var(--text-main)] font-medium"
           />
           {searchQuery && (
             <button 
@@ -369,7 +369,7 @@ export const StaffManagementScreen: React.FC<StaffManagementScreenProps> = ({
             <span className="text-[10px] font-bold uppercase tracking-widest">Constructing user roster...</span>
           </div>
         ) : filteredList.length === 0 ? (
-          <div className="text-center py-16 bg-gradient-to-b from-white to-slate-50/50 dark:from-[#131B2E] dark:to-[#131B2E]/50 border border-dashed border-slate-200 dark:border-slate-800 rounded-3xl p-8 flex flex-col items-center justify-center space-y-4 shadow-sm select-none relative overflow-hidden">
+          <div className="text-center py-16 bg-[var(--bg-card)] border border-dashed border-[var(--border-ui)] rounded-3xl p-8 flex flex-col items-center justify-center space-y-4 shadow-sm select-none relative overflow-hidden">
             {/* Ambient background aura */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-indigo-500/5 rounded-full blur-3xl pointer-events-none" />
             
@@ -411,7 +411,7 @@ export const StaffManagementScreen: React.FC<StaffManagementScreenProps> = ({
                 <div
                   key={staff.id}
                   onClick={() => onSelectStaff(staff)}
-                  className="bg-white dark:bg-[#131B2E] border border-slate-205/60 dark:border-slate-800 rounded-3xl p-4 shadow-sm hover:shadow-xl hover:border-indigo-550 dark:hover:border-indigo-500/70 hover:-translate-y-0.5 cursor-pointer transition-all duration-300 flex flex-col justify-between gap-3 group relative overflow-hidden text-left"
+                  className="bg-[var(--bg-card)] border border-[var(--border-ui)] rounded-3xl p-4 shadow-sm hover:shadow-xl hover:border-indigo-550 dark:hover:border-indigo-500/70 hover:-translate-y-0.5 cursor-pointer transition-all duration-300 flex flex-col justify-between gap-3 group relative overflow-hidden text-left"
                 >
                   {/* Subtle color highlight in the corner */}
                   <div className="absolute top-0 right-0 w-20 h-20 bg-indigo-500/[0.02] dark:bg-indigo-500/[0.03] rounded-bl-full pointer-events-none group-hover:bg-indigo-500/[0.05] transition-colors" />
@@ -512,7 +512,7 @@ export const StaffManagementScreen: React.FC<StaffManagementScreenProps> = ({
       {/* Slide-over Provisioning Screen Overlay Modal */}
       {showProvisioningModal && (
         <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-[#131B2E] rounded-3xl border border-slate-200 dark:border-slate-800/80 shadow-2xl max-w-md w-full p-6 space-y-5 text-slate-900 dark:text-white animate-in slide-in-from-bottom duration-250">
+          <div className="bg-[var(--bg-card)] rounded-3xl border border-[var(--border-ui)] shadow-2xl max-w-md w-full p-6 space-y-5 text-[var(--text-main)] animate-in slide-in-from-bottom duration-250">
             
             <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
               <div className="flex items-center gap-1.5 text-indigo-600 dark:text-indigo-400">
@@ -550,7 +550,7 @@ export const StaffManagementScreen: React.FC<StaffManagementScreenProps> = ({
                     value={formName}
                     onChange={(e) => setFormName(e.target.value)}
                     placeholder="E.g. Ramesh Kumar"
-                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 p-2.5 pl-9 rounded-xl outline-none focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/10 font-medium text-slate-900 dark:text-white text-xs transition-all"
+                    className="w-full bg-[var(--bg-app)] border border-[var(--border-ui)] p-2.5 pl-9 rounded-xl outline-none focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/10 font-medium text-[var(--text-main)] text-xs transition-all"
                   />
                 </div>
               </div>
@@ -566,7 +566,7 @@ export const StaffManagementScreen: React.FC<StaffManagementScreenProps> = ({
                     value={formMobile}
                     onChange={(e) => handleMobileChange(e.target.value)}
                     placeholder="9876543210"
-                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-855 p-2.5 pl-9 rounded-xl outline-none focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/10 font-mono text-slate-900 dark:text-white text-xs font-medium transition-all"
+                    className="w-full bg-[var(--bg-app)] border border-[var(--border-ui)] p-2.5 pl-9 rounded-xl outline-none focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/10 font-mono text-[var(--text-main)] text-xs font-medium transition-all"
                   />
                 </div>
               </div>
@@ -583,7 +583,7 @@ export const StaffManagementScreen: React.FC<StaffManagementScreenProps> = ({
                       value={formPassword}
                       onChange={(e) => setFormPassword(e.target.value.replace(/\D/g, '').substring(0, 8))}
                       placeholder="E.g. 1234"
-                      className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 p-2.5 pl-9 pr-8 rounded-xl outline-none focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/10 font-mono text-slate-900 dark:text-white text-xs font-medium transition-all"
+                      className="w-full bg-[var(--bg-app)] border border-[var(--border-ui)] p-2.5 pl-9 pr-8 rounded-xl outline-none focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/10 font-mono text-[var(--text-main)] text-xs font-medium transition-all"
                     />
                     <button
                       type="button"
@@ -625,7 +625,7 @@ export const StaffManagementScreen: React.FC<StaffManagementScreenProps> = ({
                         onClick={() => setFormPermissions(prev => ({ ...prev, [perm.key]: !isChecked }))}
                         className={`p-2.5 rounded-xl border text-left transition-all duration-200 cursor-pointer flex flex-col justify-between h-20 ${
                           isChecked 
-                            ? 'bg-indigo-50/50 dark:bg-indigo-950/20 border-indigo-500 text-slate-900 dark:text-white shadow-sm shadow-indigo-500/5' 
+                            ? 'bg-indigo-50/50 dark:bg-indigo-950/20 border-indigo-500 text-[var(--text-main)] shadow-sm shadow-indigo-500/5' 
                             : 'bg-slate-50/50 dark:bg-slate-950/30 border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-100/50 dark:hover:bg-slate-900/30'
                         }`}
                       >

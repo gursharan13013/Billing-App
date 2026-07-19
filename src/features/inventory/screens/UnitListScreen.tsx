@@ -144,7 +144,7 @@ export const UnitListScreen: React.FC<UnitListScreenProps> = ({ onBack, currentL
   return (
     <div className="flex flex-col h-full bg-[var(--bg-app)] text-[var(--text-main)] transition-colors pb-[max(env(safe-area-inset-bottom),0px)]">
       {/* HEADER SECTION */}
-      <header className="bg-[var(--bg-card)] text-[var(--text-main)] p-4 flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pt-[max(env(safe-area-inset-top),48px)] transition-colors shrink-0">
+      <header className="bg-[var(--bg-card)] text-[var(--text-main)] p-4 flex items-center justify-between border-b border-[var(--border-ui)] pt-[max(env(safe-area-inset-top),48px)] transition-colors shrink-0">
         <div className="flex items-center gap-3 max-w-7xl mx-auto w-full justify-between">
           <div className="flex items-center gap-3">
             <button 
@@ -182,7 +182,7 @@ export const UnitListScreen: React.FC<UnitListScreenProps> = ({ onBack, currentL
           <input
             type="text"
             placeholder={t.searchPlaceholder}
-            className="block w-full pl-10 pr-4 py-3 border border-slate-200 dark:border-slate-800 rounded-xl leading-5 bg-[var(--bg-card)] text-[var(--text-main)] placeholder-[var(--text-secondary)]/50 focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)]/25 focus:border-[var(--brand-primary)] transition-all shadow-3xs text-sm"
+            className="block w-full pl-10 pr-4 py-3 border border-[var(--border-ui)] rounded-xl leading-5 bg-[var(--bg-card)] text-[var(--text-main)] placeholder-[var(--text-secondary)]/50 focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)]/25 focus:border-[var(--brand-primary)] transition-all shadow-3xs text-sm"
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
             id="unit-search-input"
@@ -204,7 +204,7 @@ export const UnitListScreen: React.FC<UnitListScreenProps> = ({ onBack, currentL
             className="flex flex-col items-center justify-center h-64 text-center text-[var(--text-secondary)]"
             id="unit-empty-state"
           >
-            <div className="bg-[var(--bg-card)] p-5 rounded-full shadow-sm mb-4 border border-slate-200 dark:border-slate-800">
+            <div className="bg-[var(--bg-card)] p-5 rounded-full shadow-sm mb-4 border border-[var(--border-ui)]">
               <Ruler size={36} className="text-[var(--brand-primary)] opacity-80" />
             </div>
             <p className="font-semibold text-lg text-[var(--text-main)]">
@@ -221,7 +221,7 @@ export const UnitListScreen: React.FC<UnitListScreenProps> = ({ onBack, currentL
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95 }}
                   transition={{ duration: 0.15, delay: Math.min(0.15, idx * 0.03) }}
-                  className="bg-[var(--bg-card)] p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-3xs flex justify-between items-center group transition-all duration-200 hover:shadow-2xs"
+                  className="bg-[var(--bg-card)] p-4 rounded-2xl border border-[var(--border-ui)] shadow-3xs flex justify-between items-center group transition-all duration-200 hover:shadow-2xs"
                   id={`unit-card-${unit.id}`}
                 >
                   <div className="flex items-center gap-3.5">
@@ -229,7 +229,7 @@ export const UnitListScreen: React.FC<UnitListScreenProps> = ({ onBack, currentL
                       {unit.code.substring(0, 2).toUpperCase()}
                     </div>
                     <div>
-                      <h3 className="font-bold text-slate-900 dark:text-white text-base md:text-lg tracking-tight">{unit.name}</h3>
+                      <h3 className="font-bold text-[var(--text-main)] text-base md:text-lg tracking-tight">{unit.name}</h3>
                       <div className="flex items-center gap-2 mt-1">
                         <span className="text-[10px] text-[var(--brand-primary)] font-extrabold uppercase tracking-wider bg-[var(--brand-light)] px-2 py-0.5 rounded border border-indigo-600/20 dark:border-indigo-500/30">
                           {unit.code}
@@ -243,7 +243,7 @@ export const UnitListScreen: React.FC<UnitListScreenProps> = ({ onBack, currentL
                         e.stopPropagation();
                         handleEdit(unit);
                       }}
-                      className="p-2 text-[var(--text-secondary)] hover:text-[var(--brand-primary)] hover:bg-[var(--brand-light)] bg-[var(--bg-app)] rounded-xl active:scale-95 transition-all duration-150 min-w-[36px] min-h-[36px] flex items-center justify-center border border-slate-200 dark:border-slate-800 cursor-pointer"
+                      className="p-2 text-[var(--text-secondary)] hover:text-[var(--brand-primary)] hover:bg-[var(--brand-light)] bg-[var(--bg-app)] rounded-xl active:scale-95 transition-all duration-150 min-w-[36px] min-h-[36px] flex items-center justify-center border border-[var(--border-ui)] cursor-pointer"
                       title={t.editUnit}
                       id={`unit-edit-btn-${unit.id}`}
                     >
@@ -254,7 +254,7 @@ export const UnitListScreen: React.FC<UnitListScreenProps> = ({ onBack, currentL
                         e.stopPropagation();
                         setDeleteId(unit.id);
                       }}
-                      className="p-2 text-[var(--text-secondary)] hover:text-[var(--money-out)] hover:bg-red-500/10 bg-[var(--bg-app)] rounded-xl active:scale-95 transition-all duration-150 min-w-[36px] min-h-[36px] flex items-center justify-center border border-slate-200 dark:border-slate-800 cursor-pointer"
+                      className="p-2 text-[var(--text-secondary)] hover:text-[var(--money-out)] hover:bg-red-500/10 bg-[var(--bg-app)] rounded-xl active:scale-95 transition-all duration-150 min-w-[36px] min-h-[36px] flex items-center justify-center border border-[var(--border-ui)] cursor-pointer"
                       title={t.delete}
                       id={`unit-delete-btn-${unit.id}`}
                     >
@@ -277,7 +277,7 @@ export const UnitListScreen: React.FC<UnitListScreenProps> = ({ onBack, currentL
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
               transition={{ duration: 0.15 }}
-              className="bg-[var(--bg-card)] rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden p-6 text-center border border-slate-200 dark:border-slate-800"
+              className="bg-[var(--bg-card)] rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden p-6 text-center border border-[var(--border-ui)]"
               id="unit-delete-modal"
             >
               <div className="w-14 h-14 bg-red-500/10 text-[var(--money-out)] rounded-2xl flex items-center justify-center mx-auto mb-4 border border-red-500/20 shadow-4xs">
@@ -291,7 +291,7 @@ export const UnitListScreen: React.FC<UnitListScreenProps> = ({ onBack, currentL
                 <button 
                   type="button"
                   onClick={() => setDeleteId(null)} 
-                  className="flex-1 py-3 bg-[var(--bg-app)] hover:bg-slate-100 dark:hover:bg-slate-800/50 text-[var(--text-secondary)] font-black text-xs tracking-wider uppercase rounded-2xl transition-all shadow-4xs active:scale-[0.97] cursor-pointer text-center border border-slate-200 dark:border-slate-800"
+                  className="flex-1 py-3 bg-[var(--bg-app)] hover:bg-slate-100/50 dark:hover:bg-slate-800/50 text-[var(--text-secondary)] font-black text-xs tracking-wider uppercase rounded-2xl transition-all shadow-4xs active:scale-[0.97] cursor-pointer text-center border border-[var(--border-ui)]"
                   id="unit-delete-cancel-btn"
                 >
                   {t.cancel}
@@ -319,10 +319,10 @@ export const UnitListScreen: React.FC<UnitListScreenProps> = ({ onBack, currentL
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
               transition={{ duration: 0.15 }}
-              className="bg-[var(--bg-card)] rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden border border-slate-200 dark:border-slate-800"
+              className="bg-[var(--bg-card)] rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden border border-[var(--border-ui)]"
               id="unit-form-modal"
             >
-              <div className="p-4 bg-[var(--bg-app)] border-b border-slate-200 dark:border-slate-800 flex justify-between items-center">
+              <div className="p-4 bg-[var(--bg-app)] border-b border-[var(--border-ui)] flex justify-between items-center">
                 <h3 className="text-base font-black text-[var(--text-main)]" id="unit-form-modal-title">{editingId ? t.editUnit : t.addNewUnit}</h3>
                 <button 
                   onClick={() => setIsModalOpen(false)} 
@@ -348,7 +348,7 @@ export const UnitListScreen: React.FC<UnitListScreenProps> = ({ onBack, currentL
                     required
                     autoFocus
                     placeholder={t.unitFullNamePlaceholder}
-                    className="block w-full h-11 px-3 border border-slate-200 dark:border-slate-800 rounded-xl bg-[var(--bg-app)] text-[var(--text-main)] placeholder-[var(--text-secondary)]/40 focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)]/25 focus:border-[var(--brand-primary)] transition-all font-sans font-semibold text-xs text-center"
+                    className="block w-full h-11 px-3 border border-[var(--border-ui)] rounded-xl bg-[var(--bg-app)] text-[var(--text-main)] placeholder-[var(--text-secondary)]/40 focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)]/25 focus:border-[var(--brand-primary)] transition-all font-sans font-semibold text-xs text-center"
                     value={formData.name}
                     onChange={e => setFormData({...formData, name: e.target.value})}
                     id="unit-name-input"
@@ -360,7 +360,7 @@ export const UnitListScreen: React.FC<UnitListScreenProps> = ({ onBack, currentL
                     type="text" 
                     required
                     placeholder={t.unitCodePlaceholder}
-                    className="block w-full h-11 px-3 border border-slate-200 dark:border-slate-800 rounded-xl bg-[var(--bg-app)] text-[var(--text-main)] placeholder-[var(--text-secondary)]/40 focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)]/25 focus:border-[var(--brand-primary)] transition-all font-sans font-bold text-xs text-center uppercase tracking-wider"
+                    className="block w-full h-11 px-3 border border-[var(--border-ui)] rounded-xl bg-[var(--bg-app)] text-[var(--text-main)] placeholder-[var(--text-secondary)]/40 focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)]/25 focus:border-[var(--brand-primary)] transition-all font-sans font-bold text-xs text-center uppercase tracking-wider"
                     value={formData.code}
                     onChange={e => setFormData({...formData, code: e.target.value.toUpperCase()})}
                     id="unit-code-input"

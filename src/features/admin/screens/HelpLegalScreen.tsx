@@ -54,9 +54,9 @@ export const HelpLegalScreen: React.FC<HelpLegalScreenProps> = ({ onBack, langua
   const labels = t[language];
 
   return (
-    <div className="flex flex-col h-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white">
+    <div className="flex flex-col h-full bg-[var(--bg-app)] text-[var(--text-main)]">
       {/* Header */}
-      <header className="bg-white dark:bg-slate-900 shadow-sm px-4 py-3 flex items-center gap-3 shrink-0 relative z-10 border-b border-gray-200 dark:border-slate-800 pt-[max(env(safe-area-inset-top),48px)]">
+      <header className="bg-[var(--bg-card)] shadow-sm px-4 py-3 flex items-center gap-3 shrink-0 relative z-10 border-b border-[var(--border-ui)] pt-[max(env(safe-area-inset-top),48px)]">
         <button onClick={onBack} className="p-2 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-full transition-colors active:scale-95">
           <ArrowLeft size={24} className="text-slate-700 dark:text-slate-300" />
         </button>
@@ -64,7 +64,7 @@ export const HelpLegalScreen: React.FC<HelpLegalScreenProps> = ({ onBack, langua
       </header>
 
       {/* Tabs */}
-      <div className="flex bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800 shrink-0">
+      <div className="flex bg-[var(--bg-card)] border-b border-[var(--border-ui)] shrink-0">
         <button 
           onClick={() => setActiveTab('help')}
           className={`flex-1 py-3 text-sm font-semibold flex items-center justify-center gap-2 border-b-2 transition-colors ${activeTab === 'help' ? 'border-blue-600 text-blue-600 dark:text-blue-400 dark:border-blue-400' : 'border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300'}`}
@@ -92,7 +92,7 @@ export const HelpLegalScreen: React.FC<HelpLegalScreenProps> = ({ onBack, langua
       </div>
 
       {/* Content Area */}
-      <div className="flex-1 overflow-y-auto p-4 md:p-6 bg-slate-50 dark:bg-slate-950">
+      <div className="flex-1 overflow-y-auto p-4 md:p-6 bg-[var(--bg-app)]">
         
         {/* Help & Support (FAQ RecyclerView logic) */}
         {activeTab === 'help' && (
@@ -101,7 +101,7 @@ export const HelpLegalScreen: React.FC<HelpLegalScreenProps> = ({ onBack, langua
             {labels.faqs.map((faq, index) => (
               <div 
                 key={index} 
-                className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm transition-all"
+                className="bg-[var(--bg-card)] border border-[var(--border-ui)] rounded-xl overflow-hidden shadow-sm transition-all"
               >
                 <button 
                   onClick={() => setExpandedFaq(expandedFaq === index ? null : index)}
@@ -113,7 +113,7 @@ export const HelpLegalScreen: React.FC<HelpLegalScreenProps> = ({ onBack, langua
                   </div>
                 </button>
                 {expandedFaq === index && (
-                  <div className="px-5 pb-4 pt-1 text-sm md:text-base text-slate-600 dark:text-slate-300 leading-relaxed border-t border-gray-100 dark:border-slate-800">
+                  <div className="px-5 pb-4 pt-1 text-sm md:text-base text-slate-600 dark:text-slate-300 leading-relaxed border-t border-[var(--border-ui)]">
                     {faq.a}
                   </div>
                 )}
@@ -125,8 +125,8 @@ export const HelpLegalScreen: React.FC<HelpLegalScreenProps> = ({ onBack, langua
         {/* Terms & Conditions */}
         {activeTab === 'terms' && (
           <div className="max-w-3xl mx-auto animate-in slide-in-from-bottom">
-            <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-xl p-5 md:p-8 shadow-sm">
-                <div className="flex items-center gap-3 mb-6 pb-4 border-b border-gray-100 dark:border-slate-800">
+            <div className="bg-[var(--bg-card)] border border-[var(--border-ui)] rounded-xl p-5 md:p-8 shadow-sm">
+                <div className="flex items-center gap-3 mb-6 pb-4 border-b border-[var(--border-ui)]">
                     <div className="p-3 bg-blue-50 dark:bg-slate-800 text-blue-600 dark:text-blue-400 rounded-lg">
                         <FileText size={24} />
                     </div>
@@ -145,8 +145,8 @@ export const HelpLegalScreen: React.FC<HelpLegalScreenProps> = ({ onBack, langua
         {/* Privacy Policy */}
         {activeTab === 'privacy' && (
           <div className="max-w-3xl mx-auto animate-in slide-in-from-bottom">
-            <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-xl p-5 md:p-8 shadow-sm">
-                <div className="flex items-center gap-3 mb-6 pb-4 border-b border-gray-100 dark:border-slate-800">
+            <div className="bg-[var(--bg-card)] border border-[var(--border-ui)] rounded-xl p-5 md:p-8 shadow-sm">
+                <div className="flex items-center gap-3 mb-6 pb-4 border-b border-[var(--border-ui)]">
                     <div className="p-3 bg-teal-50 dark:bg-slate-800 text-teal-600 dark:text-teal-400 rounded-lg">
                         <ShieldCheck size={24} />
                     </div>

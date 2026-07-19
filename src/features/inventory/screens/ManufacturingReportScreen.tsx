@@ -62,10 +62,10 @@ export const ManufacturingReportScreen: React.FC<ManufacturingReportScreenProps>
       exit={{ x: '100%' }}
       transition={{ type: 'tween', ease: [0.25, 1, 0.5, 1], duration: 0.35 }}
       style={{ willChange: 'transform' }}
-      className="flex flex-col h-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white pb-[max(env(safe-area-inset-bottom),0px)] relative overflow-hidden transition-colors font-sans"
+      className="flex flex-col h-full bg-[var(--bg-app)] text-[var(--text-main)] pb-[max(env(safe-area-inset-bottom),0px)] relative overflow-hidden transition-colors font-sans"
     >
       {/* Premium Top Header */}
-      <header className="bg-white dark:bg-slate-900 p-4 flex items-center justify-between shadow-sm shrink-0 border-b border-gray-200 dark:border-slate-800 pt-[max(env(safe-area-inset-top),48px)] transition-colors">
+      <header className="bg-[var(--bg-card)] p-4 flex items-center justify-between shadow-sm shrink-0 border-b border-[var(--border-ui)] pt-[max(env(safe-area-inset-top),48px)] transition-colors">
         <div className="flex items-center gap-4">
           <button 
             onClick={onBack}
@@ -76,7 +76,7 @@ export const ManufacturingReportScreen: React.FC<ManufacturingReportScreenProps>
           </button>
           <div className="flex items-center gap-2.5">
             <Factory size={22} className="text-indigo-600 dark:text-indigo-400" />
-            <h1 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white leading-tight">
+            <h1 className="text-xl font-bold tracking-tight text-[var(--text-main)] leading-tight">
               {t.title}
             </h1>
           </div>
@@ -97,8 +97,8 @@ export const ManufacturingReportScreen: React.FC<ManufacturingReportScreenProps>
         ) : (
           <div className="space-y-4">
             {entries.map(entry => (
-              <div key={entry.id} className="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 shadow-xs overflow-hidden transition-colors">
-                <div className="p-3.5 border-b border-gray-100 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-950">
+              <div key={entry.id} className="bg-[var(--bg-card)] rounded-xl border border-[var(--border-ui)] shadow-xs overflow-hidden transition-colors">
+                <div className="p-3.5 border-b border-gray-100 dark:border-slate-800 flex justify-between items-center bg-[var(--bg-app)]">
                   <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">
                     <Calendar size={14} className="text-indigo-500" /> {Date.fromLocalDateString ? Date.fromLocalDateString(entry.date).toLocaleDateString('en-IN') : entry.date}
                   </div>
@@ -115,16 +115,16 @@ export const ManufacturingReportScreen: React.FC<ManufacturingReportScreenProps>
                   <div className="flex justify-between items-start mb-4">
                     <div>
                       <p className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider mb-1">{t.produced}</p>
-                      <h3 className="text-base font-bold text-slate-900 dark:text-white leading-tight">{entry.finishedItemName}</h3>
+                      <h3 className="text-base font-bold text-[var(--text-main)] leading-tight">{entry.finishedItemName}</h3>
                       <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{t.qty}: <span className="font-extrabold text-slate-800 dark:text-slate-200">{entry.finishedQuantity}</span></p>
                     </div>
                     <div className="text-right">
                       <p className="text-[10px] font-bold text-slate-450 dark:text-slate-500 uppercase tracking-wider mb-1">{t.totalCost}</p>
-                      <p className="text-base font-extrabold text-slate-900 dark:text-white">₹{entry.totalCost.toLocaleString('en-IN')}</p>
+                      <p className="text-base font-extrabold text-[var(--text-main)]">₹{entry.totalCost.toLocaleString('en-IN')}</p>
                     </div>
                   </div>
 
-                  <div className="bg-slate-50 dark:bg-slate-950 rounded-lg p-3 border border-gray-100 dark:border-slate-850">
+                  <div className="bg-[var(--bg-app)] rounded-lg p-3 border border-gray-100 dark:border-slate-850">
                     <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">{t.rawUsed}</p>
                     <div className="space-y-1.5">
                       {entry.rawMaterials.map((rm, idx) => (
@@ -154,10 +154,10 @@ export const ManufacturingReportScreen: React.FC<ManufacturingReportScreenProps>
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-200 dark:border-slate-800 shadow-2xl w-full max-w-sm overflow-hidden p-5"
+              className="bg-[var(--bg-card)] rounded-2xl border border-[var(--border-ui)] shadow-2xl w-full max-w-sm overflow-hidden p-5"
             >
               <div className="p-1 text-center">
-                <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">{t.deleteTitle}</h3>
+                <h3 className="text-lg font-bold text-[var(--text-main)] mb-2">{t.deleteTitle}</h3>
                 <p className="text-slate-500 dark:text-slate-400 text-xs font-semibold leading-relaxed mb-6">
                   {t.deleteConfirmMsg}
                 </p>
@@ -165,7 +165,7 @@ export const ManufacturingReportScreen: React.FC<ManufacturingReportScreenProps>
               <div className="flex gap-3">
                 <button 
                   onClick={() => setDeleteConfirmId(null)}
-                  className="flex-1 py-3 text-slate-600 dark:text-slate-400 font-bold bg-slate-50 dark:bg-slate-950 border border-gray-200 dark:border-slate-850 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors min-h-[44px] cursor-pointer"
+                  className="flex-1 py-3 text-slate-600 dark:text-slate-400 font-bold bg-[var(--bg-app)] border border-gray-200 dark:border-slate-850 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors min-h-[44px] cursor-pointer"
                 >
                   {t.cancel}
                 </button>

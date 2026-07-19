@@ -23,31 +23,57 @@ export const ChatDetailScreen: React.FC<ChatDetailScreenProps> = ({ party, onBac
   const [activeCall, setActiveCall] = useState<{type: 'voice' | 'video', status: 'calling' | 'connected'} | null>(null);
   const [isSendingAsCustomer, setIsSendingAsCustomer] = useState(false);
   const [isSharingItems, setIsSharingItems] = useState(false);
+
+  const lang = (localStorage.getItem('language') || 'en') as 'en' | 'hi';
+  const isHi = lang === 'hi';
+  const t = {
+    liveLocation: isHi ? 'लाइव लोकेशन' : 'Live Location',
+    sharedViaQuickBill: isHi ? 'क्विकबिल के माध्यम से साझा किया गया' : 'Shared via QuickBill',
+    lastSeen: isHi ? 'अंतिम बार आज सुबह 7:35 बजे देखा गया' : 'last seen today at 7:35 am',
+    today: isHi ? 'आज' : 'Today',
+    messagePlaceholder: isHi ? 'संदेश...' : 'Message',
+    cancel: isHi ? 'रद्द करें' : 'Cancel',
+    document: isHi ? 'दस्तावेज़' : 'Document',
+    camera: isHi ? 'कैमरा' : 'Camera',
+    gallery: isHi ? 'गैलरी' : 'Gallery',
+    audio: isHi ? 'ऑडियो' : 'Audio',
+    location: isHi ? 'लोकेशन' : 'Location',
+    contact: isHi ? 'संपर्क' : 'Contact',
+    deleteMessages: isHi ? 'संदेश हटाएं' : 'Delete Messages',
+    deleteConfirm: (count: number) => isHi ? `क्या आप निश्चित रूप से ${count} संदेश हटाना चाहते हैं?` : `Are you sure you want to delete ${count} message(s)?`,
+    delete: isHi ? 'हटाएं' : 'Delete',
+    noMobile: isHi ? 'इस ग्राहक के पास मोबाइल नंबर नहीं है।' : 'This customer does not have a mobile number.',
+    noItemsToShare: isHi ? 'साझा करने के लिए कोई आइटम उपलब्ध नहीं है। कृपया पहले आइटम मास्टर में आइटम जोड़ें।' : 'No items available to share. Please add items in Item Master first.',
+    shareSuccess: (count: number, name: string) => isHi ? `${name} के साथ सफलतापूर्वक ${count} आइटम साझा किए गए` : `Successfully shared ${count} items with ${name}`,
+    shareFailed: isHi ? 'आइटम साझा करने में विफल। कृपया पुन: प्रयास करें या अपना कनेक्शन जांचें।' : 'Failed to share items. Please try again or check your connection.',
+    recording: isHi ? 'रिकॉर्डिंग' : 'Recording',
+    switchedMode: (isCustomer: boolean) => isHi ? `बदला गया! अब भेज रहे हैं: ${isCustomer ? 'ग्राहक' : 'आप'}` : `Switched! Now sending as: ${isCustomer ? 'Customer' : 'You'}`
+  };
   
   const handleQuickShareItems = async (msg: ChatMessage) => {
       if (!party.mobile) {
-          alert('This customer does not have a mobile number.');
+          alert(t.noMobile);
           return;
       }
       try {
           const allItems = await billingService.getAllItems();
           if (allItems.length === 0) {
-              alert('No items available to share. Please add items in Item Master first.');
+              alert(t.noItemsToShare);
               return;
           }
           setIsSharingItems(true);
           const success = await shareItemsWithClient(allItems, party.mobile);
           if (success) {
-              setToastMessage(`Successfully shared ${allItems.length} items with ${party.name}`);
+              setToastMessage(t.shareSuccess(allItems.length, party.name));
               setTimeout(() => setToastMessage(''), 3000);
               const updatedMsg = { ...msg, itemsShared: true };
               await billingService.saveMessage(updatedMsg);
           } else {
-              alert('Failed to share items. Please try again or check your connection.');
+              alert(t.shareFailed);
           }
       } catch (error: any) {
           console.error("Failed to share items:", error);
-          alert(`Error: ${error.message || 'Failed to share items.'}`);
+          alert(`Error: ${error.message || t.shareFailed}`);
       } finally {
           setIsSharingItems(false);
       }
@@ -533,8 +559,8 @@ export const ChatDetailScreen: React.FC<ChatDetailScreenProps> = ({ party, onBac
                           <MapPin size={32} className="text-red-600 drop-shadow-md z-10" fill="currentColor" />
                       </div>
                       <div className="p-2">
-                          <p className="font-bold text-sm">Live Location</p>
-                          <p className="text-xs opacity-70">Shared via QuickBill</p>
+                          <p className="font-bold text-sm">{t.liveLocation}</p>
+                          <p className="text-xs opacity-70">{t.sharedViaQuickBill}</p>
                       </div>
                   </div>
               );
@@ -632,14 +658,14 @@ export const ChatDetailScreen: React.FC<ChatDetailScreenProps> = ({ party, onBac
                 </button>
                 <div className="flex-1 cursor-pointer min-w-0">
                     <h1 className="text-[17px] font-medium truncate text-white leading-tight">{party.name}</h1>
-                    <p className="text-[13px] truncate text-white/80 leading-tight">last seen today at 7:35 am</p>
+                    <p className="text-[13px] truncate text-white/80 leading-tight">{t.lastSeen}</p>
                 </div>
                 <div className="flex items-center gap-4 px-2 text-white">
                     <button onClick={() => startCall('video')}><Video size={22} className="cursor-pointer" /></button>
                     <button onClick={() => startCall('voice')}><Phone size={20} className="cursor-pointer" /></button>
                     <button onClick={() => {
                         setIsSendingAsCustomer(!isSendingAsCustomer);
-                        setToastMessage(`Switched! Now sending as: ${!isSendingAsCustomer ? 'Customer' : 'You'}`);
+                        setToastMessage(t.switchedMode(!isSendingAsCustomer));
                         setTimeout(() => setToastMessage(''), 3000);
                     }}><MoreVertical size={22} className="cursor-pointer" /></button>
                 </div>
@@ -655,7 +681,7 @@ export const ChatDetailScreen: React.FC<ChatDetailScreenProps> = ({ party, onBac
          }}></div>
 
          <div className="flex justify-center mb-4 relative z-10">
-             <span className="bg-white dark:bg-[#1f2c34] text-slate-600 dark:text-slate-300 font-medium text-xs px-2 py-1 rounded-lg shadow-sm border border-gray-200 dark:border-slate-700">Today</span>
+             <span className="bg-white dark:bg-[#1f2c34] text-slate-600 dark:text-slate-300 font-medium text-xs px-2 py-1 rounded-lg shadow-sm border border-gray-200 dark:border-slate-700">{t.today}</span>
          </div>
 
          {messages.map((msg) => {
@@ -699,13 +725,13 @@ export const ChatDetailScreen: React.FC<ChatDetailScreenProps> = ({ party, onBac
                 {isRecording ? (
                     <div className="flex-1 flex items-center gap-3 px-3 text-red-500 animate-pulse">
                         <Mic size={20} fill="currentColor" />
-                        <span className="font-bold">Recording {Math.floor(recordingDuration / 60)}:{(recordingDuration % 60).toString().padStart(2, '0')}...</span>
-                        <button onClick={cancelRecording} className="text-slate-500 text-sm ml-auto font-normal hover:text-red-500">Cancel</button>
+                        <span className="font-bold">{t.recording} {Math.floor(recordingDuration / 60)}:{(recordingDuration % 60).toString().padStart(2, '0')}...</span>
+                        <button onClick={cancelRecording} className="text-slate-500 text-sm ml-auto font-normal hover:text-red-500">{t.cancel}</button>
                     </div>
                 ) : (
                     <>
                         <button className="p-2.5 text-slate-500 hover:text-slate-600 dark:hover:text-slate-200 transition-colors shrink-0"><Smile size={24} /></button>
-                        <input type="text" value={inputText} onChange={(e) => setInputText(e.target.value)} onKeyDown={handleKeyPress} placeholder="Message" className="flex-1 bg-transparent outline-none text-[17px] text-slate-900 dark:text-white placeholder:text-slate-500 px-1 py-2.5 font-normal min-w-0" />
+                        <input type="text" value={inputText} onChange={(e) => setInputText(e.target.value)} onKeyDown={handleKeyPress} placeholder={t.messagePlaceholder} className="flex-1 bg-transparent outline-none text-[17px] text-slate-900 dark:text-white placeholder:text-slate-500 px-1 py-2.5 font-normal min-w-0" />
                         <button className={`p-2.5 hover:text-slate-600 dark:hover:text-slate-200 rotate-45 transition-transform shrink-0 ${showAttachments ? 'text-slate-600 dark:text-slate-200' : 'text-slate-500'}`} onClick={(e) => { e.stopPropagation(); setShowAttachments(!showAttachments); }}>
                             {showAttachments ? <X size={24} className="-rotate-45" /> : <Paperclip size={22} />}
                         </button>
@@ -724,12 +750,12 @@ export const ChatDetailScreen: React.FC<ChatDetailScreenProps> = ({ party, onBac
       {showAttachments && !selectedMessageIds.length && (
           <div className="absolute bottom-16 left-2 right-2 bg-transparent z-30 flex justify-center">
               <div className="bg-white dark:bg-[#1f2c34] rounded-xl shadow-xl p-6 mb-2 grid grid-cols-3 gap-6 animate-in slide-in-from-bottom-5 duration-200 border border-gray-200 dark:border-slate-700 w-full max-w-sm">
-                  <button onClick={() => handleAttachmentClick('Document')} className="flex flex-col items-center gap-2 group"><div className="w-14 h-14 rounded-full bg-indigo-600 flex items-center justify-center text-white shadow-md active:scale-95 transition-transform group-hover:bg-indigo-700"><FileText size={24} /></div><span className="text-xs text-slate-600 dark:text-slate-300 font-bold">Document</span></button>
-                  <button onClick={() => handleAttachmentClick('Camera')} className="flex flex-col items-center gap-2 group"><div className="w-14 h-14 rounded-full bg-pink-600 flex items-center justify-center text-white shadow-md active:scale-95 transition-transform group-hover:bg-pink-700"><Camera size={24} /></div><span className="text-xs text-slate-600 dark:text-slate-300 font-bold">Camera</span></button>
-                  <button onClick={() => handleAttachmentClick('Gallery')} className="flex flex-col items-center gap-2 group"><div className="w-14 h-14 rounded-full bg-purple-600 flex items-center justify-center text-white shadow-md active:scale-95 transition-transform group-hover:bg-purple-700"><Image size={24} /></div><span className="text-xs text-slate-600 dark:text-slate-300 font-bold">Gallery</span></button>
-                  <button onClick={() => handleAttachmentClick('Audio')} className="flex flex-col items-center gap-2 group"><div className="w-14 h-14 rounded-full bg-orange-600 flex items-center justify-center text-white shadow-md active:scale-95 transition-transform group-hover:bg-orange-700"><Headphones size={24} /></div><span className="text-xs text-slate-600 dark:text-slate-300 font-bold">Audio</span></button>
-                  <button onClick={() => handleAttachmentClick('Location')} className="flex flex-col items-center gap-2 group"><div className="w-14 h-14 rounded-full bg-green-600 flex items-center justify-center text-white shadow-md active:scale-95 transition-transform group-hover:bg-green-700"><MapPin size={24} /></div><span className="text-xs text-slate-600 dark:text-slate-300 font-bold">Location</span></button>
-                  <button onClick={() => handleAttachmentClick('Contact')} className="flex flex-col items-center gap-2 group"><div className="w-14 h-14 rounded-full bg-blue-600 flex items-center justify-center text-white shadow-md active:scale-95 transition-transform group-hover:bg-blue-700"><User size={24} /></div><span className="text-xs text-slate-600 dark:text-slate-300 font-bold">Contact</span></button>
+                  <button onClick={() => handleAttachmentClick('Document')} className="flex flex-col items-center gap-2 group"><div className="w-14 h-14 rounded-full bg-indigo-600 flex items-center justify-center text-white shadow-md active:scale-95 transition-transform group-hover:bg-indigo-700"><FileText size={24} /></div><span className="text-xs text-slate-600 dark:text-slate-300 font-bold">{t.document}</span></button>
+                  <button onClick={() => handleAttachmentClick('Camera')} className="flex flex-col items-center gap-2 group"><div className="w-14 h-14 rounded-full bg-pink-600 flex items-center justify-center text-white shadow-md active:scale-95 transition-transform group-hover:bg-pink-700"><Camera size={24} /></div><span className="text-xs text-slate-600 dark:text-slate-300 font-bold">{t.camera}</span></button>
+                  <button onClick={() => handleAttachmentClick('Gallery')} className="flex flex-col items-center gap-2 group"><div className="w-14 h-14 rounded-full bg-purple-600 flex items-center justify-center text-white shadow-md active:scale-95 transition-transform group-hover:bg-purple-700"><Image size={24} /></div><span className="text-xs text-slate-600 dark:text-slate-300 font-bold">{t.gallery}</span></button>
+                  <button onClick={() => handleAttachmentClick('Audio')} className="flex flex-col items-center gap-2 group"><div className="w-14 h-14 rounded-full bg-orange-600 flex items-center justify-center text-white shadow-md active:scale-95 transition-transform group-hover:bg-orange-700"><Headphones size={24} /></div><span className="text-xs text-slate-600 dark:text-slate-300 font-bold">{t.audio}</span></button>
+                  <button onClick={() => handleAttachmentClick('Location')} className="flex flex-col items-center gap-2 group"><div className="w-14 h-14 rounded-full bg-green-600 flex items-center justify-center text-white shadow-md active:scale-95 transition-transform group-hover:bg-green-700"><MapPin size={24} /></div><span className="text-xs text-slate-600 dark:text-slate-300 font-bold">{t.location}</span></button>
+                  <button onClick={() => handleAttachmentClick('Contact')} className="flex flex-col items-center gap-2 group"><div className="w-14 h-14 rounded-full bg-blue-600 flex items-center justify-center text-white shadow-md active:scale-95 transition-transform group-hover:bg-blue-700"><User size={24} /></div><span className="text-xs text-slate-600 dark:text-slate-300 font-bold">{t.contact}</span></button>
               </div>
           </div>
       )}
@@ -738,11 +764,11 @@ export const ChatDetailScreen: React.FC<ChatDetailScreenProps> = ({ party, onBac
       {showDeleteConfirm && (
           <div className="absolute inset-0 z-[100] bg-black/50 flex items-center justify-center p-4 animate-in fade-in duration-200">
               <div className="bg-white dark:bg-slate-800 rounded-lg p-6 max-w-sm w-full shadow-xl">
-                  <h3 className="text-lg font-bold mb-2 text-slate-900 dark:text-white">Delete Messages</h3>
-                  <p className="text-slate-600 dark:text-slate-300 mb-6">Are you sure you want to delete {selectedMessageIds.length} message(s)?</p>
+                  <h3 className="text-lg font-bold mb-2 text-slate-900 dark:text-white">{t.deleteMessages}</h3>
+                  <p className="text-slate-600 dark:text-slate-300 mb-6">{t.deleteConfirm(selectedMessageIds.length)}</p>
                   <div className="flex justify-end gap-3">
-                      <button onClick={() => setShowDeleteConfirm(false)} className="px-4 py-2 text-slate-600 dark:text-slate-300 font-medium hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition-colors">Cancel</button>
-                      <button onClick={confirmDelete} className="px-4 py-2 bg-red-500 text-white rounded font-medium hover:bg-red-600 transition-colors">Delete</button>
+                      <button onClick={() => setShowDeleteConfirm(false)} className="px-4 py-2 text-slate-600 dark:text-slate-300 font-medium hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition-colors">{t.cancel}</button>
+                      <button onClick={confirmDelete} className="px-4 py-2 bg-red-500 text-white rounded font-medium hover:bg-red-600 transition-colors">{t.delete}</button>
                   </div>
               </div>
           </div>

@@ -259,10 +259,10 @@ export const ManufacturingScreen: React.FC<ManufacturingScreenProps> = ({ onBack
       exit={{ x: '100%' }}
       transition={{ type: 'tween', ease: [0.25, 1, 0.5, 1], duration: 0.35 }}
       style={{ willChange: 'transform' }}
-      className="flex flex-col h-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white pb-[max(env(safe-area-inset-bottom),0px)] relative overflow-hidden transition-colors font-sans"
+      className="flex flex-col h-full bg-[var(--bg-app)] text-[var(--text-main)] pb-[max(env(safe-area-inset-bottom),0px)] relative overflow-hidden transition-colors font-sans"
     >
       {/* Premium Top Header */}
-      <header className="bg-white dark:bg-slate-900 p-4 flex items-center justify-between shadow-sm shrink-0 border-b border-gray-200 dark:border-slate-800 pt-[max(env(safe-area-inset-top),48px)] transition-colors">
+      <header className="bg-[var(--bg-card)] p-4 flex items-center justify-between shadow-sm shrink-0 border-b border-[var(--border-ui)] pt-[max(env(safe-area-inset-top),48px)] transition-colors">
         <div className="flex items-center gap-4">
           <button 
             onClick={onBack}
@@ -273,7 +273,7 @@ export const ManufacturingScreen: React.FC<ManufacturingScreenProps> = ({ onBack
           </button>
           <div className="flex items-center gap-2.5">
             <Factory size={22} className="text-indigo-650 dark:text-indigo-400" />
-            <h1 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white leading-tight">
+            <h1 className="text-xl font-bold tracking-tight text-[var(--text-main)] leading-tight">
               {t.title}
             </h1>
           </div>
@@ -282,7 +282,7 @@ export const ManufacturingScreen: React.FC<ManufacturingScreenProps> = ({ onBack
 
       <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar">
         {/* Finished Good Section */}
-        <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-gray-200 dark:border-slate-800 shadow-xs transition-colors">
+        <div className="bg-[var(--bg-card)] p-4 rounded-xl border border-[var(--border-ui)] shadow-xs transition-colors">
           <h2 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3 flex items-center gap-2">
             <Package size={16} className="text-indigo-500" /> {t.finishedGood}
           </h2>
@@ -293,7 +293,7 @@ export const ManufacturingScreen: React.FC<ManufacturingScreenProps> = ({ onBack
                 type="date" 
                 value={date} 
                 onChange={(e) => setDate(e.target.value)}
-                className="w-full p-2.5 border border-gray-200 dark:border-slate-800 rounded-lg bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white text-xs font-bold outline-none focus-active-light dark:focus-active-dark min-h-[44px]"
+                className="w-full p-2.5 border border-[var(--border-ui)] rounded-lg bg-[var(--bg-app)] text-[var(--text-main)] text-xs font-bold outline-none focus-active-light dark:focus-active-dark min-h-[44px]"
               />
             </div>
             <div className="col-span-2 relative">
@@ -313,10 +313,10 @@ export const ManufacturingScreen: React.FC<ManufacturingScreenProps> = ({ onBack
                 onFocus={() => setShowFinishedSuggestions(true)}
                 onBlur={() => setTimeout(() => setShowFinishedSuggestions(false), 200)}
                 placeholder={t.searchPlaceholder}
-                className="w-full p-2.5 border border-gray-200 dark:border-slate-800 rounded-lg bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white text-xs font-bold outline-none focus-active-light dark:focus-active-dark min-h-[44px]"
+                className="w-full p-2.5 border border-[var(--border-ui)] rounded-lg bg-[var(--bg-app)] text-[var(--text-main)] text-xs font-bold outline-none focus-active-light dark:focus-active-dark min-h-[44px]"
               />
               {showFinishedSuggestions && finishedSuggestions.length > 0 && (
-                <div className="absolute top-full left-0 right-0 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 shadow-2xl max-h-40 overflow-y-auto rounded-xl mt-1.5 z-50 divide-y divide-gray-100 dark:divide-slate-800">
+                <div className="absolute top-full left-0 right-0 bg-[var(--bg-card)] border border-[var(--border-ui)] shadow-2xl max-h-40 overflow-y-auto rounded-xl mt-1.5 z-50 divide-y divide-gray-100 dark:divide-slate-800">
                   {finishedSuggestions.map(item => (
                     <div 
                       key={item.id}
@@ -324,7 +324,7 @@ export const ManufacturingScreen: React.FC<ManufacturingScreenProps> = ({ onBack
                       onMouseDown={() => handleSelectFinishedItem(item)}
                     >
                       <span className="font-bold text-slate-800 dark:text-slate-200">{item.name}</span>
-                      <span className="text-[10px] font-bold text-slate-500 bg-slate-100 dark:bg-slate-800 px-2.5 py-0.5 rounded-full">{t.stock}: {item.openingStock || 0}</span>
+                      <span className="text-[10px] font-bold text-slate-500 bg-[var(--bg-app)] px-2.5 py-0.5 rounded-full">{t.stock}: {item.openingStock || 0}</span>
                     </div>
                   ))}
                 </div>
@@ -337,14 +337,14 @@ export const ManufacturingScreen: React.FC<ManufacturingScreenProps> = ({ onBack
                 value={finishedQuantity} 
                 onChange={(e) => handleFinishedQuantityChange(e.target.value)}
                 placeholder="Qty"
-                className="w-full p-2.5 border border-gray-200 dark:border-slate-800 rounded-lg bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white text-xs font-bold outline-none focus-active-light dark:focus-active-dark min-h-[44px]"
+                className="w-full p-2.5 border border-[var(--border-ui)] rounded-lg bg-[var(--bg-app)] text-[var(--text-main)] text-xs font-bold outline-none focus-active-light dark:focus-active-dark min-h-[44px]"
               />
             </div>
           </div>
         </div>
 
         {/* Raw Materials Entry Form */}
-        <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-gray-200 dark:border-slate-800 shadow-xs transition-colors">
+        <div className="bg-[var(--bg-card)] p-4 rounded-xl border border-[var(--border-ui)] shadow-xs transition-colors">
           <h2 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">{t.addRawMaterial}</h2>
           <div className="grid grid-cols-12 gap-3.5">
             <div className="col-span-12 relative">
@@ -360,10 +360,10 @@ export const ManufacturingScreen: React.FC<ManufacturingScreenProps> = ({ onBack
                 onFocus={() => setShowRmSuggestions(true)}
                 onBlur={() => setTimeout(() => setShowRmSuggestions(false), 200)}
                 placeholder={t.rmPlaceholder}
-                className="w-full p-2.5 border border-gray-200 dark:border-slate-800 rounded-lg bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white text-xs font-bold outline-none focus-active-light dark:focus-active-dark min-h-[44px]"
+                className="w-full p-2.5 border border-[var(--border-ui)] rounded-lg bg-[var(--bg-app)] text-[var(--text-main)] text-xs font-bold outline-none focus-active-light dark:focus-active-dark min-h-[44px]"
               />
               {showRmSuggestions && rmSuggestions.length > 0 && (
-                <div className="absolute top-full left-0 right-0 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 shadow-2xl max-h-40 overflow-y-auto rounded-xl mt-1.5 z-50 divide-y divide-gray-100 dark:divide-slate-800">
+                <div className="absolute top-full left-0 right-0 bg-[var(--bg-card)] border border-[var(--border-ui)] shadow-2xl max-h-40 overflow-y-auto rounded-xl mt-1.5 z-50 divide-y divide-gray-100 dark:divide-slate-800">
                   {rmSuggestions.map(item => (
                     <div 
                       key={item.id}
@@ -371,7 +371,7 @@ export const ManufacturingScreen: React.FC<ManufacturingScreenProps> = ({ onBack
                       onMouseDown={() => handleSelectRmItem(item)}
                     >
                       <span className="font-bold text-slate-800 dark:text-slate-200">{item.name}</span>
-                      <span className="text-[10px] font-bold text-slate-500 bg-slate-100 dark:bg-slate-800 px-2.5 py-0.5 rounded-full">{t.stock}: {item.openingStock || 0}</span>
+                      <span className="text-[10px] font-bold text-slate-500 bg-[var(--bg-app)] px-2.5 py-0.5 rounded-full">{t.stock}: {item.openingStock || 0}</span>
                     </div>
                   ))}
                 </div>
@@ -384,7 +384,7 @@ export const ManufacturingScreen: React.FC<ManufacturingScreenProps> = ({ onBack
                 value={rmQuantity} 
                 onChange={(e) => setRmQuantity(e.target.value ? Number(e.target.value) : '')}
                 placeholder="Qty"
-                className="w-full p-2.5 border border-gray-200 dark:border-slate-800 rounded-lg bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white text-xs font-bold outline-none focus-active-light dark:focus-active-dark min-h-[44px]"
+                className="w-full p-2.5 border border-[var(--border-ui)] rounded-lg bg-[var(--bg-app)] text-[var(--text-main)] text-xs font-bold outline-none focus-active-light dark:focus-active-dark min-h-[44px]"
               />
             </div>
             <div className="col-span-6">
@@ -394,7 +394,7 @@ export const ManufacturingScreen: React.FC<ManufacturingScreenProps> = ({ onBack
                 value={rmCost} 
                 onChange={(e) => setRmCost(e.target.value ? Number(e.target.value) : '')}
                 placeholder="₹"
-                className="w-full p-2.5 border border-gray-200 dark:border-slate-800 rounded-lg bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white text-xs font-bold outline-none focus-active-light dark:focus-active-dark min-h-[44px]"
+                className="w-full p-2.5 border border-[var(--border-ui)] rounded-lg bg-[var(--bg-app)] text-[var(--text-main)] text-xs font-bold outline-none focus-active-light dark:focus-active-dark min-h-[44px]"
               />
             </div>
             <div className="col-span-12 mt-2">
@@ -424,8 +424,8 @@ export const ManufacturingScreen: React.FC<ManufacturingScreenProps> = ({ onBack
 
         {/* Raw Materials List */}
         {rawMaterials.length > 0 && (
-          <div className="bg-white dark:bg-slate-900 rounded-xl shadow-xs border border-gray-200 dark:border-slate-800 overflow-hidden transition-colors">
-            <div className="bg-slate-50 dark:bg-slate-950 p-2.5 text-[10px] font-bold text-slate-500 uppercase tracking-widest grid grid-cols-12 gap-2 border-b border-gray-200 dark:border-slate-800">
+          <div className="bg-[var(--bg-card)] rounded-xl shadow-xs border border-[var(--border-ui)] overflow-hidden transition-colors">
+            <div className="bg-[var(--bg-app)] p-2.5 text-[10px] font-bold text-slate-500 uppercase tracking-widest grid grid-cols-12 gap-2 border-b border-[var(--border-ui)]">
               <div className="col-span-5 pl-2">{t.itemHeader}</div>
               <div className="col-span-2 text-center">{t.qty}</div>
               <div className="col-span-3 text-right">{t.value}</div>
@@ -434,9 +434,9 @@ export const ManufacturingScreen: React.FC<ManufacturingScreenProps> = ({ onBack
             <div className="divide-y divide-gray-100 dark:divide-slate-800">
               {rawMaterials.map((rm, index) => (
                 <div key={index} className="grid grid-cols-12 gap-2 p-3.5 items-center text-xs">
-                  <div className="col-span-5 pl-2 font-bold text-slate-900 dark:text-white truncate">{rm.itemName}</div>
+                  <div className="col-span-5 pl-2 font-bold text-[var(--text-main)] truncate">{rm.itemName}</div>
                   <div className="col-span-2 text-center text-slate-500 dark:text-slate-400 font-bold">{rm.quantity}</div>
-                  <div className="col-span-3 text-right font-extrabold text-slate-900 dark:text-white">₹{(rm.quantity * rm.costPerUnit).toLocaleString('en-IN')}</div>
+                  <div className="col-span-3 text-right font-extrabold text-[var(--text-main)]">₹{(rm.quantity * rm.costPerUnit).toLocaleString('en-IN')}</div>
                   <div className="col-span-2 flex justify-end gap-1 pr-1">
                     <button onClick={() => handleEditRawMaterial(index)} className="p-1.5 text-indigo-500 hover:bg-indigo-500/10 rounded-lg min-w-[34px] min-h-[34px] flex items-center justify-center active:scale-90 transition-all"><Edit2 size={14} /></button>
                     <button onClick={() => handleRemoveRawMaterial(index)} className="p-1.5 text-rose-500 hover:bg-rose-500/10 rounded-lg min-w-[34px] min-h-[34px] flex items-center justify-center active:scale-90 transition-all"><Trash2 size={14} /></button>
@@ -452,19 +452,19 @@ export const ManufacturingScreen: React.FC<ManufacturingScreenProps> = ({ onBack
         )}
 
         {/* Notes */}
-        <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-gray-200 dark:border-slate-800 shadow-xs transition-colors">
+        <div className="bg-[var(--bg-card)] p-4 rounded-xl border border-[var(--border-ui)] shadow-xs transition-colors">
           <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">{t.notesLabel}</label>
           <textarea 
             value={notes} 
             onChange={(e) => setNotes(e.target.value)}
             rows={2}
-            className="w-full p-2.5 border border-gray-200 dark:border-slate-800 rounded-lg bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white text-xs font-bold outline-none focus-active-light dark:focus-active-dark"
+            className="w-full p-2.5 border border-[var(--border-ui)] rounded-lg bg-[var(--bg-app)] text-[var(--text-main)] text-xs font-bold outline-none focus-active-light dark:focus-active-dark"
             placeholder={t.notesPlaceholder}
           />
         </div>
       </div>
 
-      <div className="p-4 bg-white dark:bg-slate-900 border-t border-gray-200 dark:border-slate-800 shrink-0">
+      <div className="p-4 bg-[var(--bg-card)] border-t border-[var(--border-ui)] shrink-0">
         <button 
           onClick={handleSave}
           disabled={isSaving}

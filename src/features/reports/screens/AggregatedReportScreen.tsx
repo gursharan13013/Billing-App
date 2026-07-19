@@ -17,6 +17,15 @@ export const AggregatedReportScreen: React.FC<AggregatedReportScreenProps> = ({ 
   const [searchQuery, setSearchQuery] = useState('');
   const [dateFilter, setDateFilter] = useState<'Today'|'Month'|'All'>('All');
 
+  const lang = (localStorage.getItem('language') || 'en') as 'en' | 'hi';
+  const isHi = lang === 'hi';
+  const t = {
+    totalQty: isHi ? 'कुल मात्रा' : 'Total Qty',
+    totalAmount: isHi ? 'कुल राशि' : 'Total Amount',
+    party: isHi ? 'पार्टी' : 'Party',
+    item: isHi ? 'सामग्री' : 'Item'
+  };
+
   useEffect(() => {
     loadData();
   }, [type]);
@@ -222,14 +231,14 @@ export const AggregatedReportScreen: React.FC<AggregatedReportScreenProps> = ({ 
       </div>
 
       {/* Summary Chips */}
-      <div className="px-3 py-2 flex gap-2 overflow-x-auto no-scrollbar shrink-0 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800">
+      <div className="px-3 py-2 flex gap-2 overflow-x-auto no-scrollbar shrink-0 border-b border-[var(--border-ui)] bg-white dark:bg-slate-800">
           <div className="bg-green-50 dark:bg-green-900/20 px-3 py-1.5 rounded-lg border border-green-200 dark:border-green-800/30 whitespace-nowrap">
-              <span className="text-[10px] text-green-600 dark:text-green-400 uppercase font-bold block leading-tight">Total Qty</span>
+              <span className="text-[10px] text-green-600 dark:text-green-400 uppercase font-bold block leading-tight">{t.totalQty}</span>
               <span className="font-bold text-sm text-green-700 dark:text-green-300">{totalQty}</span>
           </div>
           <div className="bg-blue-50 dark:bg-blue-900/20 px-3 py-1.5 rounded-lg border border-blue-200 dark:border-blue-800/30 whitespace-nowrap">
-              <span className="text-[10px] text-blue-600 dark:text-blue-400 uppercase font-bold block leading-tight">Total Amount</span>
-              <span className="font-bold text-sm text-blue-700 dark:text-blue-300">₹{totalAmount.toFixed(2)}</span>
+              <span className="text-[10px] text-blue-600 dark:text-blue-400 uppercase font-bold block leading-tight">{t.totalAmount}</span>
+              <span className="font-bold text-sm text-blue-700 dark:text-green-300">₹{totalAmount.toFixed(2)}</span>
           </div>
       </div>
 
@@ -245,10 +254,10 @@ export const AggregatedReportScreen: React.FC<AggregatedReportScreenProps> = ({ 
                       <table className="w-full text-sm text-left whitespace-nowrap">
                           <thead className="text-[11px] uppercase bg-slate-50 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400">
                               <tr>
-                                  {reportOption !== 'By Item' && <th className="p-3 border-r border-slate-200 dark:border-slate-700">Party</th>}
-                                  {reportOption !== 'By Party' && <th className="p-3 border-r border-slate-200 dark:border-slate-700">Item</th>}
-                                  <th className="p-3 border-r border-slate-200 dark:border-slate-700 text-right w-24">Total Qty</th>
-                                  <th className="p-3 text-right w-32">Total Amount</th>
+                                  {reportOption !== 'By Item' && <th className="p-3 border-r border-slate-200 dark:border-slate-700">{t.party}</th>}
+                                  {reportOption !== 'By Party' && <th className="p-3 border-r border-slate-200 dark:border-slate-700">{t.item}</th>}
+                                  <th className="p-3 border-r border-slate-200 dark:border-slate-700 text-right w-24">{t.totalQty}</th>
+                                  <th className="p-3 text-right w-32">{t.totalAmount}</th>
                               </tr>
                           </thead>
                           <tbody className="divide-y divide-slate-100 dark:divide-slate-800">

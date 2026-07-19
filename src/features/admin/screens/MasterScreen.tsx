@@ -95,12 +95,12 @@ export const MasterScreen: React.FC<MasterScreenProps> = ({
 
   return (
     <div 
-      className="flex flex-col h-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white overflow-hidden relative pb-[max(env(safe-area-inset-bottom),0px)]" 
+      className="flex flex-col h-full bg-[var(--bg-app)] text-[var(--text-main)] overflow-hidden relative pb-[max(env(safe-area-inset-bottom),0px)]" 
       onClick={() => isMenuOpen && setIsMenuOpen(false)}
     >
       
       {/* Synchronized Header Section - Perfectly aligned with Home tab */}
-      <div className="p-5 pt-[max(env(safe-area-inset-top),36px)] bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 text-slate-800 dark:text-white pb-4 relative shrink-0 shadow-sm dark:shadow-lg">
+      <div className="p-5 pt-[max(env(safe-area-inset-top),36px)] bg-[var(--bg-card)] border-b border-[var(--border-ui)] text-[var(--text-main)] pb-4 relative shrink-0 shadow-sm dark:shadow-lg">
           <div className="flex items-center justify-between max-w-5xl mx-auto w-full">
               <div className="flex flex-col gap-0.5">
                   <span className="text-[9px] uppercase font-bold tracking-widest text-slate-500 dark:text-indigo-400 font-mono">Master Console</span>
@@ -109,17 +109,17 @@ export const MasterScreen: React.FC<MasterScreenProps> = ({
 
               <div className="flex items-center gap-1">
                   {/* NOTIFICATION BUTTON */}
-                  <button onClick={onNotification} className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors relative">
-                      <Bell size={16} />
+                  <button onClick={onNotification} className="p-2 rounded-xl bg-[var(--bg-app)] text-[var(--text-secondary)] hover:text-[var(--text-main)] hover:bg-slate-200 dark:hover:bg-slate-800/80 transition-all active:scale-95 flex items-center justify-center min-w-[36px] min-h-[36px] relative">
+                      <Bell size={18} />
                       <span className="absolute top-1 right-1 w-1.5 h-1.5 bg-rose-500 rounded-full"></span>
                   </button>
-                  <button onClick={(e) => { e.stopPropagation(); setIsMenuOpen(!isMenuOpen); }} className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors relative">
-                      <MoreVertical size={16} />
+                  <button onClick={(e) => { e.stopPropagation(); setIsMenuOpen(!isMenuOpen); }} className="p-2 rounded-xl bg-[var(--bg-app)] text-[var(--text-secondary)] hover:text-[var(--text-main)] hover:bg-slate-200 dark:hover:bg-slate-800/80 transition-all active:scale-95 flex items-center justify-center min-w-[36px] min-h-[36px] relative">
+                      <MoreVertical size={18} />
                   </button>
                   
                   {/* Dropdown Menu Overlay */}
                   {isMenuOpen && (
-                    <div className="absolute top-16 right-5 w-48 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-2xl z-50 overflow-hidden divide-y divide-slate-100 dark:divide-slate-800/60 text-slate-800 dark:text-white">
+                    <div className="absolute top-16 right-5 w-48 bg-[var(--bg-card)] border border-[var(--border-ui)] rounded-xl shadow-2xl z-50 overflow-hidden divide-y divide-slate-100 dark:divide-slate-800/60 text-slate-800 dark:text-white">
                         <button onClick={onOpenSettings} className="w-full text-left px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-bold flex items-center gap-2"><Settings size={14}/> {t.setting || 'Settings'}</button>
                         <button onClick={() => onNavigate && onNavigate('helpLegal' as any)} className="w-full text-left px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-bold flex items-center gap-2"><Info size={14}/> {t.aboutUs || 'About Us'}</button>
                         <button className="w-full text-left px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-bold flex items-center gap-2"><Phone size={14}/> {t.contactUs || 'Contact Us'}</button>
@@ -128,7 +128,7 @@ export const MasterScreen: React.FC<MasterScreenProps> = ({
                             localStorage.setItem('showDashboardQR', next);
                             window.dispatchEvent(new Event('storage'));
                         }} className="w-full text-left px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-bold flex items-center gap-2"><QrCode size={14}/> {language === 'hi' ? 'क्यूआर कोड' : 'QR Code'}</button>
-                        <div className="px-4 py-2.5 text-[10px] text-center text-slate-400 dark:text-slate-500 font-bold bg-slate-50 dark:bg-slate-950/40">
+                        <div className="px-4 py-2.5 text-[10px] text-center text-slate-400 dark:text-slate-500 font-bold bg-[var(--bg-app)]">
                             v{APP_VERSION}
                         </div>
                     </div>
@@ -136,13 +136,13 @@ export const MasterScreen: React.FC<MasterScreenProps> = ({
               </div>
           </div>
 
-          <div className="mt-3 flex items-center gap-2 bg-slate-100 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 px-3 py-1.5 rounded-full w-fit">
+          <div className="mt-3 flex items-center gap-2 bg-[var(--bg-app)] border border-[var(--border-ui)] px-3 py-1.5 rounded-full w-fit">
               <Calendar size={13} className="text-teal-600 dark:text-teal-400" />
               <input 
                   type="date" 
                   value={datePickerValue} 
                   onChange={handleDateChange} 
-                  className="bg-transparent text-slate-700 dark:text-slate-200 text-xs font-bold outline-none cursor-pointer [color-scheme:light] dark:[color-scheme:dark]"
+                  className="bg-transparent text-[var(--text-main)] text-xs font-bold outline-none cursor-pointer [color-scheme:light] dark:[color-scheme:dark]"
               />
           </div>
       </div>
@@ -175,7 +175,7 @@ export const MasterScreen: React.FC<MasterScreenProps> = ({
                                       {item.icon}
                                   </div>
                                   <div className="min-w-0 flex-1">
-                                    <span className="text-xs md:text-sm font-extrabold tracking-tight leading-none uppercase font-sans select-none block text-slate-700 dark:text-slate-300">
+                                    <span className="text-xs md:text-sm font-extrabold tracking-tight leading-none uppercase font-sans select-none block text-[var(--text-secondary)]">
                                       {item.label}
                                     </span>
                                   </div>
@@ -191,19 +191,19 @@ export const MasterScreen: React.FC<MasterScreenProps> = ({
 
       {/* Synchronized Bottom Tab Navigation */}
       {!hideFooter && (
-        <footer className="bg-white dark:bg-slate-900 border-t border-gray-200 dark:border-slate-800 shrink-0 z-40 pt-2 pb-6" style={{ paddingBottom: 'max(1.5rem, env(safe-area-inset-bottom))' }}>
+        <footer className="bg-[var(--bg-card)] border-t border-[var(--border-ui)] shrink-0 z-40 pt-2 pb-6" style={{ paddingBottom: 'max(1.5rem, env(safe-area-inset-bottom))' }}>
             <div className="max-w-5xl mx-auto w-full flex items-center justify-between px-8">
                 <button onClick={() => onSwitchTab('dashboard')} className="flex flex-col items-center gap-0.5 text-gray-400 hover:text-[#1e293b] dark:hover:text-white">
                     <Home size={22} />
-                    <span className="text-[10px] font-bold">Home</span>
+                    <span className="text-[10px] font-bold">{language === "hi" ? "होम" : "Home"}</span>
                 </button>
                 <button className="flex flex-col items-center gap-0.5 text-[#1e293b] dark:text-white">
                     <LayoutGrid size={22} fill="currentColor" />
-                    <span className="text-[10px] font-bold">Master</span>
+                    <span className="text-[10px] font-bold">{language === "hi" ? "मास्टर" : "Master"}</span>
                 </button>
                 <button onClick={() => onSwitchTab('report')} className="flex flex-col items-center gap-0.5 text-gray-400 hover:text-[#1e293b] dark:hover:text-white">
                     <FileBarChart size={22} />
-                    <span className="text-[10px] font-bold">Report</span>
+                    <span className="text-[10px] font-bold">{language === "hi" ? "रिपोर्ट" : "Report"}</span>
                 </button>
             </div>
         </footer>

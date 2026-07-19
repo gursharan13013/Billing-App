@@ -217,10 +217,10 @@ export const PaymentListScreen: React.FC<PaymentListScreenProps> = ({
     : 'bg-gradient-to-r from-emerald-600 to-emerald-700 dark:from-emerald-700 dark:to-emerald-800';
 
   return (
-    <div className="flex flex-col h-full bg-slate-50 dark:bg-[#030712] text-slate-900 dark:text-white transition-colors pb-[max(env(safe-area-inset-bottom),0px)]">
+    <div className="flex flex-col h-full bg-slate-50 dark:bg-[#030712] text-[var(--text-main)] transition-colors pb-[max(env(safe-area-inset-bottom),0px)]">
       
       {/* Header */}
-      <header className="bg-slate-50 dark:bg-[#030712] text-slate-900 dark:text-white p-4 pt-[max(env(safe-area-inset-top),48px)] flex justify-between items-center z-20 relative overflow-hidden shrink-0">
+      <header className="bg-slate-50 dark:bg-[#030712] text-[var(--text-main)] p-4 pt-[max(env(safe-area-inset-top),48px)] flex justify-between items-center z-20 relative overflow-hidden shrink-0">
         <div className="flex items-center gap-4">
           <button 
             type="button"
@@ -319,7 +319,7 @@ export const PaymentListScreen: React.FC<PaymentListScreenProps> = ({
           <input
             type="text"
             placeholder={t.searchPlaceholder}
-            className="w-full border border-slate-205/30 dark:border-[#111e35]/65 bg-slate-100/10 dark:bg-[#091122]/95 rounded-xl py-3 pl-10 pr-3.5 text-xs sm:text-sm text-slate-900 dark:text-slate-100 font-bold outline-none focus:border-emerald-500/30 dark:focus:border-emerald-500/20 transition-all shadow-3xs"
+            className="w-full border border-slate-205/30 dark:border-[#111e35]/65 bg-slate-100/10 dark:bg-[#091122]/95 rounded-xl py-3 pl-10 pr-3.5 text-xs sm:text-sm text-[var(--text-main)] font-bold outline-none focus:border-emerald-500/30 dark:focus:border-emerald-500/20 transition-all shadow-3xs"
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
           />
@@ -364,7 +364,7 @@ export const PaymentListScreen: React.FC<PaymentListScreenProps> = ({
                         // Theme classes for individual card
                         const cardBg = isSynced 
                           ? 'bg-emerald-500/10 dark:bg-emerald-950/20 border-emerald-200/70 dark:border-emerald-900/50 text-emerald-800 dark:text-emerald-200' 
-                          : 'bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-850/70 text-slate-800 dark:text-slate-200';
+                          : 'bg-[var(--bg-card)] border-slate-100 dark:border-slate-850/70 text-slate-800 dark:text-slate-200';
 
                         return (
                         <SwipeableRow
@@ -472,7 +472,7 @@ export const PaymentListScreen: React.FC<PaymentListScreenProps> = ({
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="w-full max-w-sm bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl p-6 shadow-2xl text-center"
+              className="w-full max-w-sm bg-[var(--bg-card)] border border-[var(--border-ui)] rounded-2xl p-6 shadow-2xl text-center"
             >
               <div className="w-13 h-13 bg-red-50 dark:bg-red-950/40 rounded-full flex items-center justify-center mx-auto mb-4 text-red-600 dark:text-red-400 border border-red-150/40">
                 <Trash size={22} className="stroke-[2.5px]" />

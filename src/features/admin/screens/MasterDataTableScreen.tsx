@@ -118,29 +118,29 @@ export const MasterDataTableScreen: React.FC<MasterDataTableScreenProps> = ({ on
       exit={{ x: '100%' }}
       transition={{ type: 'tween', ease: [0.25, 1, 0.5, 1], duration: 0.35 }}
       style={{ willChange: 'transform' }}
-      className="flex flex-col h-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white pb-[max(env(safe-area-inset-bottom),0px)] relative overflow-hidden transition-colors font-sans"
+      className="flex flex-col h-full bg-[var(--bg-app)] text-[var(--text-main)] pb-[max(env(safe-area-inset-bottom),0px)] relative overflow-hidden transition-colors font-sans"
     >
       {/* Premium Top Header */}
-      <header className="bg-white dark:bg-slate-900 p-4 flex items-center justify-between shadow-sm shrink-0 border-b border-gray-200 dark:border-slate-800 pt-[max(env(safe-area-inset-top),48px)] transition-colors">
+      <header className="bg-[var(--bg-card)] p-4 flex items-center justify-between shadow-sm shrink-0 border-b border-[var(--border-ui)] pt-[max(env(safe-area-inset-top),48px)] transition-colors">
         <div className="flex items-center gap-4">
           <button 
             onClick={onBack}
-            className="hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 hover:text-slate-900 dark:hover:text-white p-2 rounded-full transition-all min-w-[44px] min-h-[44px] flex items-center justify-center active:scale-90"
+            className="hover:bg-slate-100/50 dark:hover:bg-slate-800/80 text-[var(--text-secondary)] hover:text-slate-900 dark:hover:text-white p-2 rounded-full transition-all min-w-[44px] min-h-[44px] flex items-center justify-center active:scale-90"
             aria-label="Go back"
           >
             <ArrowLeft size={24} />
           </button>
           <div>
-            <h1 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white leading-tight">
+            <h1 className="text-xl font-bold tracking-tight text-[var(--text-main)] leading-tight">
               {t.title}
             </h1>
-            <p className="text-[10px] font-bold text-slate-500 tracking-widest mt-0.5 opacity-80 uppercase leading-none">
+            <p className="text-[10px] font-bold text-[var(--text-secondary)] tracking-widest mt-0.5 opacity-80 uppercase leading-none">
               {t.subtitle}
             </p>
           </div>
         </div>
         <div className="flex gap-2">
-            <label className="bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-350 px-3.5 py-2.5 rounded-lg cursor-pointer flex items-center gap-2 text-xs font-bold transition-all min-h-[44px]">
+            <label className="bg-[var(--bg-app)] hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-350 px-3.5 py-2.5 rounded-lg cursor-pointer flex items-center gap-2 text-xs font-bold transition-all min-h-[44px]">
                 <Upload size={16} />
                 <span className="hidden sm:inline">{t.import}</span>
                 <input type="file" accept=".csv,.json" onChange={handleImport} className="hidden" />
@@ -156,7 +156,7 @@ export const MasterDataTableScreen: React.FC<MasterDataTableScreenProps> = ({ on
       </header>
 
       {/* Filters & Day Book search controls */}
-      <div className="p-4 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800 space-y-3.5 shrink-0 transition-colors">
+      <div className="p-4 bg-[var(--bg-card)] border-b border-[var(--border-ui)] space-y-3.5 shrink-0 transition-colors">
           <div className="relative">
               <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
               <input 
@@ -164,7 +164,7 @@ export const MasterDataTableScreen: React.FC<MasterDataTableScreenProps> = ({ on
                 placeholder={t.searchPlaceholder} 
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
-                className="w-full pl-11 pr-4 py-3 border border-gray-200 dark:border-slate-850 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white rounded-xl text-sm font-bold outline-none focus:border-indigo-500 min-h-[44px]"
+                className="w-full pl-11 pr-4 py-3 border border-gray-200 dark:border-slate-850 bg-[var(--bg-app)] text-[var(--text-main)] rounded-xl text-sm font-bold outline-none focus:border-indigo-500 min-h-[44px]"
               />
           </div>
           <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-0.5">
@@ -176,7 +176,7 @@ export const MasterDataTableScreen: React.FC<MasterDataTableScreenProps> = ({ on
                     className={`px-3.5 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all border cursor-pointer min-h-[32px] ${
                         filterType === type 
                         ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm' 
-                        : 'bg-slate-50 dark:bg-slate-950 text-slate-500 dark:text-slate-400 border-gray-200 dark:border-slate-850 hover:bg-slate-100 dark:hover:bg-slate-800'
+                        : 'bg-[var(--bg-app)] text-[var(--text-secondary)] dark:text-slate-400 border-gray-200 dark:border-slate-850 hover:bg-slate-100/50 dark:hover:bg-slate-800/80'
                     }`}
                   >
                       {getTranslatedType(type)}
@@ -186,17 +186,17 @@ export const MasterDataTableScreen: React.FC<MasterDataTableScreenProps> = ({ on
       </div>
 
       {/* Day Book Table View Card Structure */}
-      <div className="flex-1 overflow-auto bg-slate-50 dark:bg-slate-950 p-4">
-        <div className="border border-gray-200 dark:border-slate-800 rounded-xl overflow-hidden h-full flex flex-col bg-white dark:bg-slate-900">
+      <div className="flex-1 overflow-auto bg-[var(--bg-app)] p-4">
+        <div className="border border-gray-200 dark:border-slate-800 rounded-xl overflow-hidden h-full flex flex-col bg-[var(--bg-card)]">
           {loading ? (
-              <div className="flex-1 flex flex-col items-center justify-center text-slate-500 text-xs font-bold uppercase tracking-wider gap-2">
+              <div className="flex-1 flex flex-col items-center justify-center text-[var(--text-secondary)] text-xs font-bold uppercase tracking-wider gap-2">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
                 <span>{t.loading}</span>
               </div>
           ) : (
               <div className="min-w-full inline-block align-middle flex-1 overflow-auto custom-scrollbar">
                   <table className="min-w-[650px] w-full text-left text-xs whitespace-nowrap border-collapse">
-                      <thead className="bg-slate-50 dark:bg-slate-950 text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider sticky top-0 shadow-xs z-10 border-b border-gray-200 dark:border-slate-800">
+                      <thead className="bg-[var(--bg-app)] text-[var(--text-secondary)] dark:text-slate-400 font-bold uppercase tracking-wider sticky top-0 shadow-xs z-10 border-b border-[var(--border-ui)]">
                           <tr>
                               <th className="p-3.5 border-r border-gray-200 dark:border-slate-800 w-24">{t.date}</th>
                               <th className="p-3.5 border-r border-gray-200 dark:border-slate-800">{t.particulars}</th>
@@ -208,7 +208,7 @@ export const MasterDataTableScreen: React.FC<MasterDataTableScreenProps> = ({ on
                       <tbody className="divide-y divide-gray-100 dark:divide-slate-800 text-slate-800 dark:text-slate-200 font-medium">
                           {filteredData.map((row, idx) => (
                               <tr key={`${row.id}-${idx}`} className="hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors">
-                                  <td className="p-3.5 border-r border-gray-100 dark:border-slate-800 font-mono text-[10px] text-slate-500 dark:text-slate-400">{row.date}</td>
+                                  <td className="p-3.5 border-r border-gray-100 dark:border-slate-800 font-mono text-[10px] text-[var(--text-secondary)] dark:text-slate-400">{row.date}</td>
                                   <td className="p-3.5 border-r border-gray-100 dark:border-slate-800">
                                       <div className="font-bold text-slate-950 dark:text-white">{row.partyName}</div>
                                       <div className="text-[10px] text-slate-450 dark:text-slate-550 truncate max-w-[280px] font-semibold mt-0.5" title={row.description}>{row.description}</div>
@@ -225,7 +225,7 @@ export const MasterDataTableScreen: React.FC<MasterDataTableScreenProps> = ({ on
                                       </span>
                                   </td>
                                   <td className="p-3.5 border-r border-gray-100 dark:border-slate-800 text-center font-bold text-xs">{row.voucherNo}</td>
-                                  <td className="p-3.5 text-right font-extrabold font-mono text-slate-900 dark:text-white">
+                                  <td className="p-3.5 text-right font-extrabold font-mono text-[var(--text-main)]">
                                       ₹{row.amount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                   </td>
                               </tr>
@@ -238,8 +238,8 @@ export const MasterDataTableScreen: React.FC<MasterDataTableScreenProps> = ({ on
       </div>
       
       {/* Footer entries Counter */}
-      <div className="p-3 bg-white dark:bg-slate-900 border-t border-gray-200 dark:border-slate-800 text-center text-xs font-bold text-slate-500 dark:text-slate-400 shrink-0">
-          {t.totalEntries}: <span className="text-slate-900 dark:text-white font-extrabold">{filteredData.length}</span>
+      <div className="p-3 bg-[var(--bg-card)] border-t border-gray-200 dark:border-slate-800 text-center text-xs font-bold text-[var(--text-secondary)] dark:text-slate-400 shrink-0">
+          {t.totalEntries}: <span className="text-[var(--text-main)] font-extrabold">{filteredData.length}</span>
       </div>
     </motion.div>
   );

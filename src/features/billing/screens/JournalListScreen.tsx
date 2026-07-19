@@ -80,10 +80,10 @@ export const JournalListScreen: React.FC<JournalListScreenProps> = ({ onBack, on
   });
 
   return (
-    <div className="flex flex-col h-full bg-slate-50 dark:bg-[#030712] text-slate-900 dark:text-white transition-colors pb-[max(env(safe-area-inset-bottom),0px)]">
+    <div className="flex flex-col h-full bg-slate-50 dark:bg-[#030712] text-[var(--text-main)] transition-colors pb-[max(env(safe-area-inset-bottom),0px)]">
       
       {/* Premium Custom Custom-Styled Header */}
-      <header className="bg-slate-50 dark:bg-[#030712] text-slate-900 dark:text-white p-4 pt-[max(env(safe-area-inset-top),48px)] flex justify-between items-center z-20 relative overflow-hidden shrink-0">
+      <header className="bg-slate-50 dark:bg-[#030712] text-[var(--text-main)] p-4 pt-[max(env(safe-area-inset-top),48px)] flex justify-between items-center z-20 relative overflow-hidden shrink-0">
         <div className="flex items-center gap-4">
           <button 
             type="button"
@@ -182,7 +182,7 @@ export const JournalListScreen: React.FC<JournalListScreenProps> = ({ onBack, on
           <input
             type="text"
             placeholder={t.searchPlaceholder}
-            className="w-full border border-slate-205/30 dark:border-[#111e35]/65 bg-slate-100/10 dark:bg-[#091122]/95 rounded-xl py-3 pl-10 pr-3.5 text-xs sm:text-sm text-slate-900 dark:text-slate-100 font-bold outline-none focus:border-indigo-500/30 dark:focus:border-indigo-550/20 transition-all shadow-3xs"
+            className="w-full border border-slate-205/30 dark:border-[#111e35]/65 bg-slate-100/10 dark:bg-[#091122]/95 rounded-xl py-3 pl-10 pr-3.5 text-xs sm:text-sm text-[var(--text-main)] font-bold outline-none focus:border-indigo-500/30 dark:focus:border-indigo-550/20 transition-all shadow-3xs"
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
           />
@@ -282,17 +282,17 @@ export const JournalListScreen: React.FC<JournalListScreenProps> = ({ onBack, on
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.95, opacity: 0 }}
                 transition={{ duration: 0.15 }}
-                className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden p-6 text-center border border-slate-200 dark:border-slate-800"
+                className="bg-[var(--bg-card)] rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden p-6 text-center border border-[var(--border-ui)]"
               >
                   <div className="w-14 h-14 bg-rose-50 dark:bg-rose-950/20 text-rose-600 dark:text-rose-400 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-rose-100 dark:border-rose-900/30">
                       <Trash2 size={24} className="stroke-[2.5px]" />
                   </div>
-                  <h3 className="text-base font-extrabold text-slate-900 dark:text-white mb-2">{t.deleteTitle}</h3>
+                  <h3 className="text-base font-extrabold text-[var(--text-main)] mb-2">{t.deleteTitle}</h3>
                   <p className="text-xs text-slate-500 dark:text-slate-400 mb-6 font-semibold px-2">{t.deleteMsg}</p>
                   <div className="flex gap-3">
                       <button 
                         onClick={() => setDeleteId(null)} 
-                        className="flex-1 py-3 text-xs font-black tracking-wider uppercase bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl transition-all cursor-pointer"
+                        className="flex-1 py-3 text-xs font-black tracking-wider uppercase bg-[var(--bg-app)] text-slate-700 dark:text-slate-300 rounded-xl transition-all cursor-pointer"
                       >
                         {t.cancel}
                       </button>
@@ -317,12 +317,12 @@ export const JournalListScreen: React.FC<JournalListScreenProps> = ({ onBack, on
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
               transition={{ duration: 0.15 }}
-              className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-md overflow-hidden border border-slate-205 dark:border-slate-800"
+              className="bg-[var(--bg-card)] rounded-2xl shadow-2xl w-full max-w-md overflow-hidden border border-slate-205 dark:border-slate-800"
             >
               <div className="p-6 font-sans">
-                <div className="flex justify-between items-center pb-4 border-b border-slate-100 dark:border-slate-800">
+                <div className="flex justify-between items-center pb-4 border-b border-[var(--border-ui)]">
                   <div>
-                    <h3 className="text-base font-extrabold text-slate-900 dark:text-white leading-tight font-mono">
+                    <h3 className="text-base font-extrabold text-[var(--text-main)] leading-tight font-mono">
                       {selectedJournal.voucherNo}
                     </h3>
                     <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 mt-1 uppercase tracking-wider">{selectedJournal.date}</p>
@@ -335,7 +335,7 @@ export const JournalListScreen: React.FC<JournalListScreenProps> = ({ onBack, on
                 {/* Rows List */}
                 <div className="my-5 max-h-[220px] overflow-y-auto space-y-2 pr-1 font-sans">
                   {selectedJournal.rows && selectedJournal.rows.map((row) => (
-                    <div key={row.id} className="flex justify-between items-center p-3 bg-slate-50 dark:bg-slate-950/40 rounded-xl border border-slate-100 dark:border-slate-850/60 transition-all hover:bg-slate-100/50">
+                    <div key={row.id} className="flex justify-between items-center p-3 bg-[var(--bg-app)]/40 rounded-xl border border-slate-100 dark:border-slate-850/60 transition-all hover:bg-slate-100/50">
                       <div className="min-w-0 flex-1">
                         <p className="font-extrabold text-xs text-slate-800 dark:text-slate-200 truncate pr-2">
                           {row.partyName}
@@ -358,12 +358,12 @@ export const JournalListScreen: React.FC<JournalListScreenProps> = ({ onBack, on
                 </div>
 
                 {/* Narration & Footer Status summary */}
-                <div className="pt-4 border-t border-slate-100 dark:border-slate-800 space-y-3.5">
+                <div className="pt-4 border-t border-[var(--border-ui)] space-y-3.5">
                   <div>
                     <span className="text-[9px] uppercase font-black tracking-wider text-slate-400 dark:text-slate-500 block mb-1">
                       {t.narrationLabel}
                     </span>
-                    <p className="text-xs font-bold text-slate-700 dark:text-slate-350 italic bg-slate-50 dark:bg-slate-950/40 p-3 rounded-xl border border-slate-100 dark:border-slate-850/40 leading-relaxed">
+                    <p className="text-xs font-bold text-slate-700 dark:text-slate-350 italic bg-[var(--bg-app)]/40 p-3 rounded-xl border border-slate-100 dark:border-slate-850/40 leading-relaxed">
                       {selectedJournal.narration || t.noNarration}
                     </p>
                   </div>

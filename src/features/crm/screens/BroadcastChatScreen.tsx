@@ -20,6 +20,19 @@ export const BroadcastChatScreen: React.FC<BroadcastChatScreenProps> = ({ broadc
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const longPressTimer = useRef<any>(null);
 
+  const lang = (localStorage.getItem('language') || 'en') as 'en' | 'hi';
+  const isHi = lang === 'hi';
+  const t = {
+    deleteTitle: (count: number) => isHi ? `क्या आप ${count} संदेश हटाना चाहते हैं?` : `Delete ${count} message(s)?`,
+    deleteConfirmText: isHi ? 'यह संदेशों को आपके डिवाइस से हटा देगा।' : 'This will delete the messages from your device.',
+    cancelBtn: isHi ? 'रद्द करें' : 'Cancel',
+    deleteBtn: isHi ? 'हटाएं' : 'Delete',
+    recipients: (count: number) => isHi ? `${count} प्राप्तकर्ता` : `${count} recipients`,
+    createdList: (count: number) => isHi ? `आपने ${count} प्राप्तकर्ताओं के साथ एक ब्रॉडकास्ट सूची बनाई` : `You created a broadcast list with ${count} recipients`,
+    onlyContactsRule: isHi ? 'केवल +91xxx नंबर वाले संपर्कों को ही आपके संदेश प्राप्त होंगे।' : 'Only contacts with +91xxx numbers will receive your messages.',
+    typeMessage: isHi ? 'संदेश...' : 'Message...'
+  };
+
   const prevMessagesLength = useRef(0);
 
   useEffect(() => {
@@ -150,7 +163,7 @@ export const BroadcastChatScreen: React.FC<BroadcastChatScreenProps> = ({ broadc
             <div className="flex-1 min-w-0 pr-2">
               <h2 className="font-bold text-white truncate text-lg leading-tight">{broadcastGroup.name}</h2>
               <p className="text-white/80 text-xs truncate leading-tight">
-                {broadcastGroup.memberPartyIds.length} recipients
+                {t.recipients(broadcastGroup.memberPartyIds.length)}
               </p>
             </div>
             <div className="flex items-center gap-1 shrink-0">
@@ -167,13 +180,13 @@ export const BroadcastChatScreen: React.FC<BroadcastChatScreenProps> = ({ broadc
       >
         <div className="text-center my-4">
            <span className="bg-[#ffeecd] dark:bg-[#182229] text-amber-900 dark:text-amber-200/80 text-xs px-4 py-1.5 rounded-lg shadow-sm font-medium">
-              You created a broadcast list with {broadcastGroup.memberPartyIds.length} recipients
+              {t.createdList(broadcastGroup.memberPartyIds.length)}
            </span>
         </div>
         <div className="text-center my-4">
            <div className="bg-[#ffeecd] dark:bg-[#182229] max-w-sm mx-auto text-amber-900 dark:text-amber-200/80 text-xs px-4 py-2 rounded-lg shadow-sm font-medium text-center flex flex-col gap-1 items-center">
               <Megaphone size={20} className="mb-1 opacity-70" />
-              <p>Only contacts with +91xxx numbers will receive your messages.</p>
+              <p>{t.onlyContactsRule}</p>
            </div>
         </div>
 
@@ -211,7 +224,7 @@ export const BroadcastChatScreen: React.FC<BroadcastChatScreenProps> = ({ broadc
             <textarea 
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
-              placeholder="Message..."
+              placeholder={t.typeMessage}
               className="flex-1 max-h-32 bg-transparent resize-none py-3 px-2 focus:outline-none text-slate-900 dark:text-slate-100 placeholder-slate-500 text-[16px] leading-[22px]"
               rows={1}
             />
@@ -236,11 +249,11 @@ export const BroadcastChatScreen: React.FC<BroadcastChatScreenProps> = ({ broadc
                 <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-full flex items-center justify-center mx-auto mb-4 border border-red-200 dark:border-red-900/50">
                     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-trash-2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
                 </div>
-                <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Delete {selectedMessageIds.length} message(s)?</h3>
-                <p className="text-slate-500 dark:text-slate-400 mb-6 font-medium">This will delete the messages from your device.</p>
+                <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">{t.deleteTitle(selectedMessageIds.length)}</h3>
+                <p className="text-slate-500 dark:text-slate-400 mb-6 font-medium">{t.deleteConfirmText}</p>
                 <div className="flex gap-3">
-                    <button onClick={() => setShowDeleteConfirm(false)} className="flex-1 py-3 rounded-xl font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">Cancel</button>
-                    <button onClick={confirmDelete} className="flex-1 py-3 rounded-xl font-bold bg-red-600 text-white hover:bg-red-700 shadow-lg">Delete</button>
+                    <button onClick={() => setShowDeleteConfirm(false)} className="flex-1 py-3 rounded-xl font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">{t.cancelBtn}</button>
+                    <button onClick={confirmDelete} className="flex-1 py-3 rounded-xl font-bold bg-red-600 text-white hover:bg-red-700 shadow-lg">{t.deleteBtn}</button>
                 </div>
             </div>
         </div>

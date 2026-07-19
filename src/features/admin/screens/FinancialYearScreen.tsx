@@ -291,7 +291,7 @@ export const FinancialYearScreen: React.FC<FinancialYearScreenProps> = ({
                 style={textSecondaryStyle}
                 className="text-center text-[10px] pb-2 transition-colors duration-500 shrink-0 w-full max-w-md mx-auto"
             >
-                Eazy Billing Client Core • v2.1.0 • Offline Ready
+                {isHi ? 'इज़ी बिलिंग क्लाइंट कोर • v2.1.0 • ऑफलाइन रेडी' : 'Eazy Billing Client Core • v2.1.0 • Offline Ready'}
             </footer>
         </div>
     );

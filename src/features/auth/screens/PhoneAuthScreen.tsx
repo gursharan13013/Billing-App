@@ -455,7 +455,7 @@ export const PhoneAuthScreen: React.FC<PhoneAuthScreenProps> = ({
         style={textSecondaryStyle}
         className="text-center text-[10px] pb-2 shrink-0 w-full max-w-sm mx-auto"
       >
-        Eazy Billing Client Core • v2.1.0 • Offline Ready
+        {isHi ? 'इज़ी बिलिंग क्लाइंट कोर • v2.1.0 • ऑफलाइन रेडी' : 'Eazy Billing Client Core • v2.1.0 • Offline Ready'}
       </footer>
     </div>
   );

@@ -105,6 +105,7 @@ export const ContraScreen: React.FC<ContraScreenProps> = ({ onBack, initialDate 
     type: 'error' | 'success';
     onConfirm?: () => void;
   } | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     const loadLedgers = async () => {
@@ -123,6 +124,7 @@ export const ContraScreen: React.FC<ContraScreenProps> = ({ onBack, initialDate 
   }, []);
 
   const handleSave = async () => {
+    if (isSaving) return;
     if (!amount || !sourceLedger || !destLedger) {
       setAlertConfig({
         title: t.requiredFieldsMissing,
@@ -175,6 +177,7 @@ export const ContraScreen: React.FC<ContraScreenProps> = ({ onBack, initialDate 
       ]
     };
 
+    setIsSaving(true);
     try {
       await billingService.saveJournalVoucher(journal);
       await billingService.incrementVoucherSequence('Contra');
@@ -194,6 +197,8 @@ export const ContraScreen: React.FC<ContraScreenProps> = ({ onBack, initialDate 
         message: "Failed to save transfer. Please try again.",
         type: 'error'
       });
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -233,7 +238,7 @@ export const ContraScreen: React.FC<ContraScreenProps> = ({ onBack, initialDate 
   });
 
   return (
-    <div className="flex flex-col h-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white transition-colors pb-[max(env(safe-area-inset-bottom),0px)] relative font-sans select-none">
+    <div className="flex flex-col h-full bg-[var(--bg-app)] text-[var(--text-main)] transition-colors pb-[max(env(safe-area-inset-bottom),0px)] relative font-sans select-none">
       
       {/* Pristine Modern Header (Matching standard Cash/Contra entries) */}
       <header className="bg-gradient-to-r from-orange-500 to-orange-600 dark:from-slate-900 dark:to-slate-950 text-white p-4 flex items-center justify-between shadow-md shrink-0 pt-[max(env(safe-area-inset-top),48px)] border-b border-orange-500/10 dark:border-slate-800 transition-all relative overflow-hidden">
@@ -260,7 +265,7 @@ export const ContraScreen: React.FC<ContraScreenProps> = ({ onBack, initialDate 
       <div className="flex-1 p-4 space-y-4 overflow-y-auto">
         
         {/* Step 1: Transfer Amount Card */}
-        <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-xs border border-slate-200 dark:border-slate-800 text-center hover:shadow-sm transition-all">
+        <div className="bg-[var(--bg-card)] p-6 rounded-2xl shadow-xs border border-[var(--border-ui)] text-center hover:shadow-sm transition-all">
           <label className="text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-3 block select-none">{t.transferAmount}</label>
           <div className="flex justify-center items-center gap-1.5 matches-payment">
             <span className="text-3xl font-extrabold text-slate-400 dark:text-slate-500">₹</span>
@@ -269,13 +274,13 @@ export const ContraScreen: React.FC<ContraScreenProps> = ({ onBack, initialDate 
               placeholder="0.00" 
               value={amount}
               onChange={e => setAmount(e.target.value)}
-              className="text-4xl font-black text-slate-900 dark:text-white bg-transparent outline-none w-64 text-center placeholder-slate-200 dark:placeholder-slate-800 tracking-tight font-sans transition-colors"
+              className="text-4xl font-black text-[var(--text-main)] bg-transparent outline-none w-64 text-center placeholder-slate-200 dark:placeholder-slate-800 tracking-tight font-sans transition-colors"
             />
           </div>
         </div>
 
         {/* Step 2: Double-Ledger Flow Visualizer */}
-        <div className="relative bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-xs border border-slate-200 dark:border-slate-800 flex flex-col gap-6">
+        <div className="relative bg-[var(--bg-card)] p-5 rounded-2xl shadow-xs border border-[var(--border-ui)] flex flex-col gap-6">
           
           {/* Top segment: Source (Credit Account) */}
           <div 
@@ -283,7 +288,7 @@ export const ContraScreen: React.FC<ContraScreenProps> = ({ onBack, initialDate 
               setSelectingFor('source');
               setActiveTab('all');
             }}
-            className="flex justify-between items-center cursor-pointer p-4 rounded-xl bg-slate-50 dark:bg-slate-950/40 border border-slate-100 dark:border-slate-850 hover:bg-slate-100/65 dark:hover:bg-slate-800/40 active:scale-[0.98] transition-all duration-150"
+            className="flex justify-between items-center cursor-pointer p-4 rounded-xl bg-[var(--bg-app)]/40 border border-slate-100 dark:border-slate-850 hover:bg-slate-100/65 dark:hover:bg-slate-800/40 active:scale-[0.98] transition-all duration-150"
           >
             <div className="min-w-0 flex-1">
               <p className="text-[10px] font-black text-rose-500 dark:text-rose-400 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
@@ -320,7 +325,7 @@ export const ContraScreen: React.FC<ContraScreenProps> = ({ onBack, initialDate 
               setSelectingFor('dest');
               setActiveTab('all');
             }}
-            className="flex justify-between items-center cursor-pointer p-4 rounded-xl bg-slate-50 dark:bg-slate-950/40 border border-slate-100 dark:border-slate-850 hover:bg-slate-100/65 dark:hover:bg-slate-800/40 active:scale-[0.98] transition-all duration-150"
+            className="flex justify-between items-center cursor-pointer p-4 rounded-xl bg-[var(--bg-app)]/40 border border-slate-100 dark:border-slate-850 hover:bg-slate-100/65 dark:hover:bg-slate-800/40 active:scale-[0.98] transition-all duration-150"
           >
             <div className="min-w-0 flex-1">
               <p className="text-[10px] font-black text-emerald-500 dark:text-emerald-400 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
@@ -343,14 +348,14 @@ export const ContraScreen: React.FC<ContraScreenProps> = ({ onBack, initialDate 
         </div>
 
         {/* Step 3: Transaction Parameters Form (Date, Voucher, narration) */}
-        <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-xs border border-slate-200 dark:border-slate-800 space-y-4">
+        <div className="bg-[var(--bg-card)] p-5 rounded-2xl shadow-xs border border-[var(--border-ui)] space-y-4">
           <div>
             <label className="text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5 block select-none">{t.transferDate}</label>
             <input 
               type="date" 
               value={date} 
               onChange={e => setDate(e.target.value)} 
-              className="w-full border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40 rounded-xl py-2.5 px-3.5 text-xs sm:text-sm text-slate-800 dark:text-slate-150 font-bold outline-none focus:border-orange-500/30 dark:focus:border-orange-500/20 transition-all shadow-3xs hover:bg-slate-50 dark:hover:bg-slate-950/80 cursor-pointer" 
+              className="w-full border border-[var(--border-ui)] bg-slate-50/50 dark:bg-slate-950/40 rounded-xl py-2.5 px-3.5 text-xs sm:text-sm text-slate-800 dark:text-slate-150 font-bold outline-none focus:border-orange-500/30 dark:focus:border-orange-500/20 transition-all shadow-3xs hover:bg-slate-50 dark:hover:bg-slate-950/80 cursor-pointer" 
             />
           </div>
 
@@ -361,7 +366,7 @@ export const ContraScreen: React.FC<ContraScreenProps> = ({ onBack, initialDate 
               value={narration} 
               onChange={e => setNarration(e.target.value)} 
               placeholder={t.narrationPlaceholder} 
-              className="w-full border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40 rounded-xl py-2.5 px-3.5 text-xs sm:text-sm text-slate-800 dark:text-slate-150 font-bold outline-none focus:border-orange-500/30 dark:focus:border-orange-500/20 transition-all shadow-3xs hover:bg-slate-50 dark:hover:bg-slate-950/80" 
+              className="w-full border border-[var(--border-ui)] bg-slate-50/50 dark:bg-slate-950/40 rounded-xl py-2.5 px-3.5 text-xs sm:text-sm text-slate-800 dark:text-slate-150 font-bold outline-none focus:border-orange-500/30 dark:focus:border-orange-500/20 transition-all shadow-3xs hover:bg-slate-50 dark:hover:bg-slate-950/80" 
             />
           </div>
         </div>
@@ -370,11 +375,11 @@ export const ContraScreen: React.FC<ContraScreenProps> = ({ onBack, initialDate 
         <button 
           type="button"
           onClick={handleSave}
-          disabled={!amount || !sourceLedger || !destLedger}
-          className="w-full bg-gradient-to-r from-orange-500 to-orange-600 dark:from-orange-600 dark:to-orange-700 disabled:opacity-50 hover:shadow-md active:scale-[0.98] hover:brightness-105 active:brightness-95 transition-all text-white font-extrabold text-sm tracking-widest py-3.5 rounded-2xl flex items-center justify-center gap-2 uppercase cursor-pointer shadow-sm"
+          disabled={isSaving || !amount || !sourceLedger || !destLedger}
+          className="w-full bg-gradient-to-r from-orange-500 to-orange-600 dark:from-orange-600 dark:to-orange-700 disabled:opacity-50 hover:shadow-md active:scale-[0.98] hover:brightness-105 active:brightness-95 transition-all text-white font-extrabold text-sm tracking-widest py-3.5 rounded-2xl flex items-center justify-center gap-2 uppercase cursor-pointer shadow-sm disabled:cursor-not-allowed"
         >
           <Save size={16} className="stroke-[2.5px]" />
-          <span>{t.saveTransfer}</span>
+          <span>{isSaving ? (currentLanguage === 'hi' ? 'सुरक्षित किया जा रहा है...' : 'Saving...') : t.saveTransfer}</span>
         </button>
 
       </div>
@@ -389,7 +394,7 @@ export const ContraScreen: React.FC<ContraScreenProps> = ({ onBack, initialDate 
             transition={{ type: 'spring', damping: 28, stiffness: 240 }}
             // We use fixed context which behaves beautifully on non-transitioning screens, 
             // inside absolute portal so it covers only EazyBilling's active view and respects layout nicely.
-            className="absolute inset-0 z-50 bg-slate-50 dark:bg-slate-950 flex flex-col overflow-hidden"
+            className="absolute inset-0 z-50 bg-[var(--bg-app)] flex flex-col overflow-hidden"
           >
             {/* Modal Header */}
             <div className="bg-gradient-to-r from-orange-500 to-orange-600 dark:from-slate-900 dark:to-slate-950 text-white p-4 pt-[max(env(safe-area-inset-top),48px)] flex items-center shadow-md justify-between shrink-0 border-b border-orange-500/10 dark:border-slate-800">
@@ -414,7 +419,7 @@ export const ContraScreen: React.FC<ContraScreenProps> = ({ onBack, initialDate 
             </div>
 
             {/* Account Search Bar & Tabs filter */}
-            <div className="p-4 bg-white dark:bg-slate-900 border-b border-slate-200/60 dark:border-slate-800 sticky top-0 z-10 shrink-0 space-y-3">
+            <div className="p-4 bg-[var(--bg-card)] border-b border-slate-200/60 dark:border-slate-800 sticky top-0 z-10 shrink-0 space-y-3">
               <div className="relative">
                 <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500" size={18} />
                 <input 
@@ -422,7 +427,7 @@ export const ContraScreen: React.FC<ContraScreenProps> = ({ onBack, initialDate 
                   placeholder={t.searchPlaceholder}
                   value={searchQuery}
                   onChange={e => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-10 py-2.5 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-800 rounded-xl outline-none font-bold text-xs sm:text-sm shadow-3xs focus:border-orange-500/30 dark:focus:border-orange-500/20 transition-all font-sans"
+                  className="w-full pl-10 pr-10 py-2.5 bg-[var(--bg-app)] text-[var(--text-main)] border border-[var(--border-ui)] rounded-xl outline-none font-bold text-xs sm:text-sm shadow-3xs focus:border-orange-500/30 dark:focus:border-orange-500/20 transition-all font-sans"
                 />
                 {searchQuery && (
                   <button 
@@ -487,7 +492,7 @@ export const ContraScreen: React.FC<ContraScreenProps> = ({ onBack, initialDate 
                     setSelectingFor(null);
                     setSearchQuery('');
                   }}
-                  className="bg-white dark:bg-slate-900 p-4 rounded-2xl shadow-3xs cursor-pointer active:scale-[0.98] transition-all border border-slate-200 dark:border-slate-800/80 hover:border-orange-500/30 dark:hover:border-orange-500/20 flex flex-col"
+                  className="bg-[var(--bg-card)] p-4 rounded-2xl shadow-3xs cursor-pointer active:scale-[0.98] transition-all border border-[var(--border-ui)]/80 hover:border-orange-500/30 dark:hover:border-orange-500/20 flex flex-col"
                 >
                   <div className="flex justify-between items-start gap-2">
                     <div className="min-w-0">
@@ -496,7 +501,7 @@ export const ContraScreen: React.FC<ContraScreenProps> = ({ onBack, initialDate 
                         <span>{party.name}</span>
                       </h3>
                       {party.accountGroup && (
-                        <span className="inline-block text-[9px] font-black tracking-widest uppercase bg-slate-100 dark:bg-slate-800 border border-slate-200/40 dark:border-slate-750/30 text-slate-500 dark:text-slate-400 px-2 py-0.5 rounded-md mt-1.5 font-sans">
+                        <span className="inline-block text-[9px] font-black tracking-widest uppercase bg-[var(--bg-app)] border border-slate-200/40 dark:border-slate-750/30 text-slate-500 dark:text-slate-400 px-2 py-0.5 rounded-md mt-1.5 font-sans">
                           {party.accountGroup}
                         </span>
                       )}
@@ -534,7 +539,7 @@ export const ContraScreen: React.FC<ContraScreenProps> = ({ onBack, initialDate 
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
               transition={{ type: "spring", duration: 0.3 }}
-              className="bg-white dark:bg-slate-900 rounded-3xl p-6 max-w-sm w-full shadow-2xl border border-slate-150 dark:border-slate-800 text-center relative z-10"
+              className="bg-[var(--bg-card)] rounded-3xl p-6 max-w-sm w-full shadow-2xl border border-slate-150 dark:border-slate-800 text-center relative z-10"
             >
               <div className="w-12 h-12 bg-orange-100 dark:bg-orange-950/40 rounded-full flex items-center justify-center mx-auto mb-4">
                 {alertConfig.type === 'success' ? (
@@ -543,7 +548,7 @@ export const ContraScreen: React.FC<ContraScreenProps> = ({ onBack, initialDate 
                   <AlertCircle className="text-rose-500 dark:text-rose-400 stroke-[2.5px]" size={24} />
                 )}
               </div>
-              <h3 className="text-sm font-extrabold text-slate-900 dark:text-white mb-2 tracking-tight">
+              <h3 className="text-sm font-extrabold text-[var(--text-main)] mb-2 tracking-tight">
                 {alertConfig.title}
               </h3>
               <p className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-6 leading-relaxed">

@@ -123,6 +123,7 @@ export const JournalEntryScreen: React.FC<JournalEntryScreenProps> = ({ onBack, 
     type: 'error' | 'success';
     onConfirm?: () => void;
   } | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   // Refs for auto-focus
   const amountInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
@@ -249,6 +250,7 @@ export const JournalEntryScreen: React.FC<JournalEntryScreenProps> = ({ onBack, 
   };
 
   const handleSave = async () => {
+      if (isSaving) return;
       if (!isBalanced) {
           setAlertConfig({
             title: t.mismatchTitle,
@@ -277,6 +279,7 @@ export const JournalEntryScreen: React.FC<JournalEntryScreenProps> = ({ onBack, 
           totalAmount: totalDebit
       };
 
+      setIsSaving(true);
       try {
         await billingService.saveJournalVoucher(journal);
         await billingService.incrementVoucherSequence('Journal');
@@ -296,6 +299,8 @@ export const JournalEntryScreen: React.FC<JournalEntryScreenProps> = ({ onBack, 
           message: "Failed to record journal transaction. Please try again.",
           type: 'error'
         });
+      } finally {
+        setIsSaving(false);
       }
   };
 
@@ -329,7 +334,7 @@ export const JournalEntryScreen: React.FC<JournalEntryScreenProps> = ({ onBack, 
   });
 
   return (
-    <div className="flex flex-col h-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white transition-colors pb-[max(env(safe-area-inset-bottom),0px)] relative font-sans select-none">
+    <div className="flex flex-col h-full bg-[var(--bg-app)] text-[var(--text-main)] transition-colors pb-[max(env(safe-area-inset-bottom),0px)] relative font-sans select-none">
       
       {/* Premium Header Design */}
       <header className="bg-gradient-to-r from-emerald-600 to-emerald-700 dark:from-slate-900 dark:to-slate-950 text-white p-4 flex items-center justify-between shadow-md shrink-0 pt-[max(env(safe-area-inset-top),48px)] border-b border-emerald-500/10 dark:border-slate-800 transition-all relative overflow-hidden">
@@ -455,7 +460,7 @@ export const JournalEntryScreen: React.FC<JournalEntryScreenProps> = ({ onBack, 
                                 onChange={e => handleAmountChange(row.id, e.target.value)}
                                 className={`w-full p-2 rounded-xl text-right text-xs sm:text-sm font-black outline-none tracking-tight transition-all h-[36px] border ${
                                     isDr 
-                                    ? 'bg-slate-100/15 dark:bg-slate-950/25 border-emerald-500/10 focus:border-emerald-500 text-slate-900 dark:text-white shadow-3xs hover:border-emerald-500/30' 
+                                    ? 'bg-slate-100/15 dark:bg-slate-950/25 border-emerald-500/10 focus:border-emerald-500 text-[var(--text-main)] shadow-3xs hover:border-emerald-500/30' 
                                     : 'bg-slate-100/30 dark:bg-slate-950/20 border-transparent text-transparent select-none cursor-not-allowed'
                                 }`}
                             />
@@ -472,7 +477,7 @@ export const JournalEntryScreen: React.FC<JournalEntryScreenProps> = ({ onBack, 
                                 onChange={e => handleAmountChange(row.id, e.target.value)}
                                 className={`w-full p-2 rounded-xl text-right text-xs sm:text-sm font-black outline-none tracking-tight transition-all h-[36px] border ${
                                     !isDr 
-                                    ? 'bg-slate-100/15 dark:bg-slate-950/25 border-rose-500/10 focus:border-rose-500 text-slate-900 dark:text-white shadow-3xs hover:border-rose-500/30' 
+                                    ? 'bg-slate-100/15 dark:bg-slate-950/25 border-rose-500/10 focus:border-rose-500 text-[var(--text-main)] shadow-3xs hover:border-rose-500/30' 
                                     : 'bg-slate-100/30 dark:bg-slate-950/20 border-transparent text-transparent select-none cursor-not-allowed'
                                 }`}
                             />
@@ -505,7 +510,7 @@ export const JournalEntryScreen: React.FC<JournalEntryScreenProps> = ({ onBack, 
       </div>
 
       {/* Styled Footer Card System with Narration, balanced visualizers and final Action button */}
-      <div className="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-850 p-4 shadow-xl z-20 shrink-0 space-y-4">
+      <div className="bg-[var(--bg-card)] border-t border-slate-200 dark:border-slate-850 p-4 shadow-xl z-20 shrink-0 space-y-4">
           
           {/* Total calculations panel */}
           <div className="flex justify-between items-center text-xs bg-slate-50/80 dark:bg-slate-950/40 p-3 rounded-2xl border border-slate-200/40 dark:border-slate-900/40">
@@ -513,12 +518,12 @@ export const JournalEntryScreen: React.FC<JournalEntryScreenProps> = ({ onBack, 
               <div className="flex gap-4 sm:gap-6">
                   <div className="flex flex-col items-end">
                       <span className="text-[9px] text-emerald-500 font-black uppercase tracking-wider">{t.totalDebit}</span>
-                      <span className="text-base font-black text-slate-900 dark:text-white font-mono leading-tight font-sans">₹{totalDebit.toLocaleString('en-IN')}</span>
+                      <span className="text-base font-black text-[var(--text-main)] font-mono leading-tight font-sans">₹{totalDebit.toLocaleString('en-IN')}</span>
                   </div>
                   <div className="w-[1px] bg-slate-200 dark:bg-slate-800 h-7 self-center"></div>
                   <div className="flex flex-col items-end">
                       <span className="text-[9px] text-rose-500 font-black uppercase tracking-wider">{t.totalCredit}</span>
-                      <span className="text-base font-black text-slate-900 dark:text-white font-mono leading-tight font-sans">₹{totalCredit.toLocaleString('en-IN')}</span>
+                      <span className="text-base font-black text-[var(--text-main)] font-mono leading-tight font-sans">₹{totalCredit.toLocaleString('en-IN')}</span>
                   </div>
               </div>
           </div>
@@ -550,15 +555,15 @@ export const JournalEntryScreen: React.FC<JournalEntryScreenProps> = ({ onBack, 
               <button 
                 type="button"
                 onClick={handleSave}
-                disabled={!isBalanced}
-                className={`flex-1 py-3.5 rounded-2xl font-extrabold text-white text-xs tracking-widest uppercase flex justify-center items-center gap-2 shadow-md transition-all active:scale-[0.98] cursor-pointer shrink-0 ${
-                  isBalanced 
+                disabled={isSaving || !isBalanced}
+                className={`flex-1 py-3.5 rounded-2xl font-extrabold text-white text-xs tracking-widest uppercase flex justify-center items-center gap-2 shadow-md transition-all active:scale-[0.98] cursor-pointer shrink-0 disabled:opacity-50 disabled:cursor-not-allowed ${
+                  isBalanced && !isSaving
                   ? 'bg-gradient-to-r from-emerald-500 to-emerald-600 dark:from-emerald-600 dark:to-emerald-700 hover:brightness-105 shadow-emerald-500/10' 
                   : 'bg-slate-350 dark:bg-slate-800 text-slate-400 dark:text-slate-600 cursor-not-allowed opacity-50 shadow-none'
                 }`}
               >
                   <Save size={15} className="stroke-[2.5px]" /> 
-                  <span>{isBalanced ? t.saveEntryBtn : t.balanceFirstBtn}</span>
+                  <span>{isSaving ? (currentLanguage === 'hi' ? 'सुरक्षित किया जा रहा है...' : 'Saving...') : (isBalanced ? t.saveEntryBtn : t.balanceFirstBtn)}</span>
               </button>
           </div>
       </div>
@@ -571,7 +576,7 @@ export const JournalEntryScreen: React.FC<JournalEntryScreenProps> = ({ onBack, 
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 28, stiffness: 240 }}
-            className="absolute inset-0 z-50 bg-slate-50 dark:bg-slate-950 flex flex-col overflow-hidden"
+            className="absolute inset-0 z-50 bg-[var(--bg-app)] flex flex-col overflow-hidden"
           >
             {/* Modal Header */}
             <div className="bg-gradient-to-r from-emerald-600 to-emerald-700 dark:from-slate-900 dark:to-slate-950 text-white p-4 pt-[max(env(safe-area-inset-top),48px)] flex items-center shadow-md justify-between shrink-0 border-b border-emerald-500/10 dark:border-slate-800">
@@ -604,7 +609,7 @@ export const JournalEntryScreen: React.FC<JournalEntryScreenProps> = ({ onBack, 
                   placeholder={t.searchPlaceholder}
                   value={searchQuery}
                   onChange={e => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-10 py-2.5 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-800 rounded-xl outline-none font-bold text-xs sm:text-sm shadow-3xs focus:border-emerald-500/30 transition-all font-sans"
+                  className="w-full pl-10 pr-10 py-2.5 bg-[var(--bg-app)] text-[var(--text-main)] border border-[var(--border-ui)] rounded-xl outline-none font-bold text-xs sm:text-sm shadow-3xs focus:border-emerald-500/30 transition-all font-sans"
                   autoFocus
                 />
                 {searchQuery && (
@@ -665,7 +670,7 @@ export const JournalEntryScreen: React.FC<JournalEntryScreenProps> = ({ onBack, 
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.12, delay: Math.min(idx * 0.02, 0.2) }}
                   onClick={() => handleSelectParty(party)}
-                  className="bg-white dark:bg-slate-900 p-4 rounded-2xl shadow-3xs cursor-pointer active:scale-[0.98] transition-all border border-slate-200 dark:border-slate-800/80 hover:border-emerald-500/30 flex flex-col"
+                  className="bg-[var(--bg-card)] p-4 rounded-2xl shadow-3xs cursor-pointer active:scale-[0.98] transition-all border border-[var(--border-ui)]/80 hover:border-emerald-500/30 flex flex-col"
                 >
                   <div className="flex justify-between items-start gap-2">
                     <div className="min-w-0">
@@ -713,7 +718,7 @@ export const JournalEntryScreen: React.FC<JournalEntryScreenProps> = ({ onBack, 
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
               transition={{ type: "spring", duration: 0.3 }}
-              className="bg-white dark:bg-slate-900 rounded-3xl p-6 max-w-sm w-full shadow-2xl border border-slate-150 dark:border-slate-800 text-center relative z-10"
+              className="bg-[var(--bg-card)] rounded-3xl p-6 max-w-sm w-full shadow-2xl border border-slate-150 dark:border-slate-800 text-center relative z-10"
             >
               <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-950/40 rounded-full flex items-center justify-center mx-auto mb-4">
                 {alertConfig.type === 'success' ? (
@@ -722,7 +727,7 @@ export const JournalEntryScreen: React.FC<JournalEntryScreenProps> = ({ onBack, 
                   <AlertCircle className="text-rose-500 dark:text-rose-400 stroke-[2.5px]" size={24} />
                 )}
               </div>
-              <h3 className="text-sm font-extrabold text-slate-900 dark:text-white mb-2 tracking-tight">
+              <h3 className="text-sm font-extrabold text-[var(--text-main)] mb-2 tracking-tight">
                 {alertConfig.title}
               </h3>
               <p className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-6 leading-relaxed">

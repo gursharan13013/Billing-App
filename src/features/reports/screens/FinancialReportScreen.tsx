@@ -50,11 +50,11 @@ export const FinancialReportScreen: React.FC<FinancialReportScreenProps> = ({ on
 
   if (currentUser?.role === 'staff') {
     return (
-      <div className="flex flex-col items-center justify-center h-full p-6 text-center bg-slate-50 dark:bg-slate-950 transition-colors font-sans">
+      <div className="flex flex-col items-center justify-center h-full p-6 text-center bg-[var(--bg-app)] transition-colors font-sans">
         <div className="bg-amber-500/10 dark:bg-amber-500/20 border border-amber-500/20 p-5 rounded-full text-amber-500 mb-5 animate-pulse">
           <ShieldAlert size={48} />
         </div>
-        <h2 className="text-lg font-black text-slate-900 dark:text-white mb-2 uppercase tracking-wide">{t.restrictedTitle}</h2>
+        <h2 className="text-lg font-black text-[var(--text-main)] mb-2 uppercase tracking-wide">{t.restrictedTitle}</h2>
         <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm leading-relaxed mb-6 font-bold">
           {t.restrictedMsg}
         </p>
@@ -230,8 +230,8 @@ export const FinancialReportScreen: React.FC<FinancialReportScreenProps> = ({ on
 
   const TRow = ({ label, amount, isBold = false }: { label: string, amount: number | string, isBold?: boolean }) => (
       <div className="flex justify-between items-start py-2.5 px-3 border-b border-gray-100 dark:border-slate-800/60 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-          <span className={`text-xs ${isBold ? 'font-extrabold text-slate-900 dark:text-white' : 'text-slate-655 dark:text-slate-400'}`}>{label}</span>
-          <span className={`text-xs font-extrabold font-mono ${isBold ? 'text-slate-900 dark:text-white' : 'text-slate-700 dark:text-slate-350'}`}>
+          <span className={`text-xs ${isBold ? 'font-extrabold text-[var(--text-main)]' : 'text-slate-655 dark:text-slate-400'}`}>{label}</span>
+          <span className={`text-xs font-extrabold font-mono ${isBold ? 'text-[var(--text-main)]' : 'text-slate-700 dark:text-slate-350'}`}>
               {typeof amount === 'number' ? (amount !== 0 ? formatCurrency(amount) : '') : amount}
           </span>
       </div>
@@ -248,12 +248,12 @@ export const FinancialReportScreen: React.FC<FinancialReportScreenProps> = ({ on
       leftTotal: number, rightTotal: number
   }) => {
       return (
-          <div className="flex-1 flex flex-col bg-slate-50 dark:bg-slate-950 text-xs overflow-hidden pb-[max(env(safe-area-inset-bottom),0px)]">
-              <div className="flex-1 overflow-auto md:flex md:divide-x divide-gray-200 dark:divide-slate-800 border border-gray-200 dark:border-slate-800 m-4 bg-white dark:bg-slate-900 shadow-sm rounded-xl">
+          <div className="flex-1 flex flex-col bg-[var(--bg-app)] text-xs overflow-hidden pb-[max(env(safe-area-inset-bottom),0px)]">
+              <div className="flex-1 overflow-auto md:flex md:divide-x divide-gray-200 dark:divide-slate-800 border border-[var(--border-ui)] m-4 bg-[var(--bg-card)] shadow-sm rounded-xl">
                   
                   {/* Left Side */}
                   <div className="flex flex-col min-h-[50%] md:w-1/2 md:h-full">
-                      <div className="bg-slate-50 dark:bg-slate-950 p-3 flex justify-between items-center border-b border-gray-200 dark:border-slate-800 sticky top-0 z-10">
+                      <div className="bg-[var(--bg-app)] p-3 flex justify-between items-center border-b border-[var(--border-ui)] sticky top-0 z-10">
                           <span className="font-extrabold uppercase text-slate-500 dark:text-slate-400 tracking-wider text-[10px]">{leftHeader.title}</span>
                           <span className="font-extrabold uppercase text-slate-500 dark:text-slate-400 tracking-wider text-[10px]">{leftHeader.amountTitle}</span>
                       </div>
@@ -271,7 +271,7 @@ export const FinancialReportScreen: React.FC<FinancialReportScreenProps> = ({ on
                           ))}
                       </div>
 
-                      <div className="bg-slate-50 dark:bg-slate-950 p-3 border-t border-gray-200 dark:border-slate-800 flex justify-between font-black text-slate-900 dark:text-white sticky bottom-0 text-sm">
+                      <div className="bg-[var(--bg-app)] p-3 border-t border-[var(--border-ui)] flex justify-between font-black text-[var(--text-main)] sticky bottom-0 text-sm">
                           <span>{t.total}</span>
                           <span>{formatCurrency(leftTotal)}</span>
                       </div>
@@ -279,7 +279,7 @@ export const FinancialReportScreen: React.FC<FinancialReportScreenProps> = ({ on
 
                   {/* Right Side */}
                   <div className="flex flex-col min-h-[50%] md:w-1/2 md:h-full border-t md:border-t-0 border-gray-200 dark:border-slate-800">
-                      <div className="bg-slate-50 dark:bg-slate-950 p-3 flex justify-between items-center border-b border-gray-200 dark:border-slate-800 sticky top-0 z-10">
+                      <div className="bg-[var(--bg-app)] p-3 flex justify-between items-center border-b border-[var(--border-ui)] sticky top-0 z-10">
                           <span className="font-extrabold uppercase text-slate-500 dark:text-slate-400 tracking-wider text-[10px]">{rightHeader.title}</span>
                           <span className="font-extrabold uppercase text-slate-500 dark:text-slate-400 tracking-wider text-[10px]">{rightHeader.amountTitle}</span>
                       </div>
@@ -297,7 +297,7 @@ export const FinancialReportScreen: React.FC<FinancialReportScreenProps> = ({ on
                           ))}
                       </div>
 
-                      <div className="bg-slate-50 dark:bg-slate-950 p-3 border-t border-gray-200 dark:border-slate-800 flex justify-between font-black text-slate-900 dark:text-white sticky bottom-0 text-sm">
+                      <div className="bg-[var(--bg-app)] p-3 border-t border-[var(--border-ui)] flex justify-between font-black text-[var(--text-main)] sticky bottom-0 text-sm">
                           <span>{t.total}</span>
                           <span>{formatCurrency(rightTotal)}</span>
                       </div>
@@ -390,10 +390,10 @@ export const FinancialReportScreen: React.FC<FinancialReportScreenProps> = ({ on
       exit={{ x: '100%' }}
       transition={{ type: 'tween', ease: [0.25, 1, 0.5, 1], duration: 0.35 }}
       style={{ willChange: 'transform' }}
-      className="flex flex-col h-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white pb-[max(env(safe-area-inset-bottom),0px)] relative overflow-hidden transition-colors font-sans"
+      className="flex flex-col h-full bg-[var(--bg-app)] text-[var(--text-main)] pb-[max(env(safe-area-inset-bottom),0px)] relative overflow-hidden transition-colors font-sans"
     >
       {/* Premium Header */}
-      <header className="bg-white dark:bg-slate-900 p-4 flex items-center justify-between shadow-sm shrink-0 border-b border-gray-200 dark:border-slate-800 pt-[max(env(safe-area-inset-top),48px)] transition-colors">
+      <header className="bg-[var(--bg-card)] p-4 flex items-center justify-between shadow-sm shrink-0 border-b border-[var(--border-ui)] pt-[max(env(safe-area-inset-top),48px)] transition-colors">
         <div className="flex items-center gap-4">
           <button 
             onClick={onBack}
@@ -403,7 +403,7 @@ export const FinancialReportScreen: React.FC<FinancialReportScreenProps> = ({ on
             <ArrowLeft size={24} />
           </button>
           <div>
-            <h1 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white leading-tight">
+            <h1 className="text-xl font-bold tracking-tight text-[var(--text-main)] leading-tight">
               {getReportTitle()}
             </h1>
             <p className="text-[10px] font-bold text-slate-500 tracking-widest mt-0.5 opacity-80 uppercase leading-none">
@@ -437,10 +437,10 @@ export const FinancialReportScreen: React.FC<FinancialReportScreenProps> = ({ on
           <div className="flex-1 overflow-hidden flex flex-col">
               {reportType === 'TrialBalance' && (
                   <div className="flex-1 overflow-auto p-4">
-                      <div className="border border-gray-200 dark:border-slate-800 shadow-sm rounded-xl overflow-hidden h-full flex flex-col bg-white dark:bg-slate-900">
+                      <div className="border border-[var(--border-ui)] shadow-sm rounded-xl overflow-hidden h-full flex flex-col bg-[var(--bg-card)]">
                         
                         {/* Fixed Header */}
-                        <div className="grid grid-cols-12 bg-slate-50 dark:bg-slate-950 text-slate-500 dark:text-slate-400 font-extrabold uppercase border-b border-gray-200 dark:border-slate-800 text-[10px] tracking-wider shrink-0">
+                        <div className="grid grid-cols-12 bg-[var(--bg-app)] text-slate-500 dark:text-slate-400 font-extrabold uppercase border-b border-[var(--border-ui)] text-[10px] tracking-wider shrink-0">
                             <div className="col-span-6 p-3.5 border-r border-gray-200 dark:border-slate-800">
                                 {t.accountName}
                             </div>
@@ -474,7 +474,7 @@ export const FinancialReportScreen: React.FC<FinancialReportScreenProps> = ({ on
                         </div>
 
                         {/* Fixed Footer */}
-                        <div className="grid grid-cols-12 bg-slate-50 dark:bg-slate-950 font-black text-slate-900 dark:text-white border-t-2 border-gray-200 dark:border-slate-800 text-xs shrink-0 shadow-sm">
+                        <div className="grid grid-cols-12 bg-[var(--bg-app)] font-black text-[var(--text-main)] border-t-2 border-gray-200 dark:border-slate-800 text-xs shrink-0 shadow-sm">
                             <div className="col-span-6 p-3.5 text-center uppercase tracking-wider">{t.total}</div>
                             <div className="col-span-3 p-3.5 text-right border-r border-gray-200 dark:border-slate-800 font-mono font-black text-indigo-650 dark:text-indigo-400">₹{Number(data.trialBalance.totalDr.toFixed(2)).toLocaleString('en-IN')}</div>
                             <div className="col-span-3 p-3.5 text-right font-mono font-black text-indigo-650 dark:text-indigo-400">₹{Number(data.trialBalance.totalCr.toFixed(2)).toLocaleString('en-IN')}</div>

@@ -146,6 +146,7 @@ export const PaymentScreen: React.FC<PaymentScreenProps> = ({
 
   // Custom Alert & Confirm Modals State
   const [alertConfig, setAlertConfig] = useState<{ message: string; title?: string; type: 'alert' | 'confirm'; onConfirm?: () => void } | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   const showCustomAlert = (message: string, title?: string) => {
     setAlertConfig({ message, title, type: 'alert' });
@@ -327,6 +328,7 @@ export const PaymentScreen: React.FC<PaymentScreenProps> = ({
   };
 
   const handleSave = async () => {
+    if (isSaving) return;
     if (!selectedParty) {
         showCustomAlert(t.errPartyRequired, isHi ? "त्रुटि" : "Required Field");
         return;
@@ -334,10 +336,12 @@ export const PaymentScreen: React.FC<PaymentScreenProps> = ({
     const selectedLedger = ledgers.find(l => l.id === selectedLedgerId);
     const modeName = selectedLedger ? selectedLedger.name : 'Unknown';
 
+    setIsSaving(true);
     try {
         if (entryType === 'By Balance') {
             if (!amount || parseFloat(amount) <= 0) {
                 showCustomAlert(t.errAmountRequired, isHi ? "त्रुटि" : "Invalid Amount");
+                setIsSaving(false);
                 return;
             }
             
@@ -377,6 +381,7 @@ export const PaymentScreen: React.FC<PaymentScreenProps> = ({
             
             if (billsToPay.length === 0) {
                 showCustomAlert(t.errBillAmountRequired, isHi ? "त्रुटि" : "Details Required");
+                setIsSaving(false);
                 return;
             }
             
@@ -430,6 +435,8 @@ export const PaymentScreen: React.FC<PaymentScreenProps> = ({
     } catch (e) {
         console.error(e);
         showCustomAlert(t.errSaveFailed, "Save Failure");
+    } finally {
+        setIsSaving(false);
     }
   };
 
@@ -439,7 +446,7 @@ export const PaymentScreen: React.FC<PaymentScreenProps> = ({
     : t.balance;
 
   return (
-    <div className="flex flex-col h-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white transition-colors pb-[max(env(safe-area-inset-bottom),0px)]">
+    <div className="flex flex-col h-full bg-[var(--bg-app)] text-[var(--text-main)] transition-colors pb-[max(env(safe-area-inset-bottom),0px)]">
       {/* Dynamic Styled Header */}
       <header className={`bg-gradient-to-r ${headerThemeClass} p-4 pt-[max(env(safe-area-inset-top),48px)] flex justify-between items-center z-20 shadow-md relative overflow-hidden`}>
         <div className="flex items-center gap-4">
@@ -471,12 +478,13 @@ export const PaymentScreen: React.FC<PaymentScreenProps> = ({
             </button>
           )}
           <button 
+            disabled={isSaving}
             type="button"
             onClick={handleSave}
-            className="p-2.5 bg-white/15 hover:bg-white/25 active:scale-95 text-white rounded-xl transition-all cursor-pointer shadow-sm flex items-center justify-center"
+            className="p-2.5 bg-white/15 hover:bg-white/25 active:scale-95 text-white rounded-xl transition-all cursor-pointer shadow-sm flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
             title={t.save}
           >
-            <Check size={20} className="stroke-[3px]" />
+            {isSaving ? <span className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full" /> : <Check size={20} className="stroke-[3px]" />}
           </button>
         </div>
       </header>
@@ -491,7 +499,7 @@ export const PaymentScreen: React.FC<PaymentScreenProps> = ({
           className="grid grid-cols-1 md:grid-cols-2 gap-4"
         >
           {/* Balance Widget Display */}
-          <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-850 p-5 rounded-2xl shadow-xs text-center flex flex-col items-center justify-center relative overflow-hidden transition-colors">
+          <div className="bg-[var(--bg-card)] border border-slate-100 dark:border-slate-850 p-5 rounded-2xl shadow-xs text-center flex flex-col items-center justify-center relative overflow-hidden transition-colors">
             {selectedParty ? (
               <>
                 <span className="text-[10px] font-bold tracking-wider uppercase text-slate-400 dark:text-slate-500 mb-1">
@@ -523,14 +531,14 @@ export const PaymentScreen: React.FC<PaymentScreenProps> = ({
           </div>
 
           {/* Type Selection Segmented Pill */}
-          <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-850 p-4 rounded-2xl shadow-xs flex flex-col justify-center transition-colors">
+          <div className="bg-[var(--bg-card)] border border-slate-100 dark:border-slate-850 p-4 rounded-2xl shadow-xs flex flex-col justify-center transition-colors">
             {initialPayment && (
-              <div className="mb-3 px-3 py-1.5 bg-slate-50 dark:bg-slate-800/65 border border-slate-100 dark:border-slate-800 rounded-xl flex justify-between items-center">
+              <div className="mb-3 px-3 py-1.5 bg-slate-50 dark:bg-slate-800/65 border border-[var(--border-ui)] rounded-xl flex justify-between items-center">
                 <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">{t.activeVoucher}</span>
                 <span className="text-xs font-mono font-extrabold text-slate-800 dark:text-slate-350">{initialPayment.voucherNo}</span>
               </div>
             )}
-            <div className="flex p-1 bg-slate-100 dark:bg-slate-950 border border-slate-100 dark:border-slate-800/40 rounded-xl w-full">
+            <div className="flex p-1 bg-slate-100 dark:bg-slate-950 border border-[var(--border-ui)]/40 rounded-xl w-full">
               <button
                 type="button"
                 onClick={() => setEntryType('By Bill')}
@@ -579,7 +587,7 @@ export const PaymentScreen: React.FC<PaymentScreenProps> = ({
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-850 p-5 rounded-2xl shadow-xs space-y-4 transition-colors text-left"
+          className="bg-[var(--bg-card)] border border-slate-100 dark:border-slate-850 p-5 rounded-2xl shadow-xs space-y-4 transition-colors text-left"
         >
             {/* Party Select Input Grid */}
             <div className="space-y-1.5">
@@ -671,7 +679,7 @@ export const PaymentScreen: React.FC<PaymentScreenProps> = ({
                       value={amount}
                       onChange={(e) => setAmount(e.target.value)}
                       placeholder={t.enterAmountPlaceholder}
-                      className="w-full border border-slate-205 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40 rounded-xl py-2.5 pl-8 pr-3.5 text-xs sm:text-sm text-slate-900 dark:text-slate-100 font-bold outline-none focus:border-slate-400 dark:focus:border-slate-700 transition-all shadow-3xs"
+                      className="w-full border border-slate-205 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40 rounded-xl py-2.5 pl-8 pr-3.5 text-xs sm:text-sm text-[var(--text-main)] font-bold outline-none focus:border-slate-400 dark:focus:border-slate-700 transition-all shadow-3xs"
                     />
                   </div>
                 </div>
@@ -683,16 +691,16 @@ export const PaymentScreen: React.FC<PaymentScreenProps> = ({
                   </label>
                   
                   {unpaidBills.length === 0 ? (
-                      <div className="bg-slate-50/50 dark:bg-slate-950/20 border border-dashed border-slate-200 dark:border-slate-800/80 p-6 rounded-2xl text-center flex flex-col items-center justify-center space-y-1.5">
+                      <div className="bg-slate-50/50 dark:bg-slate-950/20 border border-dashed border-[var(--border-ui)]/80 p-6 rounded-2xl text-center flex flex-col items-center justify-center space-y-1.5">
                         <FileSpreadsheet size={28} className="text-slate-350 dark:text-slate-650" />
                         <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500">
                           {t.noPendingBills}
                         </p>
                       </div>
                   ) : (
-                      <div className="border border-slate-100 dark:border-slate-800/60 rounded-xl overflow-hidden shadow-3xs bg-slate-50/30 dark:bg-slate-950/10">
+                      <div className="border border-[var(--border-ui)]/60 rounded-xl overflow-hidden shadow-3xs bg-slate-50/30 dark:bg-slate-950/10">
                         <table className="w-full text-left border-collapse">
-                          <thead className="bg-slate-105 dark:bg-slate-950/45 border-b border-slate-200 dark:border-slate-800/70">
+                          <thead className="bg-slate-105 dark:bg-slate-950/45 border-b border-[var(--border-ui)]/70">
                             <tr>
                               <th className="px-3.5 py-2.5 text-[9px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400">{t.billNo}</th>
                               <th className="px-3.5 py-2.5 text-[9px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400">{t.billTotal}</th>
@@ -745,14 +753,15 @@ export const PaymentScreen: React.FC<PaymentScreenProps> = ({
       </div>
 
       {/* Premium Sticky Action Footer */}
-      <div className="p-4 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-850/60 shadow-lg relative z-10 transition-colors">
+      <div className="p-4 bg-[var(--bg-card)] border-t border-slate-100 dark:border-slate-850/60 shadow-lg relative z-10 transition-colors">
           <button 
+              disabled={isSaving}
               type="button"
               onClick={handleSave}
-              className={`w-full bg-gradient-to-r ${isPayment ? 'from-red-650 to-red-700 dark:from-red-700 dark:to-red-800' : 'from-emerald-600 to-emerald-700 dark:from-emerald-700 dark:to-emerald-800'} text-white font-extrabold text-sm tracking-widest py-3.5 rounded-2xl shadow-md active:scale-95 hover:shadow-lg hover:brightness-105 transition-all uppercase flex items-center justify-center gap-2 cursor-pointer`}
+              className={`w-full bg-gradient-to-r ${isPayment ? 'from-red-650 to-red-700 dark:from-red-700 dark:to-red-800' : 'from-emerald-600 to-emerald-700 dark:from-emerald-700 dark:to-emerald-800'} text-white font-extrabold text-sm tracking-widest py-3.5 rounded-2xl shadow-md active:scale-95 hover:shadow-lg hover:brightness-105 transition-all uppercase flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed`}
           >
               <Save size={16} className="stroke-[2.5px]" />
-              <span>{t.save}</span>
+              <span>{isSaving ? (isHi ? 'सुरक्षित किया जा रहा है...' : 'Saving...') : t.save}</span>
           </button>
       </div>
 
@@ -764,7 +773,7 @@ export const PaymentScreen: React.FC<PaymentScreenProps> = ({
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="w-full max-w-sm bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl p-5 shadow-2xl text-center"
+              className="w-full max-w-sm bg-[var(--bg-card)] border border-[var(--border-ui)] rounded-2xl p-5 shadow-2xl text-center"
             >
               <div className="w-12 h-12 bg-indigo-50 dark:bg-indigo-950/40 rounded-full flex items-center justify-center mx-auto mb-3 text-indigo-650 dark:text-indigo-400">
                 <AlertCircle size={24} className="stroke-[2.5px]" />

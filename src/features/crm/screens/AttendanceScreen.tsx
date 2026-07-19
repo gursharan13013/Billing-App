@@ -904,7 +904,7 @@ export const AttendanceScreen: React.FC<AttendanceScreenProps> = ({ onBack, lang
               initial={{ opacity: 0, scale: 0.95, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 10 }}
-              className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden border border-slate-150 dark:border-slate-800"
+              className="bg-[var(--bg-card)] rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden border border-[var(--border-ui)]"
             >
               {/* Header */}
               <div className="p-4 bg-slate-900 text-white flex justify-between items-center">
@@ -992,7 +992,7 @@ export const AttendanceScreen: React.FC<AttendanceScreenProps> = ({ onBack, lang
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden border border-slate-150 dark:border-slate-800"
+              className="bg-[var(--bg-card)] rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden border border-[var(--border-ui)]"
             >
               <div className="p-4 bg-rose-600 text-white flex justify-between items-center">
                 <div className="flex items-center gap-1.5">

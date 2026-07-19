@@ -104,7 +104,7 @@ export const CategoryListScreen: React.FC<CategoryListScreenProps> = ({ onBack }
   return (
     <div className="flex flex-col h-full bg-[var(--bg-app)] text-[var(--text-main)] transition-colors pb-[max(env(safe-area-inset-bottom),0px)]">
       {/* Premium layout Header */}
-      <header className="bg-[var(--bg-card)] text-[var(--text-main)] p-4 flex items-center justify-between border-b border-slate-200 dark:border-slate-800 shadow-sm shrink-0 z-20 transition-colors pt-[max(env(safe-area-inset-top),48px)]">
+      <header className="bg-[var(--bg-card)] text-[var(--text-main)] p-4 flex items-center justify-between border-b border-[var(--border-ui)] shadow-sm shrink-0 z-20 transition-colors pt-[max(env(safe-area-inset-top),48px)]">
         <div className="flex items-center gap-3 max-w-7xl mx-auto w-full justify-between">
           <div className="flex items-center gap-3">
             <button 
@@ -151,7 +151,7 @@ export const CategoryListScreen: React.FC<CategoryListScreenProps> = ({ onBack }
           <input
             type="text"
             placeholder={t.searchPlaceholder}
-            className="block w-full pl-10 pr-4 py-3 border border-slate-200 dark:border-slate-800 rounded-xl leading-5 bg-[var(--bg-card)] text-[var(--text-main)] placeholder-[var(--text-secondary)]/50 focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)]/25 focus:border-[var(--brand-primary)] transition-all shadow-3xs text-sm"
+            className="block w-full pl-10 pr-4 py-3 border border-[var(--border-ui)] rounded-xl leading-5 bg-[var(--bg-card)] text-[var(--text-main)] placeholder-[var(--text-secondary)]/50 focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)]/25 focus:border-[var(--brand-primary)] transition-all shadow-3xs text-sm"
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
           />
@@ -184,7 +184,7 @@ export const CategoryListScreen: React.FC<CategoryListScreenProps> = ({ onBack }
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95 }}
                   transition={{ duration: 0.15 }}
-                  className="bg-[var(--bg-card)] p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-3xs flex justify-between items-center transition-colors hover:shadow-2xs duration-150"
+                  className="bg-[var(--bg-card)] p-4 rounded-2xl border border-[var(--border-ui)] shadow-3xs flex justify-between items-center transition-colors hover:shadow-2xs duration-150"
                 >
                   <div className="flex items-center gap-3.5 min-w-0 flex-1">
                     <div className="w-11 h-11 rounded-xl bg-[var(--brand-light)] flex items-center justify-center text-[var(--brand-primary)] font-bold border border-[var(--brand-primary)]/10 dark:border-indigo-900/40 shadow-4xs shrink-0">
@@ -196,13 +196,13 @@ export const CategoryListScreen: React.FC<CategoryListScreenProps> = ({ onBack }
                   <div className="flex gap-1.5 shrink-0 ml-4">
                     <button 
                       onClick={() => openModal(cat)} 
-                      className="p-2 text-[var(--text-secondary)] hover:text-[var(--brand-primary)] hover:bg-[var(--brand-light)] bg-[var(--bg-app)] rounded-xl active:scale-95 transition-all duration-150 min-w-[36px] min-h-[36px] flex items-center justify-center border border-slate-200 dark:border-slate-800 cursor-pointer"
+                      className="p-2 text-[var(--text-secondary)] hover:text-[var(--brand-primary)] hover:bg-[var(--brand-light)] bg-[var(--bg-app)] rounded-xl active:scale-95 transition-all duration-150 min-w-[36px] min-h-[36px] flex items-center justify-center border border-[var(--border-ui)] cursor-pointer"
                     >
                       <Edit2 size={15} />
                     </button>
                     <button 
                       onClick={() => setDeleteId(cat.id)} 
-                      className="p-2 text-[var(--text-secondary)] hover:text-[var(--money-out)] hover:bg-red-500/10 bg-[var(--bg-app)] rounded-xl active:scale-95 transition-all duration-150 min-w-[36px] min-h-[36px] flex items-center justify-center border border-slate-200 dark:border-slate-800 cursor-pointer"
+                      className="p-2 text-[var(--text-secondary)] hover:text-[var(--money-out)] hover:bg-red-500/10 bg-[var(--bg-app)] rounded-xl active:scale-95 transition-all duration-150 min-w-[36px] min-h-[36px] flex items-center justify-center border border-[var(--border-ui)] cursor-pointer"
                     >
                       <Trash2 size={15} />
                     </button>
@@ -223,7 +223,7 @@ export const CategoryListScreen: React.FC<CategoryListScreenProps> = ({ onBack }
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
               transition={{ duration: 0.15 }}
-              className="bg-[var(--bg-card)] rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden p-6 text-center border border-slate-200 dark:border-slate-800"
+              className="bg-[var(--bg-card)] rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden p-6 text-center border border-[var(--border-ui)]"
             >
               <div className="w-14 h-14 bg-red-500/10 text-[var(--money-out)] rounded-2xl flex items-center justify-center mx-auto mb-4 border border-red-500/20 shadow-4xs">
                 <Trash2 size={26} />
@@ -236,7 +236,7 @@ export const CategoryListScreen: React.FC<CategoryListScreenProps> = ({ onBack }
                 <button 
                   type="button"
                   onClick={() => setDeleteId(null)} 
-                  className="flex-1 py-3 bg-[var(--bg-app)] hover:bg-slate-100 dark:hover:bg-slate-800/50 text-[var(--text-secondary)] font-black text-xs tracking-wider uppercase rounded-2xl transition-all shadow-4xs active:scale-[0.97] cursor-pointer text-center border border-slate-200 dark:border-slate-800"
+                  className="flex-1 py-3 bg-[var(--bg-app)] hover:bg-slate-100/50 dark:hover:bg-slate-800/50 text-[var(--text-secondary)] font-black text-xs tracking-wider uppercase rounded-2xl transition-all shadow-4xs active:scale-[0.97] cursor-pointer text-center border border-[var(--border-ui)]"
                 >
                   {t.cancel}
                 </button>
@@ -262,9 +262,9 @@ export const CategoryListScreen: React.FC<CategoryListScreenProps> = ({ onBack }
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
               transition={{ duration: 0.15 }}
-              className="bg-[var(--bg-card)] rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden border border-slate-200 dark:border-slate-800"
+              className="bg-[var(--bg-card)] rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden border border-[var(--border-ui)]"
             >
-              <div className="p-4 bg-[var(--bg-app)] border-b border-slate-200 dark:border-slate-800 flex justify-between items-center">
+              <div className="p-4 bg-[var(--bg-app)] border-b border-[var(--border-ui)] flex justify-between items-center">
                 <h3 className="text-base font-black text-[var(--text-main)]">{editingId ? t.editCategory : t.addCategory}</h3>
                 <button 
                   onClick={() => setIsModalOpen(false)} 
@@ -282,7 +282,7 @@ export const CategoryListScreen: React.FC<CategoryListScreenProps> = ({ onBack }
                     required 
                     value={name} 
                     onChange={e => setName(e.target.value)} 
-                    className="block w-full h-11 px-3 border border-slate-200 dark:border-slate-800 rounded-xl bg-[var(--bg-app)] text-[var(--text-main)] placeholder-[var(--text-secondary)]/40 focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)]/25 focus:border-[var(--brand-primary)] transition-all font-sans font-semibold text-xs text-center" 
+                    className="block w-full h-11 px-3 border border-[var(--border-ui)] rounded-xl bg-[var(--bg-app)] text-[var(--text-main)] placeholder-[var(--text-secondary)]/40 focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)]/25 focus:border-[var(--brand-primary)] transition-all font-sans font-semibold text-xs text-center" 
                     placeholder={t.placeholderName} 
                   />
                 </div>

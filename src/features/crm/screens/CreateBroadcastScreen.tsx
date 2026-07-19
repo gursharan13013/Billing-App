@@ -3,7 +3,6 @@ import { ArrowLeft, Check, Search, Users, X } from 'lucide-react';
 import { Party } from '../../../core/types/';
 import { billingService, BroadcastGroup } from '../../../services/billingService';
 
-
 interface CreateBroadcastScreenProps {
   onBack: () => void;
   onGroupCreated: (group: BroadcastGroup) => void;
@@ -15,6 +14,18 @@ export const CreateBroadcastScreen: React.FC<CreateBroadcastScreenProps> = ({ on
   const [searchText, setSearchText] = useState('');
   const [groupName, setGroupName] = useState('');
   const [step, setStep] = useState<1 | 2>(1);
+
+  const lang = (localStorage.getItem('language') || 'en') as 'en' | 'hi';
+  const isHi = lang === 'hi';
+  const t = {
+    newBroadcast: isHi ? 'नया ब्रॉडकास्ट' : 'New broadcast',
+    selectedCount: (selected: number, total: number) => isHi ? `${total} में से ${selected} चयनित` : `${selected} of ${total} selected`,
+    searchPlaceholder: isHi ? 'खोजें...' : 'Search...',
+    recipientRule: isHi ? 'केवल वे संपर्क जिनके पास आपका नंबर है, वे आपके ब्रॉडकास्ट संदेश प्राप्त करेंगे।' : 'Only contacts with your number in their address book will receive your broadcast messages.',
+    listNamePlaceholder: isHi ? 'ब्रॉडकास्ट सूची का नाम...' : 'Broadcast list name...',
+    listNameDesc: isHi ? 'ब्रॉडकास्ट सूची का नाम प्रदान करें।' : 'Provide a broadcast list name.',
+    recipientsLabel: (count: number) => isHi ? `प्राप्तकर्ता: ${count}` : `Recipients: ${count}`
+  };
 
   useEffect(() => {
     loadParties();
@@ -62,8 +73,8 @@ export const CreateBroadcastScreen: React.FC<CreateBroadcastScreenProps> = ({ on
           <ArrowLeft size={24} />
         </button>
         <div>
-          <h1 className="text-lg font-bold">New broadcast</h1>
-          <p className="text-xs text-white/80">{selectedPartyIds.length} of {parties.length} selected</p>
+          <h1 className="text-lg font-bold">{t.newBroadcast}</h1>
+          <p className="text-xs text-white/80">{t.selectedCount(selectedPartyIds.length, parties.length)}</p>
         </div>
       </div>
 
@@ -74,7 +85,7 @@ export const CreateBroadcastScreen: React.FC<CreateBroadcastScreenProps> = ({ on
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
               <input 
                 type="text" 
-                placeholder="Search..." 
+                placeholder={t.searchPlaceholder} 
                 value={searchText}
                 onChange={(e) => setSearchText(e.target.value)}
                 className="w-full bg-slate-100 dark:bg-slate-800 border-none rounded-lg pl-10 pr-4 py-2 focus:ring-2 focus:ring-[#00a884]"
@@ -83,7 +94,7 @@ export const CreateBroadcastScreen: React.FC<CreateBroadcastScreenProps> = ({ on
           </div>
           <div className="flex-1 overflow-y-auto w-full">
              <div className="p-6 text-center text-sm text-slate-500 border-b border-gray-100 dark:border-slate-800">
-                 Only contacts with your number in their address book will receive your broadcast messages.
+                  {t.recipientRule}
              </div>
              <div className="divide-y divide-gray-100 dark:divide-slate-800">
                 {filteredParties.map(party => (
@@ -124,16 +135,16 @@ export const CreateBroadcastScreen: React.FC<CreateBroadcastScreenProps> = ({ on
             <div className="relative mt-4">
                 <input 
                     type="text" 
-                    placeholder="Broadcast list name..." 
+                    placeholder={t.listNamePlaceholder} 
                     value={groupName}
                     onChange={(e) => setGroupName(e.target.value)}
                     className="w-full text-lg border-b-2 border-[#00a884] bg-transparent py-2 pb-1 focus:outline-none focus:border-[#00a884] text-slate-900 dark:text-white px-2 placeholder-slate-400"
                     autoFocus
                 />
             </div>
-            <p className="text-xs text-slate-500 mt-2 px-2">Provide a broadcast list name.</p>
+            <p className="text-xs text-slate-500 mt-2 px-2">{t.listNameDesc}</p>
 
-            <h3 className="font-bold text-slate-500 mt-8 mb-2 px-2 uppercase text-xs tracking-wider">Recipients: {selectedPartyIds.length}</h3>
+            <h3 className="font-bold text-slate-500 mt-8 mb-2 px-2 uppercase text-xs tracking-wider">{t.recipientsLabel(selectedPartyIds.length)}</h3>
             <div className="flex flex-wrap gap-2 px-2 max-h-[300px] overflow-y-auto pb-20">
                 {parties.filter(p => selectedPartyIds.includes(p.id)).map(p => (
                     <div key={p.id} className="bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-full flex items-center gap-2 text-sm font-medium border border-slate-200 dark:border-slate-700">

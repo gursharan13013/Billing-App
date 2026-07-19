@@ -8,9 +8,12 @@ interface SplashScreenProps {
 }
 
 export const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
-  const [statusMessage, setStatusMessage] = useState('Initializing Secure Ledger...');
+  const lang = (localStorage.getItem('language') || 'en') as 'en' | 'hi';
+  const isHi = lang === 'hi';
+
+  const [statusMessage, setStatusMessage] = useState(isHi ? 'सुरक्षित बहीखाता प्रारंभ हो रहा है...' : 'Initializing Secure Ledger...');
   const [progress, setProgress] = useState(0);
-  const [bootLogs, setBootLogs] = useState<string[]>(['[SYSTEM] Core boot initialized...']);
+  const [bootLogs, setBootLogs] = useState<string[]>(isHi ? ['[सिस्टम] कोर बूट प्रारंभ किया गया...'] : ['[SYSTEM] Core boot initialized...']);
   const [fadeOut, setFadeOut] = useState(false);
 
   // Detect and listen to system preference (prefers-color-scheme: dark) directly
@@ -26,7 +29,13 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
   }, []);
 
   useEffect(() => {
-    const messages = [
+    const messages = isHi ? [
+      'सुरक्षित बहीखाता प्रारंभ हो रहा है...',
+      'ऑटोमिक कोर इंजन लोड हो रहा है...',
+      'डेटा अखंडता श्रृंखला सत्यापित की जा रही है...',
+      'ऑफ़लाइन इंडेक्स्ड डीबी सिंक किया जा रहा है...',
+      'सुरक्षित बहीखाता कंसोल तैयार किया जा रहा है...'
+    ] : [
       'Initializing Secure Ledger...',
       'Loading Atomic Core Engine...',
       'Verifying Data Integrity Chain...',
@@ -34,7 +43,12 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
       'Readying Secure Ledger Console...'
     ];
     
-    const logs = [
+    const logs = isHi ? [
+      '[ठीक] डेटाबेस उदाहरण हल हो गए।',
+      '[ठीक] सुरक्षा एन्क्रिप्शन प्रोटोकॉल सक्रिय हैं।',
+      '[ठीक] डेक्सी सिंक क्लाइंट हैंडशेक पूरा हुआ।',
+      '[सिस्टम] बूट प्रवाह पूरा हुआ।'
+    ] : [
       '[OK] Database instances resolved.',
       '[OK] Security encryption protocols active.',
       '[OK] Dexie sync client handshake completed.',
@@ -153,11 +167,11 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
         >
           <div className="flex items-center gap-1.5">
             <Server size={12} className="text-emerald-500 animate-pulse" />
-            <span>LEDGER CONNECTED</span>
+            <span>{isHi ? 'बहीखाता जुड़ा हुआ है' : 'LEDGER CONNECTED'}</span>
           </div>
           <div className="flex items-center gap-1">
             <Wifi size={12} color={wifiColor} />
-            <span style={{ color: wifiColor }}>OFFLINE ENGINE ACTIVE</span>
+            <span style={{ color: wifiColor }}>{isHi ? 'ऑफ़लाइन इंजन सक्रिय' : 'OFFLINE ENGINE ACTIVE'}</span>
           </div>
         </div>
 
@@ -193,7 +207,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
               style={badgeStyle}
               className="inline-block text-[9px] border font-extrabold px-3.5 py-1.5 rounded-full uppercase tracking-widest shadow-xs"
             >
-              🔒 SECURE LEDGER SYSTEM • VER 2.0
+              {isHi ? '🔒 सुरक्षित बहीखाता प्रणाली • संस्करण २.०' : '🔒 SECURE LEDGER SYSTEM • VER 2.0'}
             </span>
             <h1 
               style={titleStyle}
@@ -205,7 +219,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
               style={labelStyle}
               className="text-xs font-semibold tracking-wide uppercase opacity-75"
             >
-              Atomic Accounting • Hybrid PWA Client
+              {isHi ? 'परमाणु लेखांकन • हाइब्रिड PWA क्लाइंट' : 'Atomic Accounting • Hybrid PWA Client'}
             </p>
           </div>
 
