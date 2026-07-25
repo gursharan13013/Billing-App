@@ -17,6 +17,7 @@ import { Camera } from '@capacitor/camera';
 import { Capacitor } from '@capacitor/core';
 import { PartySearch } from '../../../components/shared/PartySearch';
 import { sharePaymentWithClient } from '../../../services/firebaseService';
+import { UpiQrModal } from '../../../components/shared/UpiQrModal';
 
 interface PaymentScreenProps {
   onBack: () => void;
@@ -148,6 +149,7 @@ export const PaymentScreen: React.FC<PaymentScreenProps> = ({
   const [splitUpi, setSplitUpi] = useState('');
   const [splitCard, setSplitCard] = useState('');
   const [splitCredit, setSplitCredit] = useState('');
+  const [showUpiModal, setShowUpiModal] = useState(false);
 
   // Scanner State
   const [isScanning, setIsScanning] = useState(false);
@@ -942,12 +944,22 @@ export const PaymentScreen: React.FC<PaymentScreenProps> = ({
       </div>
 
       {/* Premium Sticky Action Footer */}
-      <div className="p-4 bg-[var(--bg-card)] border-t border-slate-100 dark:border-slate-850/60 shadow-lg relative z-10 transition-colors">
+      <div className="p-4 bg-[var(--bg-card)] border-t border-slate-100 dark:border-slate-850/60 shadow-lg relative z-10 transition-colors flex gap-3">
+          {type === 'Receipt' && companyProfile?.upiId && (
+              <button 
+                  type="button"
+                  onClick={() => setShowUpiModal(true)}
+                  className="px-4 bg-indigo-500/10 text-indigo-650 dark:text-indigo-400 border border-indigo-500/35 font-extrabold text-sm py-3.5 rounded-2xl active:scale-95 hover:bg-indigo-500/15 transition-all flex items-center justify-center gap-2 cursor-pointer shadow-3xs"
+              >
+                  <QrCode size={16} className="stroke-[2.5px]" />
+                  <span>{isHi ? 'UPI क्यूआर' : 'UPI QR'}</span>
+              </button>
+          )}
           <button 
               disabled={isSaving}
               type="button"
               onClick={handleSave}
-              className={`w-full bg-gradient-to-r ${isPayment ? 'from-red-650 to-red-700 dark:from-red-700 dark:to-red-800' : 'from-emerald-600 to-emerald-700 dark:from-emerald-700 dark:to-emerald-800'} text-white font-extrabold text-sm tracking-widest py-3.5 rounded-2xl shadow-md active:scale-95 hover:shadow-lg hover:brightness-105 transition-all uppercase flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed`}
+              className={`flex-1 bg-gradient-to-r ${isPayment ? 'from-red-650 to-red-700 dark:from-red-700 dark:to-red-800' : 'from-emerald-600 to-emerald-700 dark:from-emerald-700 dark:to-emerald-800'} text-white font-extrabold text-sm tracking-widest py-3.5 rounded-2xl shadow-md active:scale-95 hover:shadow-lg hover:brightness-105 transition-all uppercase flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed`}
           >
               <Save size={16} className="stroke-[2.5px]" />
               <span>{isSaving ? (isHi ? 'सुरक्षित किया जा रहा है...' : 'Saving...') : t.save}</span>
@@ -1000,6 +1012,18 @@ export const PaymentScreen: React.FC<PaymentScreenProps> = ({
           </div>
         )}
       </AnimatePresence>
+
+      {/* UpiQrModal integration */}
+      {showUpiModal && companyProfile?.upiId && (
+        <UpiQrModal
+          isOpen={showUpiModal}
+          onClose={() => setShowUpiModal(false)}
+          upiId={companyProfile.upiId}
+          companyName={companyProfile.companyName}
+          amount={parseFloat(amount) || 0}
+          invoiceNumber={initialPayment ? initialPayment.voucherNo : 'QUICK-RECEIPT'}
+        />
+      )}
     </div>
   );
 };

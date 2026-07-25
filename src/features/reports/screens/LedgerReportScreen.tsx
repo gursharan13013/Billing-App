@@ -149,7 +149,11 @@ export const LedgerReportScreen: React.FC<LedgerReportScreenProps> = ({ onBack, 
               rawRows.push({
                   date: pay.date,
                   dateObj: Date.fromLocalDateString(pay.date),
-                  particulars: pay.mode === 'Cash' ? (isHi ? 'नकद खाता' : 'Cash Account') : pay.mode,
+                  particulars: pay.mode === 'Split' && pay.splitBreakdown
+                    ? (isHi 
+                        ? `विभाजित (नकद: ₹${pay.splitBreakdown.cashAmount}, UPI: ₹${pay.splitBreakdown.upiAmount}, कार्ड: ₹${pay.splitBreakdown.cardAmount}, उधार: ₹${pay.splitBreakdown.creditAmount})`
+                        : `Split (Cash: ₹${pay.splitBreakdown.cashAmount}, UPI: ₹${pay.splitBreakdown.upiAmount}, Card: ₹${pay.splitBreakdown.cardAmount}, Credit: ₹${pay.splitBreakdown.creditAmount})`)
+                    : (pay.mode === 'Cash' ? (isHi ? 'नकद खाता' : 'Cash Account') : pay.mode),
                   vchType: pay.type,
                   vchNo: pay.voucherNo,
                   debit,

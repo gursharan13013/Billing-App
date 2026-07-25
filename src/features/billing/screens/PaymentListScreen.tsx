@@ -389,7 +389,11 @@ export const PaymentListScreen: React.FC<PaymentListScreenProps> = ({
                                                 ? 'bg-emerald-100/60 dark:bg-emerald-950/50 border-emerald-200/50 text-emerald-700 dark:text-emerald-400' 
                                                 : 'bg-slate-50 dark:bg-slate-800 border-slate-205 dark:border-slate-750 text-slate-500 dark:text-slate-400'
                                             }`}>
-                                              {pay.mode}
+                                              {pay.mode === 'Split' && pay.splitBreakdown ? (
+                                                isHi 
+                                                  ? `विभाजित (नकद: ₹${pay.splitBreakdown.cashAmount} | UPI: ₹${pay.splitBreakdown.upiAmount} | कार्ड: ₹${pay.splitBreakdown.cardAmount} | उधार: ₹${pay.splitBreakdown.creditAmount})`
+                                                  : `Split (Cash: ₹${pay.splitBreakdown.cashAmount} | UPI: ₹${pay.splitBreakdown.upiAmount} | Card: ₹${pay.splitBreakdown.cardAmount} | Credit: ₹${pay.splitBreakdown.creditAmount})`
+                                              ) : pay.mode}
                                             </span>
                                         </div>
                                         <p className="text-[10px] font-bold text-slate-400 mt-1 flex items-center gap-2">
