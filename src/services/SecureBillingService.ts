@@ -1,6 +1,6 @@
 import { billingService as legacyBillingService } from './billingService';
 import { sqliteService } from './sqliteService';
-import { Invoice, TransactionType, User } from '../core/types/';
+import { Invoice, TransactionType, User, PaymentRecord } from '../core/types/';
 import { ROLES } from '../core/constants/';
 import { pushToCloud } from './syncEngine';
 
@@ -358,6 +358,71 @@ const BillingServiceBase = {
 *Amount Due:* ₹${totalAmount.toFixed(2)}
 
 Thank you for shopping with us!`;
+  },
+
+  validatePaymentSave: async (payment: PaymentRecord): Promise<void> => {
+    if (!payment.partyId || !payment.partyName) {
+      throw new Error('Security Error: Payment party details cannot be empty.');
+    }
+    if (payment.amount <= 0 || isNaN(payment.amount)) {
+      throw new Error('Security Error: Payment amount must be a positive number.');
+    }
+    
+    // Check permission for existing past payments
+    if (payment.id) {
+      if (!BillingServiceBase.checkPermission('editPastInvoice')) {
+        throw new Error('Security Lock: Only Admin is authorized to edit past payment entries.');
+      }
+    }
+    
+    // Log saving payment via Firestore audit_logs
+    try {
+      const activeUser = BillingServiceBase.getCurrentUser();
+      if (activeUser) {
+        const { writeAuditLog } = await import('./firebaseService');
+        await writeAuditLog({
+          actionType: payment.id ? 'Update' : 'Create',
+          module: 'Billing',
+          description: `${payment.id ? 'Updated' : 'Created'} payment voucher ${payment.voucherNo} for ${payment.partyName} of amount ₹${payment.amount}`,
+          targetId: payment.id || payment.voucherNo || '',
+          targetTable: 'payments',
+          metadata: {
+            voucherNo: payment.voucherNo,
+            amount: payment.amount,
+            mode: payment.mode,
+            partyName: payment.partyName
+          }
+        });
+      }
+    } catch (e) {
+      console.warn("Audit logging failed silently: ", e);
+    }
+  },
+
+  validatePaymentDelete: async (paymentId: string): Promise<void> => {
+    if (!BillingServiceBase.checkPermission('deleteInvoice')) {
+      throw new Error('Security Lock: Only authorized users can delete payment records.');
+    }
+    
+    // Log deletion via Firestore audit_logs
+    try {
+      const activeUser = BillingServiceBase.getCurrentUser();
+      if (activeUser) {
+        const { writeAuditLog } = await import('./firebaseService');
+        await writeAuditLog({
+          actionType: 'Delete',
+          module: 'Billing',
+          description: `Deleted payment record ${paymentId}`,
+          targetId: paymentId,
+          targetTable: 'payments',
+          metadata: {
+            paymentId
+          }
+        });
+      }
+    } catch (e) {
+      console.warn("Audit logging failed silently: ", e);
+    }
   }
 };
 
@@ -388,4 +453,6 @@ export const BillingService = new Proxy(BillingServiceBase, {
   updateStaffPermissions: (staffId: string, businessId: string, permissions: any) => Promise<void>;
   generateUpiUri: (vpa: string, companyName: string, amount: number, refNo: string) => string;
   formatWhatsAppInvoiceMessage: (invoice: any, company: any) => string;
+  validatePaymentSave: (payment: PaymentRecord) => Promise<void>;
+  validatePaymentDelete: (paymentId: string) => Promise<void>;
 };

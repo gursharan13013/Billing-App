@@ -2,12 +2,14 @@ import React, { useState, useEffect, useRef } from 'react';
 import { 
   ArrowLeft, Calendar, Save, Trash2, QrCode, Search, Check, 
   User, Landmark, CreditCard, Coins, AlignLeft, FileSpreadsheet, 
-  Trash, Bookmark, Tag, AlertCircle, Info, Receipt, Landmark as BankIcon
+  Trash, Bookmark, Tag, AlertCircle, Info, Receipt, Landmark as BankIcon,
+  MessageCircle, Laptop
 } from 'lucide-react';
-import { Party, PaymentRecord, Invoice } from '../../../core/types/';
+import { Party, PaymentRecord, Invoice, CompanyProfile } from '../../../core/types/';
 import { billingService } from '../../../services/billingService';
 import { sqliteService } from '../../../services/sqliteService';
 import { motion, AnimatePresence } from 'motion/react';
+import { BillingService } from '../../../services/SecureBillingService';
 
 // Scanner imports
 import { Html5Qrcode } from 'html5-qrcode';
@@ -138,6 +140,14 @@ export const PaymentScreen: React.FC<PaymentScreenProps> = ({
   // Unpaid Bills
   const [unpaidBills, setUnpaidBills] = useState<Invoice[]>([]);
   const [billPayments, setBillPayments] = useState<Record<string, string>>({}); // invoiceId -> amount string
+  const [companyProfile, setCompanyProfile] = useState<CompanyProfile | null>(null);
+
+  // Split Multi-Pay States
+  const [isMultiPay, setIsMultiPay] = useState(false);
+  const [splitCash, setSplitCash] = useState('');
+  const [splitUpi, setSplitUpi] = useState('');
+  const [splitCard, setSplitCard] = useState('');
+  const [splitCredit, setSplitCredit] = useState('');
 
   // Scanner State
   const [isScanning, setIsScanning] = useState(false);
@@ -166,6 +176,11 @@ export const PaymentScreen: React.FC<PaymentScreenProps> = ({
     : 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/40';
 
   useEffect(() => {
+    // Fetch company profile
+    billingService.getCompanyProfile().then(profile => {
+      setCompanyProfile(profile);
+    });
+
     // Fetch ledgers (Cash / Banks)
     billingService.getAllParties().then(parties => {
         const banksAndCash = parties.filter(p => p.accountGroup === 'Bank Account' || p.accountGroup === 'Cash In Hand' || p.name.toLowerCase() === 'cash' || p.name.toLowerCase() === 'bank');
@@ -175,6 +190,15 @@ export const PaymentScreen: React.FC<PaymentScreenProps> = ({
         if (initialPayment) {
             const matchedLedger = banksAndCash.find(l => l.name === initialPayment.mode) || banksAndCash.find(l => l.name.toLowerCase() === 'cash');
             if (matchedLedger) setSelectedLedgerId(matchedLedger.id);
+
+            // Populate split breakdown if available
+            if (initialPayment.mode === 'Split' && initialPayment.splitBreakdown) {
+              setIsMultiPay(true);
+              setSplitCash(initialPayment.splitBreakdown.cashAmount ? initialPayment.splitBreakdown.cashAmount.toString() : '');
+              setSplitUpi(initialPayment.splitBreakdown.upiAmount ? initialPayment.splitBreakdown.upiAmount.toString() : '');
+              setSplitCard(initialPayment.splitBreakdown.cardAmount ? initialPayment.splitBreakdown.cardAmount.toString() : '');
+              setSplitCredit(initialPayment.splitBreakdown.creditAmount ? initialPayment.splitBreakdown.creditAmount.toString() : '');
+            }
         } else {
             // Default to Bank, fallback to Cash
             const bankLedger = banksAndCash.find(l => l.accountGroup === 'Bank Account' || l.name.toLowerCase() === 'bank');
@@ -316,11 +340,14 @@ export const PaymentScreen: React.FC<PaymentScreenProps> = ({
         confirmMessage,
         async () => {
             try {
+                // Security Lock Check
+                await BillingService.validatePaymentDelete(initialPayment.id);
+
                 await billingService.deletePayment(initialPayment.id);
                 onBack();
-            } catch (e) {
+            } catch (e: any) {
                 console.error(e);
-                showCustomAlert(t.errSaveFailed, "Delete Failure");
+                showCustomAlert(e.message || t.errSaveFailed, "Delete Failure");
             }
         },
         isHi ? "हटाना सुनिश्चित करें" : "Confirm Deletion"
@@ -334,12 +361,24 @@ export const PaymentScreen: React.FC<PaymentScreenProps> = ({
         return;
     }
     const selectedLedger = ledgers.find(l => l.id === selectedLedgerId);
-    const modeName = selectedLedger ? selectedLedger.name : 'Unknown';
+    const modeName = isMultiPay ? 'Split' : (selectedLedger ? selectedLedger.name : 'Unknown');
+
+    const cashVal = parseFloat(splitCash) || 0;
+    const upiVal = parseFloat(splitUpi) || 0;
+    const cardVal = parseFloat(splitCard) || 0;
+    const creditVal = parseFloat(splitCredit) || 0;
+    const allocatedTotal = cashVal + upiVal + cardVal + creditVal;
+
+    if (isMultiPay && allocatedTotal <= 0) {
+        showCustomAlert(isHi ? "कृपया भुगतान विभाजन राशि दर्ज करें।" : "Please enter split allocation amounts.", isHi ? "त्रुटि" : "Invalid Allocations");
+        return;
+    }
 
     setIsSaving(true);
     try {
         if (entryType === 'By Balance') {
-            if (!amount || parseFloat(amount) <= 0) {
+            const activeAmtStr = isMultiPay ? allocatedTotal.toString() : amount;
+            if (!activeAmtStr || parseFloat(activeAmtStr) <= 0) {
                 showCustomAlert(t.errAmountRequired, isHi ? "त्रुटि" : "Invalid Amount");
                 setIsSaving(false);
                 return;
@@ -351,14 +390,26 @@ export const PaymentScreen: React.FC<PaymentScreenProps> = ({
                 partyId: selectedParty.id,
                 partyName: selectedParty.name,
                 date: date,
-                amount: parseFloat(amount),
+                amount: parseFloat(activeAmtStr),
                 type: type,
                 mode: modeName as any,
-                modeLedgerId: selectedLedgerId,
+                modeLedgerId: isMultiPay ? undefined : selectedLedgerId,
                 remarks: remarks,
                 createdAt: initialPayment?.createdAt || Date.now(),
-                ...(initialPayment && initialPayment.isSyncedToCloud !== undefined ? { isSyncedToCloud: initialPayment.isSyncedToCloud } : {})
+                ...(initialPayment && initialPayment.isSyncedToCloud !== undefined ? { isSyncedToCloud: initialPayment.isSyncedToCloud } : {}),
+                ...(isMultiPay ? {
+                  splitBreakdown: {
+                    cashAmount: cashVal,
+                    upiAmount: upiVal,
+                    cardAmount: cardVal,
+                    creditAmount: creditVal
+                  }
+                } : {})
             };
+
+            // Security Lock Check
+            await BillingService.validatePaymentSave(newPayment);
+
             await billingService.savePayment(newPayment, !!initialPayment);
 
             if (type !== 'Payment') {
@@ -373,7 +424,6 @@ export const PaymentScreen: React.FC<PaymentScreenProps> = ({
                 } catch(e) {}
             }
         } else {
-            let hasValidPayment = false;
             const billsToPay = unpaidBills.filter(inv => {
                 const amt = billPayments[inv.id];
                 return amt && parseFloat(amt) > 0;
@@ -384,6 +434,16 @@ export const PaymentScreen: React.FC<PaymentScreenProps> = ({
                 setIsSaving(false);
                 return;
             }
+
+            const totalBillAmt = billsToPay.reduce((sum, inv) => sum + (parseFloat(billPayments[inv.id]) || 0), 0);
+            if (isMultiPay && Math.abs(totalBillAmt - allocatedTotal) > 0.01) {
+                showCustomAlert(
+                  isHi ? `कुल विभाजन राशि (₹${allocatedTotal.toFixed(2)}) कुल बिल भुगतान (₹${totalBillAmt.toFixed(2)}) से मेल खानी चाहिए।` : `Split allocation sum (₹${allocatedTotal.toFixed(2)}) must exactly match the total bill payment amount (₹${totalBillAmt.toFixed(2)}).`,
+                  isHi ? "विभाजन विसंगति" : "Allocation Mismatch"
+                );
+                setIsSaving(false);
+                return;
+            }
             
             if (initialPayment) {
                  const inv = billsToPay[0];
@@ -391,29 +451,56 @@ export const PaymentScreen: React.FC<PaymentScreenProps> = ({
                     ...initialPayment,
                     amount: parseFloat(billPayments[inv.id]),
                     mode: modeName as any,
-                    modeLedgerId: selectedLedgerId,
+                    modeLedgerId: isMultiPay ? undefined : selectedLedgerId,
                     remarks: remarks,
                     invoiceId: inv.id,
                     date: date,
-                    ...(initialPayment.isSyncedToCloud !== undefined ? { isSyncedToCloud: initialPayment.isSyncedToCloud } : {})
+                    ...(initialPayment.isSyncedToCloud !== undefined ? { isSyncedToCloud: initialPayment.isSyncedToCloud } : {}),
+                    ...(isMultiPay ? {
+                      splitBreakdown: {
+                        cashAmount: cashVal,
+                        upiAmount: upiVal,
+                        cardAmount: cardVal,
+                        creditAmount: creditVal
+                      }
+                    } : {})
                  };
+
+                 // Security Lock Check
+                 await BillingService.validatePaymentSave(newPayment);
+
                  await billingService.savePayment(newPayment, true);
             } else {
                  for (const inv of billsToPay) {
+                     const billAmt = parseFloat(billPayments[inv.id]);
+                     // Calculate proportional split for this specific bill if multiple bills paid
+                     const ratio = totalBillAmt > 0 ? (billAmt / totalBillAmt) : 0;
                      const newPayment: PaymentRecord = {
                           id: `${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
                           voucherNo: `${type === 'Payment' ? 'PAY' : 'RCP'}-${Math.floor(1000 + Math.random() * 9000)}`,
                           partyId: selectedParty.id,
                           partyName: selectedParty.name,
                           date: date,
-                          amount: parseFloat(billPayments[inv.id]),
+                          amount: billAmt,
                           type: type,
                           mode: modeName as any,
-                          modeLedgerId: selectedLedgerId,
+                          modeLedgerId: isMultiPay ? undefined : selectedLedgerId,
                           remarks: remarks,
                           invoiceId: inv.id,
-                          createdAt: Date.now()
+                          createdAt: Date.now(),
+                          ...(isMultiPay ? {
+                            splitBreakdown: {
+                              cashAmount: cashVal * ratio,
+                              upiAmount: upiVal * ratio,
+                              cardAmount: cardVal * ratio,
+                              creditAmount: creditVal * ratio
+                            }
+                          } : {})
                      };
+
+                     // Security Lock Check
+                     await BillingService.validatePaymentSave(newPayment);
+
                      await billingService.savePayment(newPayment, false);
 
                      if (type !== 'Payment') {
@@ -432,12 +519,26 @@ export const PaymentScreen: React.FC<PaymentScreenProps> = ({
         }
         
         onBack();
-    } catch (e) {
+    } catch (e: any) {
         console.error(e);
-        showCustomAlert(t.errSaveFailed, "Save Failure");
+        showCustomAlert(e.message || t.errSaveFailed, "Save Failure");
     } finally {
         setIsSaving(false);
     }
+  };
+
+  const sendWhatsAppReminder = () => {
+    if (!selectedParty) return;
+    const balance = Math.abs(selectedParty.currentBalance);
+    const companyName = companyProfile?.companyName || 'Our Shop';
+    const upiId = companyProfile?.upiId || '';
+    
+    const msg = isHi
+      ? `नमस्ते ${selectedParty.name}! ${companyName} की तरफ से बकाया भुगतान अनुस्मारक। आपका कुल उधार बैलेंस ₹${balance.toFixed(2)} है। कृपया इस UPI ID पर भुगतान करें: ${upiId}. धन्यवाद!`
+      : `Namaste ${selectedParty.name}! Outstanding balance reminder from ${companyName}. Your pending balance is ₹${balance.toFixed(2)}. Please pay via UPI: ${upiId}. Thank you!`;
+      
+    const url = `https://api.whatsapp.com/send/?phone=${selectedParty.mobile.replace(/[^0-9]/g, '')}&text=${encodeURIComponent(msg)}`;
+    window.open(url, '_blank');
   };
 
   const displayBalance = selectedParty ? Math.abs(selectedParty.currentBalance).toFixed(2) : '0.00';
@@ -517,6 +618,16 @@ export const PaymentScreen: React.FC<PaymentScreenProps> = ({
                   </span>
                   <span>{balancePrefix}</span>
                 </div>
+                {selectedParty.currentBalance > 0 && selectedParty.mobile && (
+                  <button
+                    type="button"
+                    onClick={sendWhatsAppReminder}
+                    className="mt-3.5 py-2 px-4 rounded-xl bg-[#25D366] hover:bg-[#20bd5a] text-white font-extrabold text-[11px] flex items-center justify-center gap-1.5 active:scale-95 transition-all shadow-md w-full"
+                  >
+                    <MessageCircle size={13} className="stroke-[2.5px]" />
+                    <span>{isHi ? "उधार रिमाइंडर (WhatsApp)" : "WhatsApp Udhaar Reminder"}</span>
+                  </button>
+                )}
               </>
             ) : (
               <div className="py-4 text-center">
@@ -560,6 +671,21 @@ export const PaymentScreen: React.FC<PaymentScreenProps> = ({
                 }`}
               >
                 {t.byBalance}
+              </button>
+            </div>
+            
+            <div className="mt-3.5 pt-3 border-t border-[var(--border-ui)]/50 flex justify-between items-center text-xs">
+              <span className="font-extrabold text-slate-550 dark:text-slate-400 uppercase tracking-wider">Split Payment Mode</span>
+              <button
+                type="button"
+                onClick={() => setIsMultiPay(prev => !prev)}
+                className={`py-1.5 px-3.5 rounded-xl font-bold transition-all duration-200 active:scale-95 border ${
+                  isMultiPay 
+                    ? 'bg-indigo-500/10 text-indigo-650 dark:text-indigo-400 border-indigo-500/35 font-extrabold shadow-sm'
+                    : 'bg-[var(--bg-app)] text-slate-400 border-[var(--border-ui)]'
+                }`}
+              >
+                {isMultiPay ? 'ON' : 'OFF'}
               </button>
             </div>
           </div>
@@ -627,29 +753,91 @@ export const PaymentScreen: React.FC<PaymentScreenProps> = ({
               />
             </div>
 
-            {/* Payment Type Selection */}
-            <div className="space-y-1.5">
-              <label className="text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
-                <CreditCard size={13} className="text-slate-400" />
-                {t.paymentType}
-              </label>
-              <div className="relative">
-                <select 
-                  value={selectedLedgerId}
-                  onChange={(e) => setSelectedLedgerId(e.target.value)}
-                  className="w-full border border-slate-205 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40 rounded-xl py-2.5 px-3.5 pr-10 text-xs sm:text-sm text-slate-800 dark:text-slate-150 font-bold outline-none focus:border-slate-400 dark:focus:border-slate-700 transition-all appearance-none cursor-pointer shadow-3xs"
-                >
-                  {ledgers.map(l => (
-                    <option key={l.id} value={l.id} className="font-bold">{l.name}</option>
-                  ))}
-                </select>
-                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3.5 text-slate-400">
-                  <svg className="fill-current h-4.5 w-4.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                    <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
-                  </svg>
+            {/* Payment Type Selection (Hidden when Multi-Pay is active) */}
+            {!isMultiPay && (
+              <div className="space-y-1.5 animate-fadeIn">
+                <label className="text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
+                  <CreditCard size={13} className="text-slate-400" />
+                  {t.paymentType}
+                </label>
+                <div className="relative">
+                  <select 
+                    value={selectedLedgerId}
+                    onChange={(e) => setSelectedLedgerId(e.target.value)}
+                    className="w-full border border-slate-205 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40 rounded-xl py-2.5 px-3.5 pr-10 text-xs sm:text-sm text-slate-800 dark:text-slate-150 font-bold outline-none focus:border-slate-400 dark:focus:border-slate-700 transition-all appearance-none cursor-pointer shadow-3xs"
+                  >
+                    {ledgers.map(l => (
+                      <option key={l.id} value={l.id} className="font-bold">{l.name}</option>
+                    ))}
+                  </select>
+                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3.5 text-slate-400">
+                    <svg className="fill-current h-4.5 w-4.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                      <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
+                    </svg>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
+
+            {/* Split Multi-Pay Input Fields */}
+            {isMultiPay && (
+              <div className="space-y-3 p-4 bg-[var(--bg-app)] border border-[var(--border-ui)] rounded-2xl animate-fadeIn text-xs">
+                <span className="font-extrabold text-[10px] text-slate-500 uppercase tracking-widest block mb-2">Split Allocation Breakdown</span>
+                
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <label className="font-bold text-slate-500 dark:text-slate-400">💵 Cash (₹)</label>
+                    <input
+                      type="number"
+                      value={splitCash}
+                      onChange={(e) => setSplitCash(e.target.value)}
+                      placeholder="0.00"
+                      className="w-full border border-[var(--border-ui)] bg-[var(--bg-card)] rounded-xl py-2 px-3 text-xs text-[var(--text-main)] font-bold outline-none"
+                    />
+                  </div>
+                  
+                  <div className="space-y-1">
+                    <label className="font-bold text-slate-500 dark:text-slate-400">📱 UPI / QR (₹)</label>
+                    <input
+                      type="number"
+                      value={splitUpi}
+                      onChange={(e) => setSplitUpi(e.target.value)}
+                      placeholder="0.00"
+                      className="w-full border border-[var(--border-ui)] bg-[var(--bg-card)] rounded-xl py-2 px-3 text-xs text-[var(--text-main)] font-bold outline-none"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="font-bold text-slate-500 dark:text-slate-400">💳 Card / Bank (₹)</label>
+                    <input
+                      type="number"
+                      value={splitCard}
+                      onChange={(e) => setSplitCard(e.target.value)}
+                      placeholder="0.00"
+                      className="w-full border border-[var(--border-ui)] bg-[var(--bg-card)] rounded-xl py-2 px-3 text-xs text-[var(--text-main)] font-bold outline-none"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="font-bold text-slate-500 dark:text-slate-400">📑 Udhaar / Credit (₹)</label>
+                    <input
+                      type="number"
+                      value={splitCredit}
+                      onChange={(e) => setSplitCredit(e.target.value)}
+                      placeholder="0.00"
+                      className="w-full border border-[var(--border-ui)] bg-[var(--bg-card)] rounded-xl py-2 px-3 text-xs text-[var(--text-main)] font-bold outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div className="pt-2 border-t border-[var(--border-ui)]/50 flex justify-between items-center text-xs font-bold">
+                  <span className="text-slate-500">Allocated Total:</span>
+                  <span className="text-indigo-600 dark:text-indigo-400 font-extrabold">
+                    ₹{((parseFloat(splitCash) || 0) + (parseFloat(splitUpi) || 0) + (parseFloat(splitCard) || 0) + (parseFloat(splitCredit) || 0)).toFixed(2)}
+                  </span>
+                </div>
+              </div>
+            )}
 
             {/* Date Display Pill Row */}
             <div className="space-y-1.5">
@@ -657,7 +845,7 @@ export const PaymentScreen: React.FC<PaymentScreenProps> = ({
                 <Calendar size={13} className="text-slate-400" />
                 {t.dateLabel}
               </label>
-              <div className="w-full border border-slate-205 dark:border-slate-805 bg-slate-100/55 dark:bg-slate-950/20 rounded-xl py-2.5 px-3.5 text-xs sm:text-sm text-slate-550 dark:text-slate-400 font-bold outline-none flex items-center gap-2 select-none">
+              <div className="w-full border border-slate-205 dark:border-slate-855 bg-slate-100/55 dark:bg-slate-950/20 rounded-xl py-2.5 px-3.5 text-xs sm:text-sm text-slate-550 dark:text-slate-400 font-bold outline-none flex items-center gap-2 select-none">
                 <Calendar size={14} className="text-slate-400" />
                 <span>{new Intl.DateTimeFormat(isHi ? 'hi-IN' : 'en-IN', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(date))}</span>
               </div>
@@ -676,10 +864,11 @@ export const PaymentScreen: React.FC<PaymentScreenProps> = ({
                     </div>
                     <input 
                       type="number"
-                      value={amount}
+                      value={isMultiPay ? ((parseFloat(splitCash) || 0) + (parseFloat(splitUpi) || 0) + (parseFloat(splitCard) || 0) + (parseFloat(splitCredit) || 0)).toString() : amount}
                       onChange={(e) => setAmount(e.target.value)}
+                      disabled={isMultiPay}
                       placeholder={t.enterAmountPlaceholder}
-                      className="w-full border border-slate-205 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40 rounded-xl py-2.5 pl-8 pr-3.5 text-xs sm:text-sm text-[var(--text-main)] font-bold outline-none focus:border-slate-400 dark:focus:border-slate-700 transition-all shadow-3xs"
+                      className="w-full border border-slate-205 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40 rounded-xl py-2.5 pl-8 pr-3.5 text-xs sm:text-sm text-[var(--text-main)] font-bold outline-none focus:border-slate-400 dark:focus:border-slate-700 transition-all shadow-3xs disabled:opacity-75 disabled:bg-slate-100 dark:disabled:bg-slate-900/50"
                     />
                   </div>
                 </div>

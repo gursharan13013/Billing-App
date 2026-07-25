@@ -136,6 +136,13 @@ export interface Invoice {
   _fieldUpdatedAt?: Record<string, number>; // Per-field conflict resolution tracking
 }
 
+export interface PaymentSplitBreakdown {
+  cashAmount: number;
+  upiAmount: number;
+  cardAmount: number;
+  creditAmount: number;
+}
+
 export interface PaymentRecord {
   id: string;
   voucherNo: string;
@@ -144,7 +151,7 @@ export interface PaymentRecord {
   date: string; // YYYY-MM-DD
   amount: number;
   type: 'Payment' | 'Receipt';
-  mode: 'Cash' | 'Bank' | 'Online' | string;
+  mode: 'Cash' | 'Bank' | 'Online' | 'Split' | string;
   modeLedgerId?: string;
   remarks?: string;
   invoiceId?: string; // Link payment to specific invoice
@@ -154,6 +161,7 @@ export interface PaymentRecord {
   updatedAt?: number;  // Added for multi-device sync
   isDeleted?: boolean; // Added for soft deletes
   _fieldUpdatedAt?: Record<string, number>; // Per-field conflict resolution tracking
+  splitBreakdown?: PaymentSplitBreakdown;
 }
 
 export interface JournalRow {
