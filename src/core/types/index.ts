@@ -227,6 +227,7 @@ export interface ManufacturingEntry {
 
 export type InvoiceStatus = 'draft' | 'saved' | 'loading' | 'error';
 export type TransactionType = 'Sale' | 'Purchase' | 'Sale Return' | 'Purchase Return' | 'Payment' | 'Receipt' | 'Sale Order' | 'Purchase Order' | 'Contra' | 'Journal';
+export type LanguagePreference = 'system' | 'en' | 'hi';
 export type Language = 'en' | 'hi';
 export type Theme = 'light' | 'dark';
 

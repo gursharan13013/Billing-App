@@ -45,7 +45,8 @@ import { BroadcastChatScreen } from './features/crm/screens/BroadcastChatScreen'
 import { HelpLegalScreen } from './features/admin/screens/HelpLegalScreen';
 import { SplashScreen } from './features/auth/screens/SplashScreen';
 import { LanguageScreen } from './features/auth/screens/LanguageScreen';
-import { TransactionType, Party, Language, Item } from './core/types';
+import { TransactionType, Party, Language, LanguagePreference, Item } from './core/types';
+import { resolveLanguage, subscribeToSystemLanguageChange } from './core/utils/language';
 import { Zap, Home, LayoutGrid, FileBarChart } from 'lucide-react'; // Icon for Splash
 import { billingService, BroadcastGroup } from './services/billingService';
 import { LockScreen } from './features/auth/screens/LockScreen'; // Import LockScreen
@@ -125,13 +126,30 @@ export const AppContent = () => {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'master' | 'report'>(() => {
       return (safeSessionStorage.getItem('activeTab') as 'dashboard' | 'master' | 'report') || 'dashboard';
   });
-  const [language, setLanguage] = useState<Language>(() => {
-      return (safeLocalStorage.getItem('appLanguage') as Language) || 'en';
+  const [languagePreference, setLanguagePreference] = useState<LanguagePreference>(() => {
+      return (safeLocalStorage.getItem('appLanguagePreference') as LanguagePreference) || 
+             (safeLocalStorage.getItem('appLanguage') as LanguagePreference) || 
+             'system';
   });
-  
+
+  const language: Language = resolveLanguage(languagePreference);
+
+  const setLanguage = (pref: LanguagePreference | Language) => {
+    const newPref = (pref as LanguagePreference) || 'system';
+    setLanguagePreference(newPref);
+    safeLocalStorage.setItem('appLanguagePreference', newPref);
+    safeLocalStorage.setItem('appLanguage', resolveLanguage(newPref));
+  };
+
   useEffect(() => {
-      safeLocalStorage.setItem('appLanguage', language);
-  }, [language]);
+    const unsubscribe = subscribeToSystemLanguageChange(() => {
+      if (languagePreference === 'system') {
+        // Trigger state re-evaluation
+        setLanguagePreference('system');
+      }
+    });
+    return unsubscribe;
+  }, [languagePreference]);
 
   const [theme, setTheme] = useState<Theme>(() => {
     return (safeLocalStorage.getItem('appTheme') as Theme) || 'system';

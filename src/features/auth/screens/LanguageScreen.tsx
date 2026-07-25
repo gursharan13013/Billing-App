@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Languages, ChevronRight, ShieldCheck, Sun, Moon } from 'lucide-react';
-import { Language } from '../../../core/types/';
+import { Languages, ChevronRight, ShieldCheck, Sun, Moon, Laptop } from 'lucide-react';
+import { LanguagePreference } from '../../../core/types/';
+import { resolveLanguage, getSystemLanguage } from '../../../core/utils/language';
 import { Theme } from '../../../App';
 import { safeLocalStorage, safeSessionStorage } from '../../../core/utils/storage';
 
 interface LanguageScreenProps {
-  onSelect: (lang: Language) => void;
-  currentLanguage?: Language;
+  onSelect: (lang: LanguagePreference) => void;
+  currentLanguage?: LanguagePreference;
   currentTheme?: Theme;
   onThemeChange?: (theme: Theme) => void;
 }
@@ -18,8 +19,8 @@ export const LanguageScreen: React.FC<LanguageScreenProps> = ({
   onThemeChange 
 }) => {
   // Internal state using safe storage helpers
-  const [selected, setSelected] = useState<Language>(() => {
-    return (currentLanguage || (safeLocalStorage.getItem('appLanguage') as Language) || 'en');
+  const [selected, setSelected] = useState<LanguagePreference>(() => {
+    return (currentLanguage || (safeLocalStorage.getItem('appLanguagePreference') as LanguagePreference) || 'system');
   });
 
   // Calculate active dark state based on system or explicit theme props
@@ -60,7 +61,8 @@ export const LanguageScreen: React.FC<LanguageScreenProps> = ({
 
   const handleProceed = () => {
     console.log("Language proceed trigger with:", selected);
-    safeLocalStorage.setItem('appLanguage', selected);
+    safeLocalStorage.setItem('appLanguagePreference', selected);
+    safeLocalStorage.setItem('appLanguage', resolveLanguage(selected));
     safeSessionStorage.setItem('language_selected', 'true');
     try {
       onSelect(selected);
@@ -69,7 +71,8 @@ export const LanguageScreen: React.FC<LanguageScreenProps> = ({
     }
   };
 
-  const isHi = selected === 'hi';
+  const resolvedLang = resolveLanguage(selected);
+  const isHi = resolvedLang === 'hi';
 
   // Theme variable configurations synced exactly with the premium SplashScreen layout
   const canvasStyle = {
@@ -96,6 +99,14 @@ export const LanguageScreen: React.FC<LanguageScreenProps> = ({
     backgroundColor: 'var(--brand-light)',
     borderColor: 'var(--border-ui)',
     color: isDark ? '#818cf8' : 'var(--brand-primary)'
+  };
+
+  const optionSystemStyle = {
+    backgroundColor: selected === 'system' 
+      ? 'var(--brand-light)' 
+      : 'var(--bg-card)',
+    borderColor: selected === 'system' ? 'var(--brand-primary)' : 'var(--border-ui)',
+    color: 'var(--text-main)'
   };
 
   const optionEnStyle = {
@@ -219,6 +230,36 @@ export const LanguageScreen: React.FC<LanguageScreenProps> = ({
               </p>
 
               <div className="grid grid-cols-1 gap-3">
+                {/* System Auto-Detect Option */}
+                <button
+                  id="lang-system-btn"
+                  type="button"
+                  onClick={() => setSelected('system')}
+                  style={optionSystemStyle}
+                  className={`p-4 rounded-2xl text-left border transition-all duration-300 flex items-center justify-between cursor-pointer focus:outline-none min-h-[44px] ${
+                    selected === 'system' ? 'font-bold scale-[1.01] shadow-xs' : 'hover:scale-[1.005]'
+                  }`}
+                >
+                  <div className="space-y-0.5">
+                    <div className="flex items-center gap-2">
+                      <Laptop size={16} className="text-indigo-600 dark:text-indigo-400" />
+                      <span className="text-sm font-black block">System Default (Auto-detect)</span>
+                    </div>
+                    <span 
+                      className="text-[10px] font-semibold block transition-colors duration-300"
+                      style={{ color: selected === 'system' ? '#6366F1' : (isDark ? '#64748B' : '#64748B') }}
+                    >
+                      Device Locale: {getSystemLanguage() === 'hi' ? 'Hindi (हिंदी)' : 'English'}
+                    </span>
+                  </div>
+                  <div 
+                    className="w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all shrink-0"
+                    style={{ borderColor: selected === 'system' ? '#6366F1' : '#94A3B8' }}
+                  >
+                    {selected === 'system' && <div className="w-2.5 h-2.5 rounded-full bg-white" style={{ backgroundColor: '#6366F1' }} />}
+                  </div>
+                </button>
+
                 {/* English Option */}
                 <button
                   id="lang-en-btn"

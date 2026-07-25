@@ -12,6 +12,7 @@ import { PermissionWrapper } from '../../../components/shared/PermissionWrapper'
 import { sqliteService } from '../../../services/sqliteService';
 import { PartySearch } from '../../../components/shared/PartySearch';
 import { shareInvoiceWithClient, sharePaymentWithClient } from '../../../services/firebaseService';
+import { UpiQrModal } from '../../../components/shared/UpiQrModal';
 import { Html5Qrcode } from 'html5-qrcode';
 import { Camera } from '@capacitor/camera';
 import { Capacitor } from '@capacitor/core';
@@ -66,6 +67,11 @@ export const InvoiceScreen: React.FC<InvoiceScreenProps> = ({
   // --- Form State ---
   const [saleNo, setSaleNo] = useState('...');
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
+
+  // --- Express Checkout State ---
+  const [expressCheckout, setExpressCheckout] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showUpiModal, setShowUpiModal] = useState(false);
 
   // --- Persistent Settings State ---
   const [saleSettings, setSaleSettings] = useState<any>(null);
@@ -131,6 +137,21 @@ export const InvoiceScreen: React.FC<InvoiceScreenProps> = ({
     };
     fetchItems();
   }, [selectedParty, transactionType, invoiceId]);
+
+  // --- Keyboard Shortcuts (F1: Toggle Express Checkout, F2: Save/Checkout) ---
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'F1') {
+        e.preventDefault();
+        setExpressCheckout(prev => !prev);
+      } else if (e.key === 'F2') {
+        e.preventDefault();
+        handleSave(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [items, selectedParty, today, transactionType, invoiceId, isSaving, isOnlineImported, itemSettings]);
 
   // --- Load Data for Edit Mode / Next Voucher No ---
   useEffect(() => {
@@ -772,6 +793,33 @@ export const InvoiceScreen: React.FC<InvoiceScreenProps> = ({
       if (editingItemId === id) cancelEdit();
   };
 
+  const addSingleItemDirectly = (item: Item) => {
+    setItems(prev => {
+      const existingIndex = prev.findIndex(row => row.item.id === item.id);
+      if (existingIndex !== -1) {
+        const newItems = [...prev];
+        newItems[existingIndex] = {
+          ...newItems[existingIndex],
+          qty: newItems[existingIndex].qty + 1
+        };
+        return newItems;
+      } else {
+        const newItem: InvoiceItem = {
+          id: Math.random().toString(36).substring(2, 9),
+          item: item,
+          qty: 1,
+          rate: item.saleRate || 0,
+          mrp: item.mrp || item.saleRate || 0,
+          taxType: (item.taxType as any) || 'Excluded',
+          taxPercent: item.taxPercent || 0,
+          purchaseRate: item.purchaseRate || 0,
+          discountPercent: 0
+        };
+        return [...prev, newItem];
+      }
+    });
+  };
+
   // --- Payment Handling (Quick Add inside Invoice) ---
   const handleAddPayment = async () => {
       if(!newPaymentAmount || !selectedParty || !invoiceId) return;
@@ -1165,6 +1213,14 @@ export const InvoiceScreen: React.FC<InvoiceScreenProps> = ({
           </div>
         </div>
         <div className="flex gap-4 items-center">
+          <button 
+            onClick={() => setExpressCheckout(prev => !prev)} 
+            className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors flex items-center gap-1.5 border border-white/20 ${expressCheckout ? 'bg-white text-indigo-755 font-bold shadow' : 'bg-transparent text-white hover:bg-white/10'}`}
+          >
+            <Receipt size={14} />
+            {expressCheckout ? 'Normal View' : 'Express View (F1)'}
+          </button>
+
           <button onClick={copyDeepLink} className="hover:bg-white/10 rounded-full p-1 transition-colors" title="Copy Deep Link">
              <Copy size={20} className="opacity-90" />
           </button>
@@ -1213,7 +1269,125 @@ export const InvoiceScreen: React.FC<InvoiceScreenProps> = ({
 
       {/* Scrollable Content */}
       <div className="flex-1 overflow-y-auto pb-44 bg-[var(--bg-app)] dark:bg-[var(--bg-app)] text-[var(--text-main)] transition-colors">
-        <div className="p-3 space-y-4 max-w-4xl mx-auto">
+        {expressCheckout ? (
+          <div className="h-full flex flex-col md:flex-row p-3 gap-4 max-w-7xl mx-auto">
+            {/* Left Column: Instant Item Grid & Search */}
+            <div className="flex-1 flex flex-col bg-[var(--bg-card)] border border-[var(--border-ui)]/60 rounded-xl p-4 shadow-sm min-h-[400px]">
+              <div className="mb-4">
+                <input
+                  type="text"
+                  placeholder="Search item by name or barcode..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full h-11 px-3 border border-[var(--border-ui)] rounded-lg text-sm bg-[var(--bg-app)] font-semibold text-[var(--text-main)] focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all placeholder:text-slate-400"
+                />
+              </div>
+              <div className="flex-1 overflow-y-auto grid grid-cols-2 sm:grid-cols-3 gap-3 pr-1 max-h-[50vh] md:max-h-[65vh]">
+                {allItemsRef.current
+                  .filter(item => 
+                    item.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                    (item.code && item.code.includes(searchQuery))
+                  )
+                  .map(item => (
+                    <button
+                      key={item.id}
+                      onClick={() => addSingleItemDirectly(item)}
+                      className="p-3 border border-[var(--border-ui)] hover:border-indigo-500 rounded-xl bg-[var(--bg-card)] flex flex-col justify-between text-left active:scale-[0.98] transition-all hover:shadow-md group h-24"
+                    >
+                      <span className="font-bold text-sm text-[var(--text-main)] line-clamp-2 leading-tight group-hover:text-indigo-600 dark:group-hover:text-indigo-400">{item.name}</span>
+                      <div className="flex justify-between items-end mt-2 w-full">
+                        <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">Rate: ₹{item.saleRate || 0}</span>
+                        <span className="text-sm font-extrabold text-indigo-600 dark:text-indigo-400">₹{item.saleRate || 0}</span>
+                      </div>
+                    </button>
+                  ))}
+              </div>
+            </div>
+
+            {/* Right Column: Active Cart / Bill Summary */}
+            <div className="w-full md:w-[380px] flex flex-col bg-[var(--bg-card)] border border-[var(--border-ui)]/60 rounded-xl p-4 shadow-sm h-fit">
+              <h3 className="font-bold text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3">Cart / Bill Details</h3>
+              
+              {/* Selected Customer */}
+              <div className="mb-4">
+                <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-wider">CUSTOMER</label>
+                {selectedParty ? (
+                  <div className="flex justify-between items-center p-2.5 border border-indigo-500/30 bg-indigo-50/50 dark:bg-indigo-950/30 rounded-lg text-sm">
+                    <span className="font-extrabold text-indigo-700 dark:text-indigo-300">{selectedParty.name}</span>
+                    <button onClick={() => setSelectedParty(null)} className="text-xs text-red-500 font-bold hover:underline">Change</button>
+                  </div>
+                ) : (
+                  <PartySearch 
+                    language={language} 
+                    type={transactionType.includes('Purchase') ? 'Supplier' : 'Customer'}
+                    onSelect={setSelectedParty} 
+                  />
+                )}
+              </div>
+
+              {/* Items List inside Cart */}
+              <div className="flex-1 overflow-y-auto max-h-[30vh] border border-[var(--border-ui)] rounded-lg p-2 mb-4 space-y-2 bg-[var(--bg-app)]">
+                {items.length === 0 ? (
+                  <div className="text-center py-8 text-xs text-slate-400 italic">No items added yet. Click items on left to add.</div>
+                ) : (
+                  items.map(row => (
+                    <div key={row.id} className="flex justify-between items-center text-xs p-2 border-b border-[var(--border-ui)]/50 last:border-b-0">
+                      <div className="min-w-0 flex-1 pr-2">
+                        <div className="font-bold text-[var(--text-main)] truncate">{row.item.name}</div>
+                        <div className="text-slate-500 dark:text-slate-400">{row.qty} x ₹{row.rate}</div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-extrabold text-[var(--text-main)]">₹{(row.qty * row.rate).toFixed(2)}</span>
+                        <button onClick={() => removeItem(row.id)} className="p-1 text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40 rounded transition-colors"><Trash2 size={14} /></button>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+
+              {/* Totals & Checkout Button */}
+              <div className="border-t border-[var(--border-ui)] pt-3 space-y-3">
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-slate-500 dark:text-slate-400 font-semibold">Subtotal</span>
+                  <span className="font-bold text-[var(--text-main)]">
+                    ₹{items.reduce((sum, item) => sum + calculateItemTotal(item.qty, item.rate, item.taxPercent, item.taxType, item.discountPercent), 0).toFixed(2)}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center text-base font-extrabold text-[var(--text-main)] border-t border-dashed border-[var(--border-ui)] pt-2">
+                  <span>Grand Total</span>
+                  <span className="text-indigo-600 dark:text-indigo-400">
+                    ₹{(items.reduce((sum, item) => sum + calculateItemTotal(item.qty, item.rate, item.taxPercent, item.taxType, item.discountPercent), 0) - billDiscountAmount + additionalChargesAmount).toFixed(2)}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 pt-2">
+                  {companyProfile?.upiId && (
+                    <button
+                      onClick={() => setShowUpiModal(true)}
+                      className="py-2.5 px-4 rounded-xl font-bold border border-indigo-600 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50/50 dark:hover:bg-indigo-950/40 text-xs transition-all active:scale-[0.98]"
+                    >
+                      Show UPI QR
+                    </button>
+                  )}
+                  <button
+                    onClick={() => handleSave(true)}
+                    className="py-2.5 px-4 rounded-xl font-bold bg-[#25D366] text-white hover:bg-[#20bd5a] text-xs flex items-center justify-center gap-1.5 transition-all active:scale-[0.98] shadow-sm"
+                  >
+                    <MessageCircle size={14} /> WhatsApp
+                  </button>
+                  <button
+                    onClick={() => handleSave(false)}
+                    className={`py-3 px-4 rounded-xl font-bold text-white text-sm transition-all active:scale-[0.98] ${companyProfile?.upiId ? 'col-span-2 bg-indigo-600 hover:bg-indigo-700 shadow-md' : 'col-span-1 bg-indigo-600 hover:bg-indigo-700 shadow-md'}`}
+                  >
+                    Checkout & Save (F2)
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <React.Fragment>
+            <div className="p-3 space-y-4 max-w-4xl mx-auto">
 
           {/* Card 1: General Info & Party / Customer Selection */}
           <div className="bg-[var(--bg-card)] border border-[var(--border-ui)]/60 rounded-xl p-4 shadow-sm relative transition-all">
@@ -1643,10 +1817,13 @@ export const InvoiceScreen: React.FC<InvoiceScreenProps> = ({
             </div>
         )}
       </div>
+          </React.Fragment>
+        )}
     </div>
 
       {/* Footer Actions */}
-      <div className="fixed bottom-0 left-0 right-0 bg-[var(--bg-card)] border-t border-[var(--border-ui)] shadow-[0_-2px_10px_rgba(0,0,0,0.1)] dark:shadow-[0_-2px_10px_rgba(0,0,0,0.5)] z-30 transition-colors">
+      {!expressCheckout && (
+        <div className="fixed bottom-0 left-0 right-0 bg-[var(--bg-card)] border-t border-[var(--border-ui)] shadow-[0_-2px_10px_rgba(0,0,0,0.1)] dark:shadow-[0_-2px_10px_rgba(0,0,0,0.5)] z-30 transition-colors">
         
         {/* Discount & Charges Inputs (if enabled in settings) */}
         {((activeSettings?.billDiscount) || (activeSettings?.additionalCharges)) && (
@@ -1720,6 +1897,7 @@ export const InvoiceScreen: React.FC<InvoiceScreenProps> = ({
         </div>
         )}
       </div>
+      )}
 
       {/* Add Payment Modal */}
       {showPaymentModal && (
@@ -1889,6 +2067,15 @@ export const InvoiceScreen: React.FC<InvoiceScreenProps> = ({
                 </div>
             </div>
         </div>
+      )}
+
+      {showUpiModal && (
+        <UpiQrModal
+          upiId={companyProfile?.upiId || ''}
+          amount={items.reduce((sum, item) => sum + calculateItemTotal(item.qty, item.rate, item.taxPercent, item.taxType, item.discountPercent), 0) - billDiscountAmount + additionalChargesAmount}
+          businessName={companyProfile?.companyName || 'Eazy Billing'}
+          onClose={() => setShowUpiModal(false)}
+        />
       )}
     </div>
   );

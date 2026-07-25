@@ -339,6 +339,25 @@ const BillingServiceBase = {
       }
       throw err;
     }
+  },
+
+  generateUpiUri: (vpa: string, companyName: string, amount: number, refNo: string): string => {
+    if (!vpa || !vpa.includes('@')) {
+      throw new Error('Invalid UPI VPA ID');
+    }
+    const cleanName = companyName.trim();
+    return `upi://pay?pa=${encodeURIComponent(vpa)}&pn=${encodeURIComponent(cleanName)}&am=${amount.toFixed(2)}&tr=${encodeURIComponent(refNo)}&cu=INR`;
+  },
+
+  formatWhatsAppInvoiceMessage: (invoice: any, company: any): string => {
+    const totalAmount = invoice.grandTotal || invoice.total || 0;
+    const invoiceNo = invoice.invoiceNo || invoice.saleNo || 'N/A';
+    const companyName = company?.companyName || 'Our Shop';
+    return `Hello! Your bill from *${companyName}* is ready.
+*Invoice No:* ${invoiceNo}
+*Amount Due:* ₹${totalAmount.toFixed(2)}
+
+Thank you for shopping with us!`;
   }
 };
 
@@ -367,4 +386,6 @@ export const BillingService = new Proxy(BillingServiceBase, {
   getStaffSalesToday: (staffId: string, businessId: string) => Promise<{ totalSales: number; invoiceCount: number; averageValue: number }>;
   getRecentStaffAuditLogs: (staffId: string, businessId: string, limitCount?: number) => Promise<any[]>;
   updateStaffPermissions: (staffId: string, businessId: string, permissions: any) => Promise<void>;
+  generateUpiUri: (vpa: string, companyName: string, amount: number, refNo: string) => string;
+  formatWhatsAppInvoiceMessage: (invoice: any, company: any) => string;
 };

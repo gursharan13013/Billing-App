@@ -7,7 +7,8 @@ import {
   ChevronDown, ChevronUp, HardDrive, Info, ExternalLink, Sparkles, Cloud, Laptop, Activity, Lock, Users, ShieldAlert, Crown, Heart
 } from 'lucide-react';
 import { StaffManagement } from './StaffManagement';
-import { Language, VoucherSettings, APP_VERSION, BUILD_DATE, AppSettings } from '../../../core/types/';
+import { Language, LanguagePreference, VoucherSettings, APP_VERSION, BUILD_DATE, AppSettings } from '../../../core/types/';
+import { getSystemLanguage } from '../../../core/utils/language';
 import { Theme } from '../../../App';
 import { billingService } from '../../../services/billingService';
 import { auth, signInWithGoogle, signInWithEmail, signUpWithEmail, resetPasswordEmail } from '../../../services/firebaseService';
@@ -83,7 +84,7 @@ interface SettingsScreenProps {
   onBack: () => void;
   onNavigate: (screen: string) => void;
   currentLanguage: Language;
-  onLanguageChange: (lang: Language) => void;
+  onLanguageChange: (lang: LanguagePreference | Language) => void;
   currentTheme: Theme;
   onThemeChange: (theme: Theme) => void;
 }
@@ -1284,14 +1285,27 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                     </span>
                   </div>
                   <button 
+                    onClick={() => onLanguageChange('system')} 
+                    className="w-full flex justify-between items-center p-3.5 hover:bg-indigo-50/30 dark:hover:bg-slate-800/30 transition border-b border-[var(--border-ui)] cursor-pointer text-left"
+                  >
+                    <div className="flex flex-col">
+                      <div className="flex items-center gap-1.5">
+                        <Laptop size={14} className="text-indigo-600 dark:text-indigo-400" />
+                        <span className="text-sm font-bold text-slate-800 dark:text-slate-200">System Default (Auto-detect)</span>
+                      </div>
+                      <span className="text-[10px] text-slate-400 font-semibold">Device Locale: {getSystemLanguage() === 'hi' ? 'Hindi (हिंदी)' : 'English'}</span>
+                    </div>
+                    {(localStorage.getItem('appLanguagePreference') || 'system') === 'system' && <Check size={18} className="text-indigo-600 dark:text-indigo-400" />}
+                  </button>
+                  <button 
                     onClick={() => onLanguageChange('en')} 
                     className="w-full flex justify-between items-center p-3.5 hover:bg-indigo-50/30 dark:hover:bg-slate-800/30 transition border-b border-[var(--border-ui)] cursor-pointer text-left"
                   >
                     <div className="flex flex-col">
                       <span className="text-sm font-bold text-slate-800 dark:text-slate-200">English</span>
-                      <span className="text-[10px] text-slate-400">Default Locale</span>
+                      <span className="text-[10px] text-slate-400">Roman Layout</span>
                     </div>
-                    {currentLanguage === 'en' && <Check size={18} className="text-indigo-600 dark:text-indigo-400" />}
+                    {localStorage.getItem('appLanguagePreference') === 'en' && <Check size={18} className="text-indigo-600 dark:text-indigo-400" />}
                   </button>
                   <button 
                     onClick={() => onLanguageChange('hi')} 
@@ -1299,9 +1313,9 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                   >
                     <div className="flex flex-col">
                       <span className="text-sm font-bold text-slate-800 dark:text-slate-200">हिंदी</span>
-                      <span className="text-[10px] text-slate-400">Hindi Locale</span>
+                      <span className="text-[10px] text-slate-400">Devanagari Layout</span>
                     </div>
-                    {currentLanguage === 'hi' && <Check size={18} className="text-indigo-600 dark:text-indigo-400" />}
+                    {localStorage.getItem('appLanguagePreference') === 'hi' && <Check size={18} className="text-indigo-600 dark:text-indigo-400" />}
                   </button>
                 </div>
 
