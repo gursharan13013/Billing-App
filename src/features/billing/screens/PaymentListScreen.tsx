@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import { PaymentRecord } from '../../../core/types/';
 import { billingService } from '../../../services/billingService';
+import { BillingService } from '../../../services/SecureBillingService';
 import { SwipeableRow } from '../../../components/layout/SwipeableRow';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -114,9 +115,16 @@ export const PaymentListScreen: React.FC<PaymentListScreenProps> = ({
 
   const confirmDelete = async () => {
       if (deleteId) {
-          await billingService.deletePayment(deleteId);
-          setDeleteId(null);
-          loadPayments();
+          try {
+              await BillingService.validatePaymentDelete(deleteId);
+              await billingService.deletePayment(deleteId);
+              setDeleteId(null);
+              loadPayments();
+          } catch (e: any) {
+              console.error(e);
+              alert(e.message || "Security Lock: Deletion not authorized.");
+              setDeleteId(null);
+          }
       }
   };
 
