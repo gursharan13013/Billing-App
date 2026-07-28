@@ -150,6 +150,7 @@ export const PaymentScreen: React.FC<PaymentScreenProps> = ({
   const [splitCard, setSplitCard] = useState('');
   const [splitCredit, setSplitCredit] = useState('');
   const [showUpiModal, setShowUpiModal] = useState(false);
+  const [showAdvanced, setShowAdvanced] = useState(false);
 
   // Scanner State
   const [isScanning, setIsScanning] = useState(false);
@@ -740,46 +741,55 @@ export const PaymentScreen: React.FC<PaymentScreenProps> = ({
               </div>
             </div>
 
-            {/* Select Party Bank Input */}
-            <div className="space-y-1.5">
+            {/* Payment Type Selection (Quick Chips) */}
+            <div className="space-y-2">
               <label className="text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
-                <Landmark size={13} className="text-slate-400" />
-                {t.partyBankDetails}
+                <CreditCard size={13} className="text-slate-400" />
+                {t.paymentType}
               </label>
-              <input 
-                type="text"
-                value={partyBank}
-                onChange={(e) => setPartyBank(e.target.value)}
-                placeholder={t.bankDetailsPlaceholder}
-                className="w-full border border-slate-205 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40 rounded-xl py-2.5 px-3.5 text-xs sm:text-sm text-slate-800 dark:text-slate-150 font-bold outline-none focus:border-slate-400 dark:focus:border-slate-700 transition-all shadow-3xs hover:bg-slate-50 dark:hover:bg-slate-950/80"
-              />
-            </div>
-
-            {/* Payment Type Selection (Hidden when Multi-Pay is active) */}
-            {!isMultiPay && (
-              <div className="space-y-1.5 animate-fadeIn">
-                <label className="text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
-                  <CreditCard size={13} className="text-slate-400" />
-                  {t.paymentType}
-                </label>
-                <div className="relative">
-                  <select 
-                    value={selectedLedgerId}
-                    onChange={(e) => setSelectedLedgerId(e.target.value)}
-                    className="w-full border border-slate-205 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40 rounded-xl py-2.5 px-3.5 pr-10 text-xs sm:text-sm text-slate-800 dark:text-slate-150 font-bold outline-none focus:border-slate-400 dark:focus:border-slate-700 transition-all appearance-none cursor-pointer shadow-3xs"
-                  >
-                    {ledgers.map(l => (
-                      <option key={l.id} value={l.id} className="font-bold">{l.name}</option>
-                    ))}
-                  </select>
-                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3.5 text-slate-400">
-                    <svg className="fill-current h-4.5 w-4.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                      <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
-                    </svg>
-                  </div>
-                </div>
+              <div className="flex gap-2 flex-wrap">
+                {ledgers.map(l => {
+                  const isSelected = !isMultiPay && selectedLedgerId === l.id;
+                  const isCash = l.name.toLowerCase().includes('cash') || l.accountGroup === 'Cash In Hand';
+                  const isBank = l.name.toLowerCase().includes('bank') || l.accountGroup === 'Bank Account';
+                  let icon = '💵';
+                  if (isBank) icon = '💳';
+                  
+                  return (
+                    <button
+                      key={l.id}
+                      type="button"
+                      onClick={() => {
+                        setIsMultiPay(false);
+                        setSelectedLedgerId(l.id);
+                      }}
+                      className={`py-2 px-4 rounded-full border text-xs font-bold transition-all duration-200 active:scale-95 flex items-center gap-1.5 cursor-pointer shadow-3xs ${
+                        isSelected 
+                          ? 'bg-indigo-500/10 text-indigo-650 dark:text-indigo-400 border-indigo-500/35 font-extrabold shadow-sm'
+                          : 'bg-slate-50 dark:bg-slate-900 border-slate-205 dark:border-slate-800 text-slate-500'
+                      }`}
+                    >
+                      <span>{icon}</span>
+                      <span>{l.name}</span>
+                    </button>
+                  );
+                })}
+                
+                {/* Split Multi-Pay Mode Chip */}
+                <button
+                  type="button"
+                  onClick={() => setIsMultiPay(true)}
+                  className={`py-2 px-4 rounded-full border text-xs font-bold transition-all duration-200 active:scale-95 flex items-center gap-1.5 cursor-pointer shadow-3xs ${
+                    isMultiPay 
+                      ? 'bg-indigo-500/10 text-indigo-650 dark:text-indigo-400 border-indigo-500/35 font-extrabold shadow-sm'
+                      : 'bg-slate-50 dark:bg-slate-900 border-slate-205 dark:border-slate-800 text-slate-500'
+                  }`}
+                >
+                  <span>📑</span>
+                  <span>{isHi ? 'विभाजित भुगतान (Split)' : 'Split Pay'}</span>
+                </button>
               </div>
-            )}
+            </div>
 
             {/* Split Multi-Pay Input Fields */}
             {isMultiPay && (
@@ -840,18 +850,6 @@ export const PaymentScreen: React.FC<PaymentScreenProps> = ({
                 </div>
               </div>
             )}
-
-            {/* Date Display Pill Row */}
-            <div className="space-y-1.5">
-              <label className="text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
-                <Calendar size={13} className="text-slate-400" />
-                {t.dateLabel}
-              </label>
-              <div className="w-full border border-slate-205 dark:border-slate-855 bg-slate-100/55 dark:bg-slate-950/20 rounded-xl py-2.5 px-3.5 text-xs sm:text-sm text-slate-550 dark:text-slate-400 font-bold outline-none flex items-center gap-2 select-none">
-                <Calendar size={14} className="text-slate-400" />
-                <span>{new Intl.DateTimeFormat(isHi ? 'hi-IN' : 'en-IN', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(date))}</span>
-              </div>
-            </div>
 
             {/* Amount / Unpaid Bills Conditional Grid Block */}
             {entryType === 'By Balance' ? (
@@ -926,19 +924,62 @@ export const PaymentScreen: React.FC<PaymentScreenProps> = ({
                 </div>
             )}
 
-            {/* Remarks / Narration */}
-            <div className="space-y-1.5">
-              <label className="text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
-                <AlignLeft size={13} className="text-slate-400" />
-                {t.narration}
-              </label>
-              <input 
-                type="text"
-                value={remarks}
-                onChange={(e) => setRemarks(e.target.value)}
-                placeholder={t.remarksPlaceholder}
-                className="w-full border border-slate-205 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40 rounded-xl py-2.5 px-3.5 text-xs sm:text-sm text-slate-800 dark:text-slate-150 font-bold outline-none focus:border-slate-400 dark:focus:border-slate-700 transition-all shadow-3xs hover:bg-slate-50 dark:hover:bg-slate-950/80"
-              />
+            {/* Collapsible Advanced Settings */}
+            <div className="pt-3.5 border-t border-[var(--border-ui)]/60">
+              <button
+                type="button"
+                onClick={() => setShowAdvanced(prev => !prev)}
+                className="w-full flex items-center justify-between text-[11px] font-black text-slate-500 dark:text-slate-400 tracking-wider uppercase hover:text-indigo-650 dark:hover:text-indigo-400 transition-colors"
+              >
+                <span>{isHi ? 'अतिरिक्त विवरण (Advanced Details)' : 'Advanced Details'}</span>
+                <span className="text-xs">{showAdvanced ? '▲' : '▼'}</span>
+              </button>
+
+              {showAdvanced && (
+                <div className="mt-3.5 space-y-4 animate-slideDown">
+                  {/* Select Party Bank Input */}
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
+                      <Landmark size={13} className="text-slate-400" />
+                      {t.partyBankDetails}
+                    </label>
+                    <input 
+                      type="text"
+                      value={partyBank}
+                      onChange={(e) => setPartyBank(e.target.value)}
+                      placeholder={t.bankDetailsPlaceholder}
+                      className="w-full border border-slate-205 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40 rounded-xl py-2.5 px-3.5 text-xs sm:text-sm text-slate-800 dark:text-slate-150 font-bold outline-none focus:border-slate-400 dark:focus:border-slate-700 transition-all shadow-3xs hover:bg-slate-50 dark:hover:bg-slate-950/80"
+                    />
+                  </div>
+
+                  {/* Date Display Pill Row */}
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
+                      <Calendar size={13} className="text-slate-400" />
+                      {t.dateLabel}
+                    </label>
+                    <div className="w-full border border-slate-205 dark:border-slate-855 bg-slate-105/55 dark:bg-slate-950/20 rounded-xl py-2.5 px-3.5 text-xs sm:text-sm text-slate-550 dark:text-slate-400 font-bold outline-none flex items-center gap-2 select-none">
+                      <Calendar size={14} className="text-slate-400" />
+                      <span>{new Intl.DateTimeFormat(isHi ? 'hi-IN' : 'en-IN', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(date))}</span>
+                    </div>
+                  </div>
+
+                  {/* Remarks / Narration */}
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
+                      <AlignLeft size={13} className="text-slate-400" />
+                      {t.narration}
+                    </label>
+                    <input 
+                      type="text"
+                      value={remarks}
+                      onChange={(e) => setRemarks(e.target.value)}
+                      placeholder={t.remarksPlaceholder}
+                      className="w-full border border-slate-205 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40 rounded-xl py-2.5 px-3.5 text-xs sm:text-sm text-slate-800 dark:text-slate-150 font-bold outline-none focus:border-slate-400 dark:focus:border-slate-700 transition-all shadow-3xs hover:bg-slate-50 dark:hover:bg-slate-950/80"
+                    />
+                  </div>
+                </div>
+              )}
             </div>
         </motion.div>
       </div>
