@@ -608,19 +608,11 @@ export const AppContent = () => {
       case 'dashboard':
         return <DashboardScreen 
           onNavigate={(type, party, prefilledItems) => {
-              // AI / Scanner Logic: If specific party or items are provided, go straight to Invoice Entry
-              if (party || (prefilledItems && prefilledItems.length > 0)) {
+              // Direct Entry Logic: Go straight to Invoice/Payment Entry Screen
+              if (['Sale', 'Purchase', 'Sale Return', 'Purchase Return', 'Sale Order', 'Purchase Order'].includes(type)) {
                   navigateTo('invoice', { type: type as any, party, items: prefilledItems });
-                  return;
-              }
-
-              // Menu Logic: Redirect Sale/Purchase to REPORT (List) first
-              if (['Sale', 'Purchase', 'Sale Return', 'Purchase Return'].includes(type)) {
-                  navigateTo('businessReport', { tab: type as any });
               } else if (['Payment', 'Receipt'].includes(type)) {
-                  navigateTo('paymentList', { type: type as any });
-              } else if (['Sale Order', 'Purchase Order'].includes(type)) {
-                  navigateTo('orderList', { type: type as any });
+                  navigateTo('payment', { type: type as any });
               } else if (type === 'Settings' || type === 'settings') {
                   navigateTo('settings');
               } else if (['Journal', 'journal', 'journalList'].includes(type)) {
