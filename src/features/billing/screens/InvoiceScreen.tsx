@@ -1099,15 +1099,7 @@ export const InvoiceScreen: React.FC<InvoiceScreenProps> = ({
                 // Fallback to clipboard if no mobile
                 navigator.clipboard.writeText(message).then(() => {
                     alert('Mobile number missing. Message copied to clipboard!');
-                    if (onNavigate) {
-                        if (transactionType.includes('Order')) {
-                            onNavigate('orderList', transactionType);
-                        } else {
-                            onNavigate('businessReport', transactionType);
-                        }
-                    } else {
-                        onBack();
-                    }
+                    onBack();
                 });
             }
             
@@ -1123,15 +1115,7 @@ export const InvoiceScreen: React.FC<InvoiceScreenProps> = ({
             } else {
                 alert(language === 'hi' ? 'सफलतापूर्वक सेव किया गया!' : 'Saved Successfully!');
             }
-            if (onNavigate) {
-                if (transactionType.includes('Order')) {
-                    onNavigate('orderList', transactionType);
-                } else {
-                    onNavigate('businessReport', transactionType);
-                }
-            } else {
-                onBack();
-            }
+            onBack();
         }
 
     } catch (error) {
@@ -2054,10 +2038,7 @@ export const InvoiceScreen: React.FC<InvoiceScreenProps> = ({
                         onClick={() => {
                             setTimeout(() => {
                                 setShareDetails(null);
-                                if (onNavigate) {
-                                    if (transactionType.includes('Order')) onNavigate('orderList', transactionType);
-                                    else onNavigate('businessReport', transactionType);
-                                } else onBack();
+                                onBack();
                             }, 500);
                         }}
                         className="flex-1 py-3 rounded-xl font-bold bg-[#25D366] text-white flex justify-center items-center gap-2 shadow-lg hover:bg-[#20bd5a]"

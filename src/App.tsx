@@ -608,11 +608,11 @@ export const AppContent = () => {
       case 'dashboard':
         return <DashboardScreen 
           onNavigate={(type, party, prefilledItems) => {
-              // Direct Entry Logic: Go straight to Invoice/Payment Entry Screen
+              // Direct Entry Logic: Always open a BLANK NEW Invoice/Payment Entry Screen from Dashboard
               if (['Sale', 'Purchase', 'Sale Return', 'Purchase Return', 'Sale Order', 'Purchase Order'].includes(type)) {
-                  navigateTo('invoice', { type: type as any, party, items: prefilledItems });
+                  navigateTo('invoice', { type: type as any, party: party || undefined, items: prefilledItems || undefined, invoiceId: undefined });
               } else if (['Payment', 'Receipt'].includes(type)) {
-                  navigateTo('payment', { type: type as any });
+                  navigateTo('payment', { type: type as any, payment: undefined, party: party || undefined, amount: undefined, savedInvoiceId: undefined });
               } else if (type === 'Settings' || type === 'settings') {
                   navigateTo('settings');
               } else if (['Journal', 'journal', 'journalList'].includes(type)) {
@@ -622,7 +622,7 @@ export const AppContent = () => {
               } else if (['Attendance', 'attendance'].includes(type)) {
                   navigateTo('attendance');
               } else {
-                  navigateTo('invoice', { type: type as any });
+                  navigateTo('invoice', { type: type as any, invoiceId: undefined });
               }
           }}
           onSwitchTab={(t) => { setActiveTab(t); }}
